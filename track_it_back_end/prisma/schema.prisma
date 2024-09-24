@@ -1,0 +1,139 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  email    String @unique
+  username String
+  password String
+
+  tasks         Task[]
+  projects      Project[]
+  notifications Notification[]
+  comments      Comment[]
+
+  @@map("user")
+}
+
+model Project {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  name String
+
+  user      User    @relation(fields: [createdBy], references: [id])
+  createdBy String  @map("created_by")
+  boards    Board[]
+
+  @@map("project")
+}
+
+model Board {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  name String
+
+  project   Project  @relation(fields: [projectId], references: [id])
+  projectId String   @map("project_id")
+  columns   Column[]
+
+  @@map("board")
+}
+
+model Column {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  name     String
+  position Int
+  board    Board  @relation(fields: [boardId], references: [id])
+  boardId  String @map("board_id")
+  tasks    Task[]
+
+  @@map("column")
+}
+
+model Task {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  title       String
+  description String
+  status      String        @db.VarChar(50)
+  priority    Priotity?
+  user        User          @relation(fields: [createdBy], references: [id])
+  createdBy   String        @map("created_by")
+  column      Column        @relation(fields: [ColumnId], references: [id])
+  ColumnId    String        @map("column_id")
+  labels      LabelOnTask[]
+  comments    Comment[]
+
+  @@map("task")
+}
+
+model Label {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  name  String
+  color String        @db.VarChar(7)
+  tasks LabelOnTask[]
+
+  @@map("label")
+}
+
+model LabelOnTask {
+  label   Label  @relation(fields: [labelId], references: [id])
+  labelId String @map("label_id")
+  task    Task   @relation(fields: [taskId], references: [id])
+  taskId  String @map("task_id")
+
+  @@id([labelId, taskId])
+  @@map("label_on_task")
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now()) @map("created_at")
+
+  message String
+  isRead  Boolean @default(false) @map("is_read")
+  user    User    @relation(fields: [userId], references: [id])
+  userId  String  @map("user_id")
+
+  @@map("notification")
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now()) @map("created_at")
+
+  content String
+  user    User   @relation(fields: [userId], references: [id])
+  userId  String @map("user_id")
+  task    Task   @relation(fields: [taskId], references: [id])
+  taskId  String @map("task_id")
+
+  @@map("comment")
+}
+
+enum Priotity {
+  low
+  medium
+  high
+}

@@ -1,0 +1,79 @@
+.taskContainer {
+	display: flex;
+	justify-content: center;
+	gap: 3.5rem;
+	margin-top: 10px;
+	:nth-child(1) {
+		h1 {
+			background-color: #f87171;
+		}
+	}
+	:nth-child(2) {
+		h1 {
+			background-color: rgb(250 204 21 / 0.95);
+		}
+	}
+	:nth-child(3) {
+		h1 {
+			background-color: #4ade80;
+		}
+	}
+	:nth-child(4) {
+		h1 {
+			background-color: #60a5fa;
+		}
+	}
+}
+
+.tasklist {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+	gap: 1em;
+	width: 350px;
+	height: fit-content;
+	padding: 10px 10px 12px 10px;
+	background-color: #141414;
+	border: 1px solid rgba(255, 255, 255, 0.2);
+	border-radius: 7px;
+}
+
+.task {
+	width: 100%;
+	padding: 0.4em 0.5em 0.8em 0.5em;
+	height: fit-content;
+	background-color: #2c2c2c;
+	border-radius: 4px;
+}
+
+.tasklistHeader {
+	padding: 2px 4px;
+	border-radius: 5px;
+	font-size: 18px;
+	font-weight: 600;
+	user-select: none;
+	align-self: flex-start;
+	text-transform: capitalize;
+}
+
+.taskSettings {
+	cursor: pointer;
+	filter: brightness(0.7);
+	transition: all 0.1s;
+	&:hover {
+		filter: brightness(1);
+	}
+}
+
+.taskDescription {
+	font-size: 14px;
+}
+
+.addTask {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	user-select: none;
+	cursor: pointer;
+}
