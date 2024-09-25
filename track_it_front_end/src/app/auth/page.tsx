@@ -1,8 +1,8 @@
-import RegisterPage from './register';
-import LoginPage from './login';
-
-const isRegistered = false;
+import { redirect } from 'next/navigation';
 
 export default function Auth() {
-	return isRegistered ? <LoginPage /> : <RegisterPage />;
+	const isRegistered = false;
+	return (
+		<>{isRegistered ? redirect('/auth/login') : redirect('/auth/register')}</>
+	);
 }

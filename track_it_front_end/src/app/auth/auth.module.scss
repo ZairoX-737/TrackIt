@@ -5,20 +5,38 @@
 	align-items: center;
 	background-color: #292929;
 	width: 400px;
-	height: 500px;
+	height: fit-content;
 	border-radius: 10px;
 	gap: 1.5em;
-	padding: 2em 2em;
+	padding: 1em 2em;
 	border: 1px solid rgba(255, 255, 255, 0.3);
-	& div {
+	div {
 		display: flex;
 		flex-direction: column;
-		background-color: #222222;
+		background-color: #202020;
 		border: 1px solid rgba(255, 255, 255, 0.2);
 		padding: 8px 10px;
 		gap: 0.5em;
 		border-radius: 4px;
-		width: 85%;
-		height: 18%;
+		width: 100%;
+		height: 5rem;
+		span {
+			font-size: 16px;
+			font-weight: 600;
+		}
 	}
+}
+
+.formHeader {
+	font-size: 24px;
+	font-weight: 800;
+}
+
+.submit {
+	background-color: rgb(227, 108, 23);
+	width: 60%;
+	height: 3rem;
+	font-size: 24px;
+	font-weight: 600;
+	border-radius: 4px;
 }
