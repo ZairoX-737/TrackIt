@@ -26,7 +26,7 @@ model Project {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
-  name      String
+  name      String   @unique
   createdBy String   @map("created_by")
   boards    Board[]
   user      User     @relation(fields: [createdBy], references: [id])
@@ -40,7 +40,7 @@ model Board {
   updatedAt DateTime @updatedAt @map("updated_at")
   name      String
   projectId String   @map("project_id")
-  project   Project  @relation(fields: [projectId], references: [id])
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
   columns   Column[]
 
   @@map("board")
@@ -53,7 +53,7 @@ model Column {
   name      String
   position  Int
   boardId   String   @map("board_id")
-  board     Board    @relation(fields: [boardId], references: [id])
+  board     Board    @relation(fields: [boardId], references: [id], onDelete: Cascade)
   tasks     Task[]
 
   @@map("column")
@@ -64,14 +64,14 @@ model Task {
   createdAt   DateTime      @default(now()) @map("created_at")
   updatedAt   DateTime      @updatedAt @map("updated_at")
   title       String
-  description String
-  status      String        @db.VarChar(50)
+  description String?
+  status      String?       @db.VarChar(50)
   createdBy   String        @map("created_by")
   columnId    String        @map("column_id")
   priority    Priority?
   comments    Comment[]
   labels      LabelOnTask[]
-  column      Column        @relation(fields: [columnId], references: [id])
+  column      Column        @relation(fields: [columnId], references: [id], onDelete: Cascade)
   user        User          @relation(fields: [createdBy], references: [id])
 
   @@map("task")
@@ -115,7 +115,7 @@ model Comment {
   content   String
   userId    String   @map("user_id")
   taskId    String   @map("task_id")
-  task      Task     @relation(fields: [taskId], references: [id])
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
   user      User     @relation(fields: [userId], references: [id])
 
   @@map("comment")

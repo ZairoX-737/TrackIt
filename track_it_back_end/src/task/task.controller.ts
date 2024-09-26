@@ -15,7 +15,7 @@ import { CurrentUser } from 'src/decorators/user.decorator';
 import { Auth } from 'src/decorators/auth.decorator';
 import { TaskDto } from './dto/task.dto';
 
-@Controller('tasks')
+@Controller('user/task')
 export class TaskController {
 	constructor(private readonly taskService: TaskService) {}
 
@@ -33,32 +33,32 @@ export class TaskController {
 
 	@UsePipes(new ValidationPipe())
 	@HttpCode(200)
-	@Post()
+	@Post(':columnId')
 	@Auth()
 	async create(
 		@Body() dto: TaskDto,
 		@CurrentUser('id') createdBy: string,
-		columnId: string
+		@Param('columnId') columnId: string
 	) {
 		return this.taskService.create(dto, createdBy, columnId);
 	}
 
 	@UsePipes(new ValidationPipe())
 	@HttpCode(200)
-	@Put(':id')
+	@Put(':taskId')
 	@Auth()
 	async update(
 		@Body() dto: TaskDto,
 		@CurrentUser('id') createdBy: string,
-		@Param('id') id: string
+		@Param('taskId') taskId: string
 	) {
-		return this.taskService.update(dto, id, createdBy);
+		return this.taskService.update(dto, taskId, createdBy);
 	}
 
 	@HttpCode(200)
-	@Delete(':id')
+	@Delete(':taskId')
 	@Auth()
-	async delete(@Param('id') id: string) {
-		return this.taskService.delete(id);
+	async delete(@Param('taskId') taskId: string) {
+		return this.taskService.delete(taskId);
 	}
 }

@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { TaskDto } from './dto/task.dto';
 
@@ -14,6 +14,15 @@ export class TaskService {
 		});
 	}
 
+	async getCompletedTasks(createdBy: string) {
+		return this.prisma.task.count({
+			where: {
+				createdBy,
+				status: 'done',
+			},
+		});
+	}
+
 	async create(dto: TaskDto, createdBy: string, columnId: string) {
 		return this.prisma.task.create({
 			data: {
@@ -25,7 +34,7 @@ export class TaskService {
 				},
 				column: {
 					connect: {
-						id: '1', //CHANGE
+						id: columnId,
 					},
 				},
 			},
@@ -46,15 +55,6 @@ export class TaskService {
 		return this.prisma.task.delete({
 			where: {
 				id: taskId,
-			},
-		});
-	}
-
-	async getCompletedTasks(createdBy: string) {
-		return this.prisma.task.count({
-			where: {
-				createdBy,
-				status: 'done',
 			},
 		});
 	}
