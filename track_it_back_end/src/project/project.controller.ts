@@ -25,6 +25,11 @@ export class ProjectController {
 		return this.projectService.getAll(createdBy);
 	}
 
+	@Get('allUserOnProject')
+	async getAllUserOnProject() {
+		return this.projectService.getAllUserOnProject();
+	}
+
 	@Get('allProjectsDetailed')
 	@Auth()
 	async getAllDetailed(@CurrentUser('id') createdBy: string) {
@@ -37,6 +42,28 @@ export class ProjectController {
 	@Auth()
 	async create(@Body() dto: ProjectDto, @CurrentUser('id') createdBy: string) {
 		return this.projectService.create(dto, createdBy);
+	}
+
+	@UsePipes(new ValidationPipe())
+	@HttpCode(200)
+	@Post('connect/:projectId')
+	@Auth()
+	async connect(
+		@CurrentUser('id') userId: string,
+		@Param('projectId') projectId: string
+	) {
+		return this.projectService.connect(userId, projectId);
+	}
+
+	@UsePipes(new ValidationPipe())
+	@HttpCode(200)
+	@Post('disconnect/:projectId')
+	@Auth()
+	async disconnect(
+		@CurrentUser('id') userId: string,
+		@Param('projectId') projectId: string
+	) {
+		return this.projectService.disconnect(userId, projectId);
 	}
 
 	@UsePipes(new ValidationPipe())
@@ -54,7 +81,10 @@ export class ProjectController {
 	@HttpCode(200)
 	@Delete(':id')
 	@Auth()
-	async delete(@Param('id') projectId: string) {
-		return this.projectService.delete(projectId);
+	async delete(
+		@Param('id') projectId: string,
+		@CurrentUser('id') userId: string
+	) {
+		return this.projectService.delete(projectId, userId);
 	}
 }

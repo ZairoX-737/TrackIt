@@ -1,5 +1,4 @@
 import {
-	BadRequestException,
 	Body,
 	Controller,
 	Delete,
@@ -8,7 +7,6 @@ import {
 	Param,
 	Post,
 	Put,
-	Query,
 	UsePipes,
 	ValidationPipe,
 } from '@nestjs/common';
@@ -17,36 +15,49 @@ import { Auth } from 'src/decorators/auth.decorator';
 import { BoardDto } from './dto/board.dto';
 import { CurrentUser } from 'src/decorators/user.decorator';
 
-@Controller('user/board')
+@Controller('user/project/:PROJECT_ID/board')
 export class BoardController {
 	constructor(private readonly boardService: BoardService) {}
 
 	@Get('allBoards')
 	@Auth()
-	async getAll(@CurrentUser('id') userId: string) {
-		return this.boardService.getAll(userId);
+	async getAll(@Param('PROJECT_ID') projectId: string) {
+		return this.boardService.getAll(projectId);
 	}
 
 	@UsePipes(new ValidationPipe())
 	@HttpCode(200)
-	@Post(':projectId')
+	@Post()
 	@Auth()
-	async create(@Body() dto: BoardDto, @Param('projectId') projectId: string) {
-		return this.boardService.create(dto, projectId);
+	async create(
+		@Body() dto: BoardDto,
+		@Param('PROJECT_ID') projectId: string,
+		@CurrentUser('id') userId: string
+	) {
+		return this.boardService.create(dto, projectId, userId);
 	}
 
 	@UsePipes(new ValidationPipe())
 	@HttpCode(200)
-	@Put(':boardId')
+	@Put(':BOARD_ID')
 	@Auth()
-	async update(@Body() dto: BoardDto, @Param('boardId') boardId: string) {
-		return this.boardService.update(dto, boardId);
+	async update(
+		@Body() dto: BoardDto,
+		@Param('PROJECT_ID') projectId: string,
+		@Param('BOARD_ID') boardId: string,
+		@CurrentUser('id') userId: string
+	) {
+		return this.boardService.update(dto, boardId, userId, projectId);
 	}
 
 	@HttpCode(200)
-	@Delete(':boardId')
+	@Delete(':BOARD_ID')
 	@Auth()
-	async delete(@Query('boardId') boardId: string) {
-		return this.boardService.delete(boardId);
+	async delete(
+		@Param('PROJECT_ID') projectId: string,
+		@Param('BOARD_ID') boardId: string,
+		@CurrentUser('id') userId: string
+	) {
+		return this.boardService.delete(boardId, userId, projectId);
 	}
 }

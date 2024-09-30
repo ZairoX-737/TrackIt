@@ -9,6 +9,7 @@ import { ProjectModule } from './project/project.module';
 import { NotificationModule } from './notification/notification.module';
 import { CommentModule } from './comment/comment.module';
 import { LabelModule } from './label/label.module';
+import { UserOnProjectModule } from './user-on-project/user-on-project.module';
 
 @Module({
 	imports: [
@@ -24,6 +25,7 @@ import { LabelModule } from './label/label.module';
 		NotificationModule,
 		CommentModule,
 		LabelModule,
+		UserOnProjectModule,
 	],
 })
 export class AppModule {}

@@ -8,30 +8,43 @@ datasource db {
 }
 
 model User {
-  id            String         @id @default(cuid())
-  createdAt     DateTime       @default(now()) @map("created_at")
-  updatedAt     DateTime       @updatedAt @map("updated_at")
-  email         String         @unique
+  id            String          @id @default(cuid())
+  createdAt     DateTime        @default(now()) @map("created_at")
+  updatedAt     DateTime        @updatedAt @map("updated_at")
+  email         String          @unique
   username      String
   password      String
   comments      Comment[]
   notifications Notification[]
-  projects      Project[]
+  projects      UserOnProject[]
   tasks         Task[]
+  Project       Project[]
 
   @@map("user")
 }
 
 model Project {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-  name      String   @unique
-  createdBy String   @map("created_by")
+  id        String          @id @default(cuid())
+  createdAt DateTime        @default(now()) @map("created_at")
+  updatedAt DateTime        @updatedAt @map("updated_at")
+  name      String
+  createdBy String          @map("created_by")
+  user      User            @relation(fields: [createdBy], references: [id])
   boards    Board[]
-  user      User     @relation(fields: [createdBy], references: [id])
+  users     UserOnProject[]
 
   @@map("project")
+}
+
+model UserOnProject {
+  userId    String  @map("user_id")
+  projectId String  @map("project_id")
+  user      User    @relation(fields: [userId], references: [id])
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  role      Role?
+
+  @@id([userId, projectId])
+  @@map("user_on_project")
 }
 
 model Board {
@@ -125,4 +138,9 @@ enum Priority {
   low
   medium
   high
+}
+
+enum Role {
+  admin
+  editor
 }
