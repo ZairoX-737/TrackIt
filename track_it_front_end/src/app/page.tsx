@@ -27,8 +27,8 @@ export default function MainPage() {
 					</div>
 				</nav>
 			</header>
-			<section className='w-screen h-[93vh] flex justify-between items-center'>
-				<div className='flex flex-col items-flex-start gap-3 w-fit  m-auto mt-12'>
+			<section className='w-screen h-[93vh] flex items-center'>
+				<div className='flex flex-col gap-3 w-fit ml-[10%] mt-12 self-start'>
 					<h1 className={styles.header1}>
 						Organize. Track.
 						<br />
@@ -46,8 +46,6 @@ export default function MainPage() {
 						</button>
 					</Link>
 				</div>
-
-				<div className='opacity-0 cursor-default w-[650px] h-[400px]'></div>
 			</section>
 		</>
 	);
