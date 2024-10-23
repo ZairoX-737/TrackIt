@@ -8,6 +8,9 @@ import { useState } from 'react';
 const RegisterPage = () => {
 	const [showPassword, setShowPassword] = useState(false);
 	const [showPassword2, setShowPassword2] = useState(false);
+	const [isFocused, setIsFocused] = useState(false);
+	const [isFocused2, setIsFocused2] = useState(false);
+
 	function handleRegister() {
 		console.log('hello');
 	}
@@ -18,6 +21,22 @@ const RegisterPage = () => {
 	function showPswd2() {
 		setShowPassword2(!showPassword2);
 	}
+
+	const handleFocus = (e: any) => {
+		if (e.target.id == 'pswd1') {
+			setIsFocused(true);
+		} else {
+			setIsFocused2(true);
+		}
+	};
+
+	const handleBlur = (e: any) => {
+		if (e.target.id == 'pswd1') {
+			setIsFocused(false);
+		} else {
+			setIsFocused2(false);
+		}
+	};
 
 	return (
 		<div className='flex flex-col items-center gap-2'>
@@ -35,10 +54,20 @@ const RegisterPage = () => {
 
 				<div>
 					<label>Password</label>
-					<section className={styles.showPassword}>
+					<section
+						className={styles.showPassword}
+						style={
+							isFocused
+								? { borderColor: '#ff9800' }
+								: { borderColor: '#00000099' }
+						}
+					>
 						<input
 							className={styles.passwordInput}
 							type={showPassword ? 'text' : 'password'}
+							id='pswd1'
+							onFocus={e => handleFocus(e)}
+							onBlur={e => handleBlur(e)}
 						></input>
 						<button type='button' onClick={showPswd} className='w-6 h-5'>
 							{showPassword ? (
@@ -52,16 +81,25 @@ const RegisterPage = () => {
 
 				<div>
 					<label>Repeat password</label>
-					<section className={styles.showPassword}>
+					<section
+						className={styles.showPassword}
+						style={
+							isFocused2
+								? { borderColor: '#ff9800' }
+								: { borderColor: '#00000099' }
+						}
+					>
 						<input
 							type={showPassword2 ? 'text' : 'password'}
 							className={styles.passwordInput}
+							onFocus={e => handleFocus(e)}
+							onBlur={e => handleBlur(e)}
 						></input>
 						<button type='button' onClick={showPswd2} className='w-6 h-5'>
 							{showPassword2 ? (
-								<div className=' bg-[#ff9800] w-full h-full rounded-md transition-all' />
+								<div className=' bg-[#ff9800] w-full h-full rounded-md ' />
 							) : (
-								<div className=' bg-[#00BCD4] w-full h-full rounded-md transition-all' />
+								<div className=' bg-[#00BCD4] w-full h-full rounded-md' />
 							)}
 						</button>
 					</section>
@@ -73,7 +111,7 @@ const RegisterPage = () => {
 					</button>
 					<Link href={'login'}>
 						<span className=' opacity-50 font-light'>
-							Already have account?
+							Already have an account?
 						</span>
 					</Link>
 				</div>
