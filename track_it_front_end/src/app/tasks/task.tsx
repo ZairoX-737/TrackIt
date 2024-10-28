@@ -1,5 +1,4 @@
 'use client';
-import { nanoid } from 'nanoid';
 import styles from './Tasks.module.scss';
 import { BsThreeDotsVertical } from 'react-icons/bs';
 
@@ -13,7 +12,7 @@ interface IProps {
 	textColor: any;
 }
 
-const Task = ({ task }: IProps, { textColor }: IProps) => {
+const Task = ({ task }: IProps) => {
 	function handleClick() {
 		console.log(task);
 	}

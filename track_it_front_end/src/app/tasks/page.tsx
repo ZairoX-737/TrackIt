@@ -1,6 +1,4 @@
 import styles from './Tasks.module.scss';
-import Task from './task';
-import { BsPlus } from 'react-icons/bs';
 import TasksList from './tasklist';
 import { LIST_TYPES, LIST_TYPES_COPY } from '../../config/config.js';
 import { nanoid } from 'nanoid';
@@ -32,21 +30,40 @@ const tasks = [
 	},
 ];
 
+const columns = [
+	{
+		id: 1,
+		name: 'backlog',
+	},
+	{
+		id: 2,
+		name: 'doing',
+	},
+	{
+		id: 3,
+		name: 'review',
+	},
+	{
+		id: 4,
+		name: 'done',
+	},
+];
+
 const TasksContainer = () => {
 	return (
 		<div className={styles.taskContainer}>
-			{Object.values(LIST_TYPES).map(type => {
+			{columns.map(column => {
 				const listTasks: {
 					id: number;
 					status: string;
 					header: string;
 					description: string;
-				}[] = tasks.filter(task => task.status === type);
+				}[] = tasks.filter(task => task.status === column.name);
 				return (
 					<TasksList
 						key={nanoid()}
 						tasks={listTasks}
-						TaskListHeader={LIST_TYPES_COPY[type]}
+						TaskListHeader={column.name}
 					/>
 				);
 			})}
