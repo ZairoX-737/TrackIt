@@ -2,7 +2,7 @@
 	display: flex;
 	justify-content: center;
 	gap: 3.5rem;
-	margin-top: 10px;
+	margin: 15px 20px;
 }
 
 .tasklist {
@@ -10,18 +10,19 @@
 	justify-content: center;
 	align-items: center;
 	flex-direction: column;
-	gap: 1em;
+	gap: 10px;
 	width: 350px;
 	height: fit-content;
 	padding: 10px 10px 12px 10px;
 	background-color: #2c2c2e;
-	border: 1px solid rgba(255, 255, 255, 0.5);
-	border-radius: 7px;
+	border: 1px solid rgba(255, 255, 255, 0.2);
+	border-radius: 10px;
+	box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
 }
 
 .task {
 	width: 100%;
-	padding: 0.4em 0.5em 0.8em 0.5em;
+	padding: 0.4em 0.5em 0.4em 0.5em;
 	height: fit-content;
 	background-color: #3c3c3e;
 	box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
@@ -29,8 +30,6 @@
 }
 
 .tasklistHeader {
-	padding: 2px 4px;
-	border-radius: 5px;
 	font-size: 20px;
 	font-weight: 700;
 	user-select: none;
@@ -49,6 +48,7 @@
 
 .taskDescription {
 	font-size: 14px;
+	transition: all 2s ease-in-out;
 }
 
 .addTask {
@@ -57,4 +57,35 @@
 	align-items: center;
 	user-select: none;
 	cursor: pointer;
+	background-color: #3c3c3e;
+	padding: 3px 10px;
+	border-radius: 5px;
+	box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+}
+
+.header {
+	background-color: #252528;
+	width: 100%;
+	height: 55px;
+	padding: 0px 20px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	position: relative;
+}
+
+.projectInfo {
+	display: flex;
+	align-items: center;
+	gap: 1em;
+	flex: 1;
+	& button {
+		background-color: #5b5b5d;
+		font-size: 24px;
+		font-weight: 300;
+		box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+		border-radius: 5px;
+		padding-left: 5px;
+		padding-right: 5px;
+	}
 }

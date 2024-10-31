@@ -47,6 +47,10 @@ const columns = [
 		id: 4,
 		name: 'done',
 	},
+	{
+		id: 4,
+		name: 'rework',
+	},
 ];
 
 const TasksContainer = () => {

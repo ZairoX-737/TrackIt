@@ -1,4 +1,5 @@
 'use client';
+import { useState } from 'react';
 import styles from './Tasks.module.scss';
 import { BsThreeDotsVertical } from 'react-icons/bs';
 
@@ -13,40 +14,30 @@ interface IProps {
 }
 
 const Task = ({ task }: IProps) => {
+	const [showDescr, setShowDescr] = useState(false);
 	function handleClick() {
 		console.log(task);
 	}
-	let headerStyle;
-	switch (task.status) {
-		case 'backlog':
-			headerStyle = '#f87171';
-			break;
-		case 'doing':
-			headerStyle = '#f8cf2a';
-			break;
-		case 'review':
-			headerStyle = '#4ade80';
-			break;
-		case 'done':
-			headerStyle = '#60a5fa';
-			break;
-	}
-
+	function handleTaskDescription() {}
 	return (
-		<div className={styles.task}>
-			<div className='flex justify-between items-center mb-1'>
-				<div className=' font-semibold' style={{ color: headerStyle }}>
-					{task.header}
-				</div>
+		<div
+			className={styles.task}
+			onMouseEnter={() => setShowDescr(true)}
+			onMouseLeave={() => setShowDescr(false)}
+		>
+			<div className='flex justify-start items-center mb-[7px] gap-2'>
+				<div className=' rounded-[10px] w-[30px] h-[10px] bg-red-500' />
+				<div className=' rounded-[10px] w-[30px] h-[10px] bg-red-500' />
+				<div className=' rounded-[10px] w-[30px] h-[10px] bg-red-500' />
+			</div>
+			<div className='flex justify-between items-center'>
+				<div className=' font-medium text-[16px]'>{task.header}</div>
 				<div className={styles.taskSettings} onClick={handleClick}>
 					<BsThreeDotsVertical size='1.3em' className={styles.taskSettings} />
 				</div>
 			</div>
 			<div className={`${styles.taskDescription} font-rubik`}>
-				Lorem ipsum dolor sit amet consectetur adipisicing elit. Natus corrupti
-				fugiat dolores cumque voluptates rem earum adipisci veritatis officia
-				dolor, asperiores reprehenderit inventore minima nesciunt, id
-				temporibus! Vel, itaque adipisci?
+				{showDescr ? <span className=''>{task.description}</span> : ''}
 			</div>
 		</div>
 	);

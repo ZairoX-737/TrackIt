@@ -18,7 +18,7 @@ const TasksList = (props: IProps) => {
 		return (
 			<div className={styles.tasklist}>
 				<h1 className={`${styles.tasklistHeader}`}>{props.TaskListHeader}</h1>
-				<hr className=' bg-white w-full ' />
+				<hr className=' bg-[#969697] w-full' />
 				{props.tasks.map((task: any) => {
 					return <Task key={nanoid()} textColor={styles} task={task} />;
 				})}
@@ -34,9 +34,10 @@ const TasksList = (props: IProps) => {
 				<h1 className={`${styles.tasklistHeader}`}>{props.TaskListHeader}</h1>
 				<hr className=' bg-white w-full ' />
 				<button className={`${styles.addTask} font-rubik`}>
+					Add Task
 					<BsPlus size='1.5em' />
-					Add Card
 				</button>
+				<span className=' opacity-55'>Empty column...</span>
 			</div>
 		);
 	}
