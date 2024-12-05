@@ -1,7 +1,8 @@
 'use client';
 import { useState } from 'react';
 import styles from './Tasks.module.scss';
-import { BsThreeDotsVertical } from 'react-icons/bs';
+import { BsThreeDots } from 'react-icons/bs';
+import { nanoid } from 'nanoid';
 
 interface IProps {
 	task: {
@@ -9,37 +10,42 @@ interface IProps {
 		status: string;
 		header: string;
 		description: string;
+		labels: string[];
 	};
-	textColor: any;
 }
 
 const Task = ({ task }: IProps) => {
 	const [showDescr, setShowDescr] = useState(false);
 	function handleClick() {
-		console.log(task);
+		console.log(task.id);
 	}
-	function handleTaskDescription() {}
 	return (
-		<div
-			className={styles.task}
-			onMouseEnter={() => setShowDescr(true)}
-			onMouseLeave={() => setShowDescr(false)}
-		>
-			<div className='flex justify-start items-center mb-[7px] gap-2'>
-				<div className=' rounded-[10px] w-[30px] h-[10px] bg-red-500' />
-				<div className=' rounded-[10px] w-[30px] h-[10px] bg-red-500' />
-				<div className=' rounded-[10px] w-[30px] h-[10px] bg-red-500' />
-			</div>
+		<li key={task.id} className={styles.task}>
 			<div className='flex justify-between items-center'>
-				<div className=' font-medium text-[16px]'>{task.header}</div>
-				<div className={styles.taskSettings} onClick={handleClick}>
-					<BsThreeDotsVertical size='1.3em' className={styles.taskSettings} />
+				<div className='flex justify-start items-center mb-[7px] gap-2'>
+					{task.labels.map((label: any) => {
+						return (
+							<div
+								key={nanoid()}
+								className={styles.label}
+								style={{
+									backgroundColor: label,
+								}}
+							></div>
+						);
+					})}
+				</div>
+				<div>
+					<div className={styles.taskSettings} onClick={handleClick}>
+						<BsThreeDots size='1.4em' className={styles.taskSettings} />
+					</div>
 				</div>
 			</div>
+			<div className=' font-medium text-[16px] select-none'>{task.header}</div>
 			<div className={`${styles.taskDescription} font-rubik`}>
 				{showDescr ? <span className=''>{task.description}</span> : ''}
 			</div>
-		</div>
+		</li>
 	);
 };
 export default Task;
