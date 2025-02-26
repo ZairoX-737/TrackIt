@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import './globals.scss';
 import { Rubik } from 'next/font/google';
+import { Suspense } from 'react';
+import Loading from './loading';
 
 const rubik = Rubik({
 	subsets: ['latin'],
@@ -20,7 +22,9 @@ export default function RootLayout({
 }>) {
 	return (
 		<html lang='en'>
-			<body className={`${rubik.className} antialiased`}>{children}</body>
+			<Suspense fallback={<Loading />}>
+				<body className={`${rubik.className} antialiased`}>{children}</body>
+			</Suspense>
 		</html>
 	);
 }

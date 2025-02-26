@@ -20,6 +20,7 @@
 	flex-direction: column;
 	gap: 10px;
 	min-width: 300px;
+	max-width: 500px;
 	height: fit-content;
 	max-height: 89vh;
 	padding: 10px 10px 12px 10px;
@@ -109,14 +110,48 @@
 	position: relative;
 }
 
-.ProjectHeader {
+.headerList {
+	position: absolute;
+	top: 2.5rem;
+	left: 0;
+	background-color: #51518a;
+	border-radius: 0.5rem;
+	border: 1px solid rgba(255, 255, 255, 0.2);
+	width: 10rem;
+	z-index: 10;
+	--tw-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1),
+		0 4px 6px -4px rgb(0 0 0 / 0.1);
+	--tw-shadow-colored: 0 10px 15px -3px var(--tw-shadow-color),
+		0 4px 6px -4px var(--tw-shadow-color);
+	box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000),
+		var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+}
+
+.headerListItem {
+	padding: 0.35rem 0.5rem;
 	cursor: pointer;
-	border-radius: 5px;
-	padding: 0px 3px;
-	font-size: 30px;
-	font-weight: 300;
+	transition-property: color, background-color, border-color,
+		text-decoration-color, fill, stroke;
+	transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+	transition-duration: 200ms;
+	&:first-child {
+		border-top-left-radius: 0.5rem;
+		border-top-right-radius: 0.5rem;
+		&:hover {
+			background-color: #41416d;
+		}
+	}
+	&:last-child {
+		border-bottom-right-radius: 0.5rem;
+		border-bottom-left-radius: 0.5rem;
+		padding: 0.1rem 0.5rem;
+		justify-items: center;
+		&:hover {
+			background-color: #41416d;
+		}
+	}
 	&:hover {
-		background-color: #51518a;
+		background-color: #41416d;
 	}
 }
 
@@ -125,14 +160,21 @@
 	align-items: center;
 	gap: 1em;
 	flex: 1;
-	& button {
-		background-color: #5b5b5d;
-		font-size: 24px;
-		font-weight: 300;
-		box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-		border-radius: 5px;
-		padding-left: 5px;
-		padding-right: 5px;
+}
+
+.projectInfoButtons {
+	display: flex;
+	align-items: center;
+	gap: 1;
+	background-color: #5b5b5d;
+	font-size: 24px;
+	box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+	font-weight: 300;
+	padding-left: 5px;
+	padding-right: 5px;
+	border-radius: 0.25rem;
+	&:hover {
+		background-color: #51518a;
 	}
 }
 
@@ -140,4 +182,57 @@
 	width: 35px;
 	height: 10px;
 	border-radius: 10px;
+}
+
+.modalOverlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(0, 0, 0, 0.5);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.modalContent {
+	background: white;
+	padding: 20px;
+	border-radius: 8px;
+	width: 600px;
+	max-height: 80vh;
+	overflow-y: auto;
+}
+
+.modalColumns {
+	display: flex;
+	gap: 20px;
+}
+
+.projectColumn,
+.boardColumn {
+	flex: 1;
+}
+
+.projectColumn ul,
+.boardColumn ul {
+	list-style: none;
+	padding: 0;
+}
+
+.projectColumn li,
+.boardColumn li {
+	padding: 10px;
+	cursor: pointer;
+}
+
+.projectColumn li:hover,
+.boardColumn li:hover {
+	background: #f0f0f0;
+}
+
+.selected {
+	background: #51518a;
+	color: white;
 }

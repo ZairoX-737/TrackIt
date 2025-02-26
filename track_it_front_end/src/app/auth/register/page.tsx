@@ -4,16 +4,19 @@ import styles from '../auth.module.scss';
 import WLogo from '../../../public/logo-white.png';
 import Link from 'next/link';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 const RegisterPage = () => {
+	const router = useRouter();
 	const [showPassword, setShowPassword] = useState(false);
 	const [showPassword2, setShowPassword2] = useState(false);
 	const [isFocused, setIsFocused] = useState(false);
 	const [isFocused2, setIsFocused2] = useState(false);
 
-	function handleRegister() {
-		console.log('hello');
-	}
+	const onSubmit = (e: any) => {
+		e.preventDefault();
+		router.replace('/tasks');
+	};
 
 	function showPswd() {
 		setShowPassword(!showPassword);
@@ -40,7 +43,7 @@ const RegisterPage = () => {
 
 	return (
 		<div className='flex flex-col items-center gap-2'>
-			<form className={styles.form} id='register'>
+			<form className={styles.form} id='register' onSubmit={onSubmit}>
 				<Image src={WLogo} alt='Logo' width={32} height={32} />
 				<div>
 					<label>Username</label>
@@ -106,7 +109,7 @@ const RegisterPage = () => {
 				</div>
 
 				<div className='flex justify-center items-center gap-1.5'>
-					<button className={styles.submit} onClick={handleRegister}>
+					<button className={styles.submit} type='submit'>
 						Sign Up
 					</button>
 					<Link href={'login'}>

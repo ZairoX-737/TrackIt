@@ -3,6 +3,8 @@ import Image from 'next/image';
 import styles from './mainpage.module.scss';
 import WLogo from '../public/logo-white.png';
 import Link from 'next/link';
+import LandingScreen from '../public/landing_screen.png';
+import LandingScreen2 from '../public/landing_screen2.png';
 
 export default function MainPage() {
 	return (
@@ -38,13 +40,19 @@ export default function MainPage() {
 						TrackIt helps you organize tasks, track progress, and achieve
 						<br /> your goals effortlessly, whether solo or with a team.
 					</h2>
-					<Link href='/auth/register'>
-						<button
-							className={`${styles.btn} ${styles.signIn} ${styles.btnLong}`}
-						>
-							Sign Up for free
-						</button>
-					</Link>
+					<button
+						className={`${styles.btn} ${styles.signIn} ${styles.btnLong}`}
+					>
+						<Link href='/auth/register'>Sign Up for free</Link>
+					</button>
+				</div>
+				<div className='self-start mt-10 ml-[15%] mr-7 w-[500px] h-[500px]'>
+					<Image
+						src={LandingScreen}
+						alt='landing screen'
+						width={1000}
+						height={1000}
+					/>
 				</div>
 			</section>
 		</>
