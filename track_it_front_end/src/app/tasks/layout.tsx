@@ -32,6 +32,19 @@ export default function TaskLayout({
 		Development: ['Bug Fixes', 'Feature Development'],
 		Design: ['UI Improvements', 'UX Research'],
 		Sales: ['Client Outreach', 'Lead Generation'],
+		test1: ['Client Outreach', 'Lead Generation'],
+		test2: ['Client Outreach', 'Lead Generation'],
+		test3: ['Client Outreach', 'Lead Generation'],
+		test4: ['Client Outreach', 'Lead Generation'],
+		test5: ['Client Outreach', 'Lead Generation'],
+		test6: ['Client Outreach', 'Lead Generation'],
+		test7: ['Client Outreach', 'Lead Generation'],
+		test8: ['Client Outreach', 'Lead Generation'],
+		test9: ['Client Outreach', 'Lead Generation'],
+		test10: ['Client Outreach', 'Lead Generation'],
+		test11: ['Client Outreach', 'Lead Generation'],
+		test12: ['Client Outreach', 'Lead Generation'],
+		test13: ['Client Outreach', 'Lead Generation'],
 	};
 
 	// Закрытие выпадающих списков при клике вне их
@@ -210,7 +223,7 @@ export default function TaskLayout({
 						<div className={styles.modalColumns}>
 							{/* Левая колонка: проекты */}
 							<div className={styles.projectColumn}>
-								<h3>Проекты</h3>
+								<h3 className=' select-none'>Проекты</h3>
 								<ul>
 									{Object.keys(projectsAndBoards).map(project => (
 										<li
@@ -223,13 +236,14 @@ export default function TaskLayout({
 											onClick={() => setSelectedProjectInModal(project)}
 										>
 											{project}
+											<hr />
 										</li>
 									))}
 								</ul>
 							</div>
 							{/* Правая колонка: доски */}
 							<div className={styles.boardColumn}>
-								<h3>Доски для {selectedProjectInModal}</h3>
+								<h3 className=' select-none'>Доски {selectedProjectInModal}</h3>
 								<ul>
 									{projectsAndBoards[selectedProjectInModal].map(board => (
 										<li
@@ -244,7 +258,6 @@ export default function TaskLayout({
 								</ul>
 							</div>
 						</div>
-						<button onClick={() => setModalVisible(false)}>Закрыть</button>
 					</div>
 				</div>
 			)}

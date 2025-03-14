@@ -197,17 +197,25 @@
 }
 
 .modalContent {
-	background: white;
+	background: #252528;
 	padding: 20px;
 	border-radius: 8px;
 	width: 600px;
 	max-height: 80vh;
 	overflow-y: auto;
+	&::-webkit-scrollbar {
+		width: 15px;
+		background-color: #2c2c2e;
+	}
+	&::-webkit-scrollbar-thumb {
+		background-color: #3c3c3e;
+	}
 }
 
 .modalColumns {
 	display: flex;
 	gap: 20px;
+	background-color: #252528;
 }
 
 .projectColumn,
@@ -229,7 +237,7 @@
 
 .projectColumn li:hover,
 .boardColumn li:hover {
-	background: #f0f0f0;
+	background: #3c3c3e;
 }
 
 .selected {

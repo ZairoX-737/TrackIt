@@ -40,11 +40,13 @@ export default function MainPage() {
 						TrackIt helps you organize tasks, track progress, and achieve
 						<br /> your goals effortlessly, whether solo or with a team.
 					</h2>
-					<button
-						className={`${styles.btn} ${styles.signIn} ${styles.btnLong}`}
-					>
-						<Link href='/auth/register'>Sign Up for free</Link>
-					</button>
+					<Link href='/auth/register'>
+						<button
+							className={`${styles.btn} ${styles.signIn} ${styles.btnLong}`}
+						>
+							Sign Up for free
+						</button>
+					</Link>
 				</div>
 				<div className='self-start mt-10 ml-[15%] mr-7 w-[500px] h-[500px]'>
 					<Image
