@@ -114,7 +114,7 @@
 	position: absolute;
 	top: 2.5rem;
 	left: 0;
-	background-color: #51518a;
+	background-color: #2c2c2e;
 	border-radius: 0.5rem;
 	border: 1px solid rgba(255, 255, 255, 0.2);
 	width: 10rem;
@@ -138,7 +138,7 @@
 		border-top-left-radius: 0.5rem;
 		border-top-right-radius: 0.5rem;
 		&:hover {
-			background-color: #41416d;
+			background-color: #ff9900b1;
 		}
 	}
 	&:last-child {
@@ -147,11 +147,11 @@
 		padding: 0.1rem 0.5rem;
 		justify-items: center;
 		&:hover {
-			background-color: #41416d;
+			background-color: #ff9900b1;
 		}
 	}
 	&:hover {
-		background-color: #41416d;
+		background-color: #ff9900b1;
 	}
 }
 
@@ -174,7 +174,7 @@
 	padding-right: 5px;
 	border-radius: 0.25rem;
 	&:hover {
-		background-color: #51518a;
+		background-color: #ff9900b1;
 	}
 }
 
@@ -241,6 +241,6 @@
 }
 
 .selected {
-	background: #51518a;
+	background: #ff9900b1;
 	color: white;
 }

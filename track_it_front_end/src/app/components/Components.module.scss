@@ -1,0 +1,13 @@
+.notification {
+	max-height: 18rem;
+	overflow-y: auto;
+	&::-webkit-scrollbar {
+		width: 15px;
+		background-color: #252528;
+		border-radius: 30px;
+	}
+	&::-webkit-scrollbar-thumb {
+		background-color: #ff9900d2;
+		border-radius: 30px;
+	}
+}
