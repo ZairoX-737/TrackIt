@@ -12,6 +12,7 @@ import Notif from '../../public/notification-white.png';
 import styles from './Tasks.module.scss';
 import NotificationsModal from '../components/NotifModal';
 import SettingsModal from '../components/SettingsModal';
+import ProjectBoardModal from '../components/ProjectBoardModal';
 
 export default function TaskLayout({
 	children,
@@ -20,12 +21,10 @@ export default function TaskLayout({
 	const [projectVisible, setProjectVisible] = useState(false);
 	const [boardVisible, setBoardVisible] = useState(false);
 	const [modalVisible, setModalVisible] = useState(false);
-	const [notificationsOpen, setNotificationsOpen] = useState(false);
+	const [notifOpen, setNotifOpen] = useState(false);
 	const [settingsOpen, setSettingsOpen] = useState(false);
-	const [selectedProject, setSelectedProject] = useState('Marketing'); //  Initial project
+	const [selectedProject, setSelectedProject] = useState('Marketing'); // Initial project
 	const [selectedBoard, setSelectedBoard] = useState('Sprint 1'); // Initial board
-	const [selectedProjectInModal, setSelectedProjectInModal] =
-		useState<string>(selectedProject);
 
 	const projectRef = useRef<HTMLDivElement>(null);
 	const boardRef = useRef<HTMLDivElement>(null);
@@ -72,7 +71,7 @@ export default function TaskLayout({
 				notificationsRef.current &&
 				!notificationsRef.current.contains(event.target as Node)
 			) {
-				setNotificationsOpen(false);
+				setNotifOpen(false);
 			}
 			if (
 				settingsRef.current &&
@@ -101,12 +100,11 @@ export default function TaskLayout({
 	const openModal = () => {
 		setProjectVisible(false);
 		setBoardVisible(false);
-		setSelectedProjectInModal(selectedProject);
 		setModalVisible(true);
 	};
 
 	// Select item from modal window
-	const selectItemInModal = (project: string, board: string) => {
+	const handleModalSelection = (project: string, board: string) => {
 		setSelectedProject(project);
 		setSelectedBoard(board);
 		setModalVisible(false);
@@ -115,11 +113,11 @@ export default function TaskLayout({
 	// Toggle notification and settings modals
 	const toggleNotifications = () => {
 		setSettingsOpen(false);
-		setNotificationsOpen(!notificationsOpen);
+		setNotifOpen(!notifOpen);
 	};
 
 	const toggleSettings = () => {
-		setNotificationsOpen(false);
+		setNotifOpen(false);
 		setSettingsOpen(!settingsOpen);
 	};
 
@@ -218,30 +216,50 @@ export default function TaskLayout({
 
 				<Image src={WLogo} alt='Logo' width={32} height={32} />
 
-				<div className='flex-1 flex justify-end items-center gap-3'>
+				<div className='flex-1 flex justify-end gap-3 items-center'>
 					{/* Notifications button and modal */}
-					<div className='relative' ref={notificationsRef}>
-						<button onClick={toggleNotifications}>
-							<Image src={Notif} alt='Notifications' width={32} height={32} />
+					<div className='relative top-1' ref={notificationsRef}>
+						<button onClick={toggleNotifications} className=' self-center '>
+							<Image
+								src={Notif}
+								alt='Notifications'
+								width={32}
+								height={32}
+								className=' select-none'
+							/>
 						</button>
 						<NotificationsModal
-							isOpen={notificationsOpen}
-							onClose={() => setNotificationsOpen(false)}
+							isOpen={notifOpen}
+							onClose={() => setNotifOpen(false)}
 						/>
 					</div>
 					<hr className='h-8 w-[1px] bg-white' />
 					<button>
-						<Image src={User} alt='User profile' width={32} height={32} />
+						<Image
+							src={User}
+							alt='User profile'
+							width={32}
+							height={32}
+							className=' select-none'
+						/>
 					</button>
 					<hr className='h-8 w-[1px] bg-white' />
 					{/* Settings button and modal */}
-					<div className='relative' ref={settingsRef}>
+					<div className='relative top-1' ref={settingsRef}>
 						<button onClick={toggleSettings}>
-							<Image src={Dots} alt='Project settings' width={32} height={32} />
+							<Image
+								src={Dots}
+								alt='Project settings'
+								width={32}
+								height={32}
+								className=' select-none'
+							/>
 						</button>
 						<SettingsModal
 							isOpen={settingsOpen}
 							onClose={() => setSettingsOpen(false)}
+							selectedProject={selectedProject}
+							projectsAndBoards={projectsAndBoards}
 						/>
 					</div>
 				</div>
@@ -249,57 +267,13 @@ export default function TaskLayout({
 			{children}
 
 			{/* Project/board selection modal */}
-			{modalVisible && (
-				<div
-					className={styles.modalOverlay}
-					onClick={() => setModalVisible(false)}
-				>
-					<div
-						className={styles.modalContent}
-						onClick={e => e.stopPropagation()}
-					>
-						<div className={styles.modalColumns}>
-							{/* Left column: projects */}
-							<div className={styles.projectColumn}>
-								<h3 className='select-none'>Projects</h3>
-								<ul>
-									{Object.keys(projectsAndBoards).map(project => (
-										<li
-											key={project}
-											className={
-												selectedProjectInModal === project
-													? styles.selected
-													: ''
-											}
-											onClick={() => setSelectedProjectInModal(project)}
-										>
-											{project}
-										</li>
-									))}
-								</ul>
-							</div>
-							{/* Right column: boards */}
-							<div className={styles.boardColumn}>
-								<h3 className='select-none'>
-									Boards for {selectedProjectInModal}
-								</h3>
-								<ul>
-									{projectsAndBoards[selectedProjectInModal].map(board => (
-										<li
-											key={board}
-											onClick={() =>
-												selectItemInModal(selectedProjectInModal, board)
-											}
-										>
-											{board}
-										</li>
-									))}
-								</ul>
-							</div>
-						</div>
-					</div>
-				</div>
-			)}
+			<ProjectBoardModal
+				isOpen={modalVisible}
+				onClose={() => setModalVisible(false)}
+				projectsAndBoards={projectsAndBoards}
+				selectedProject={selectedProject}
+				onSelect={handleModalSelection}
+			/>
 		</section>
 	);
 }

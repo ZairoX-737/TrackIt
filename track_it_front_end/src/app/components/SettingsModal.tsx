@@ -1,17 +1,31 @@
 import { useState } from 'react';
 import { IoClose } from 'react-icons/io5';
 import { FiSettings, FiUsers, FiTrash2 } from 'react-icons/fi';
+import DeleteProjectModal from './DeleteModal';
+import ProjectSettingsModal from './ProjectSettingsModal';
+import ProjectUsersModal from './ProjectUsersModal';
 
 export default function SettingsModal({
 	isOpen,
 	onClose,
+	projectsAndBoards,
+	selectedProject,
 }: {
 	isOpen: boolean;
 	onClose: () => void;
+	selectedProject: string;
+	projectsAndBoards: Record<string, string[]>;
 }) {
-	const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+	// Track which modal is currently open
+	const [projectSettingsOpen, setProjectSettingsOpen] = useState(false);
+	const [projectUsersOpen, setProjectUsersOpen] = useState(false);
+	const [deleteProjectOpen, setDeleteProjectOpen] = useState(false);
 
 	if (!isOpen) return null;
+
+	function handleSaveSettings(updatedBoards: string): void {
+		throw new Error('Function not implemented.');
+	}
 
 	return (
 		<div
@@ -28,7 +42,7 @@ export default function SettingsModal({
 			<div className='p-2'>
 				<button
 					className='w-full text-left p-2 flex items-center gap-2 hover:bg-[#3c3c3e] rounded transition-colors'
-					onClick={() => console.log('Project Settings')}
+					onClick={() => setProjectSettingsOpen(true)}
 				>
 					<FiSettings className='text-white' />
 					<span>Project Settings</span>
@@ -36,42 +50,47 @@ export default function SettingsModal({
 
 				<button
 					className='w-full text-left p-2 flex items-center gap-2 hover:bg-[#3c3c3e] rounded transition-colors'
-					onClick={() => console.log('Project Users')}
+					onClick={() => setProjectUsersOpen(true)}
 				>
 					<FiUsers className='text-white' />
 					<span>Project Users</span>
 				</button>
 
-				{!showConfirmDelete ? (
-					<button
-						className='w-full text-left p-2 flex items-center gap-2 hover:bg-[#ef4444] text-white rounded transition-colors'
-						onClick={() => setShowConfirmDelete(true)}
-					>
-						<FiTrash2 className='text-white' />
-						<span>Delete Project</span>
-					</button>
-				) : (
-					<div className='p-2 border border-[#ef4444] bg-[#3c3c3e] rounded mt-2'>
-						<p className='text-sm mb-2'>
-							Are you sure you want to delete this project?
-						</p>
-						<div className='flex justify-between'>
-							<button
-								className='px-3 py-1 bg-[#3c3c3e] hover:bg-[#4c4c4e] rounded'
-								onClick={() => setShowConfirmDelete(false)}
-							>
-								Cancel
-							</button>
-							<button
-								className='px-3 py-1 bg-[#ef4444] hover:bg-red-600 rounded'
-								onClick={() => console.log('Delete Project')}
-							>
-								Delete
-							</button>
-						</div>
-					</div>
-				)}
+				<button
+					className='w-full text-left p-2 flex items-center gap-2 hover:bg-[#ef4444] text-white rounded transition-colors'
+					onClick={() => setDeleteProjectOpen(true)}
+				>
+					<FiTrash2 className='text-white' />
+					<span>Delete Project</span>
+				</button>
 			</div>
+
+			{/* Render the appropriate modal based on state */}
+			{projectSettingsOpen && (
+				<ProjectSettingsModal
+					boards={projectsAndBoards[selectedProject]} // Add the boards data
+					onSave={updatedBoards => handleSaveSettings(updatedBoards)} // Add a save handler
+					isOpen={projectSettingsOpen}
+					onClose={() => setProjectSettingsOpen(false)}
+					projectName={selectedProject}
+				/>
+			)}
+
+			{projectUsersOpen && (
+				<ProjectUsersModal
+					projectName={selectedProject}
+					isOpen={projectUsersOpen}
+					onClose={() => setProjectUsersOpen(false)}
+				/>
+			)}
+
+			{deleteProjectOpen && (
+				<DeleteProjectModal
+					isOpen={deleteProjectOpen}
+					onClose={() => setDeleteProjectOpen(false)}
+					projectName={selectedProject}
+				/>
+			)}
 		</div>
 	);
 }
