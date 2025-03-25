@@ -1,12 +1,12 @@
-// tasks-page.tsx
 'use client';
 import styles from './Tasks.module.scss';
 import TasksList from './tasklist';
-import { useTaskStore } from '../store/taskStore'; // Adjust path as needed
+import { useTaskStore } from '../store/taskStore';
 import { nanoid } from 'nanoid';
+import CreateTaskModal from '../components/CreateTaskModal';
 
 const TasksContainer = () => {
-	const { tasks, columns } = useTaskStore();
+	const { tasks, columns, createTaskOpen, setCreateTaskOpen } = useTaskStore();
 
 	return (
 		<div className={styles.taskContainer}>
@@ -20,6 +20,10 @@ const TasksContainer = () => {
 					/>
 				);
 			})}
+			<CreateTaskModal
+				isOpen={createTaskOpen}
+				onClose={() => setCreateTaskOpen(false)}
+			/>
 		</div>
 	);
 };

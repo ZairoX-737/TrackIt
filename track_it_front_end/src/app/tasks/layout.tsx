@@ -1,6 +1,6 @@
 'use client';
 import Image from 'next/image';
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, memo } from 'react';
 import { useTaskStore } from '../store/taskStore'; // Adjust path as needed
 
 import ArrowR from '../../public/right-arrow-white.png';
@@ -14,6 +14,10 @@ import styles from './Tasks.module.scss';
 import NotificationsModal from '../components/NotifModal';
 import SettingsModal from '../components/SettingsModal';
 import ProjectBoardModal from '../components/ProjectBoardModal';
+
+const MemoizedChildren = memo(({ children }: { children: React.ReactNode }) => (
+	<>{children}</>
+));
 
 export default function TaskLayout({
 	children,
@@ -44,37 +48,44 @@ export default function TaskLayout({
 	const notificationsRef = useRef<HTMLDivElement>(null);
 	const settingsRef = useRef<HTMLDivElement>(null);
 
-	// Close dropdowns when clicking outside
+	// Close dropdowns/modals when clicking outside, optimized to reduce re-renders
 	useEffect(() => {
 		function handleClickOutside(event: MouseEvent) {
+			const target = event.target as Node;
 			if (
+				projectVisible &&
 				projectRef.current &&
-				!projectRef.current.contains(event.target as Node)
+				!projectRef.current.contains(target)
 			) {
 				setProjectVisible(false);
 			}
 			if (
+				boardVisible &&
 				boardRef.current &&
-				!boardRef.current.contains(event.target as Node)
+				!boardRef.current.contains(target)
 			) {
 				setBoardVisible(false);
 			}
 			if (
+				notifOpen &&
 				notificationsRef.current &&
-				!notificationsRef.current.contains(event.target as Node)
+				!notificationsRef.current.contains(target)
 			) {
 				setNotifOpen(false);
 			}
 			if (
+				settingsOpen &&
 				settingsRef.current &&
-				!settingsRef.current.contains(event.target as Node)
+				!settingsRef.current.contains(target)
 			) {
 				setSettingsOpen(false);
 			}
+			// Note: modalVisible (ProjectBoardModal) is handled by its own onClose
 		}
+
 		document.addEventListener('mousedown', handleClickOutside);
 		return () => document.removeEventListener('mousedown', handleClickOutside);
-	}, [setProjectVisible, setBoardVisible, setNotifOpen, setSettingsOpen]);
+	}, [projectVisible, boardVisible, notifOpen, settingsOpen]);
 
 	const openModal = () => {
 		setProjectVisible(false);
@@ -225,7 +236,8 @@ export default function TaskLayout({
 					</div>
 				</div>
 			</header>
-			{children}
+
+			<MemoizedChildren>{children}</MemoizedChildren>
 
 			{/* Project/board selection modal */}
 			<ProjectBoardModal

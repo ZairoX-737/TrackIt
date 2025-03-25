@@ -4,7 +4,6 @@ import styles from './mainpage.module.scss';
 import WLogo from '../public/logo-white.png';
 import Link from 'next/link';
 import LandingScreen from '../public/landing_screen.png';
-import LandingScreen2 from '../public/landing_screen2.png';
 
 export default function MainPage() {
 	return (

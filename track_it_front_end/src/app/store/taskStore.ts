@@ -20,6 +20,7 @@ interface TaskState {
 	boardVisible: boolean;
 	modalVisible: boolean;
 	notifOpen: boolean;
+	createTaskOpen: boolean;
 	settingsOpen: boolean;
 	selectedProject: string;
 	selectedBoard: string;
@@ -30,6 +31,7 @@ interface TaskState {
 	setProjectVisible: (visible: boolean) => void;
 	setBoardVisible: (visible: boolean) => void;
 	setModalVisible: (visible: boolean) => void;
+	setCreateTaskOpen: (open: boolean) => void;
 	setNotifOpen: (open: boolean) => void;
 	setSettingsOpen: (open: boolean) => void;
 	selectProject: (project: string) => void;
@@ -47,6 +49,7 @@ export const useTaskStore = create<TaskState>(set => ({
 	projectVisible: false,
 	boardVisible: false,
 	modalVisible: false,
+	createTaskOpen: false,
 	notifOpen: false,
 	settingsOpen: false,
 	selectedProject: 'Marketing',
@@ -138,6 +141,7 @@ export const useTaskStore = create<TaskState>(set => ({
 	setProjectVisible: visible => set({ projectVisible: visible }),
 	setBoardVisible: visible => set({ boardVisible: visible }),
 	setModalVisible: visible => set({ modalVisible: visible }),
+	setCreateTaskOpen: open => set({ createTaskOpen: open }),
 	setNotifOpen: open => set({ notifOpen: open }),
 	setSettingsOpen: open => set({ settingsOpen: open }),
 	selectProject: project =>
