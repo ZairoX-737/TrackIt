@@ -50,7 +50,13 @@ const TasksList = ({ tasks, TaskListHeader }: IProps) => {
 				<h1 className={styles.tasklistHeader}>{TaskListHeader}</h1>
 				<hr className='bg-white w-full' />
 				<span className='opacity-55 select-none'>Empty column...</span>
-				<button onClick={handleChangeState}>Add Task</button>
+				<button
+					className={`${styles.addTask} font-rubik`}
+					onClick={handleChangeState}
+				>
+					Add Task
+					<BsPlus size='1.5em' />
+				</button>
 			</div>
 		);
 	}

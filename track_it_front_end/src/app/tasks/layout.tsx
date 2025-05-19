@@ -14,6 +14,7 @@ import styles from './Tasks.module.scss';
 import NotificationsModal from '../components/NotifModal';
 import SettingsModal from '../components/SettingsModal';
 import ProjectBoardModal from '../components/ProjectBoardModal';
+import Link from 'next/link';
 
 const MemoizedChildren = memo(({ children }: { children: React.ReactNode }) => (
 	<>{children}</>
@@ -206,15 +207,17 @@ export default function TaskLayout({
 						/>
 					</div>
 					<hr className='h-8 w-[1px] bg-white' />
-					<button>
-						<Image
-							src={User}
-							alt='User profile'
-							width={32}
-							height={32}
-							className='select-none'
-						/>
-					</button>
+					<Link href='/profile'>
+						<button>
+							<Image
+								src={User}
+								alt='User profile'
+								width={32}
+								height={32}
+								className='select-none'
+							/>
+						</button>
+					</Link>
 					<hr className='h-8 w-[1px] bg-white' />
 					{/* Settings button and modal */}
 					<div className='relative top-1' ref={settingsRef}>

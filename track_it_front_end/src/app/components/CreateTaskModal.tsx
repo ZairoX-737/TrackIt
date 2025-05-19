@@ -55,7 +55,7 @@ const CreateTaskModal = forwardRef<HTMLDivElement, CreateTaskModalProps>(
 			>
 				<div className={styles.modalContent} style={{ width: '500px' }}>
 					<div className='flex justify-between items-center mb-4'>
-						<h3 className='text-xl font-bold'>Create New Task</h3>
+						<h3 className='text-xl font-bold p-1'>Create New Task</h3>
 						<button
 							onClick={onClose}
 							className='hover:bg-gray-700 rounded-full p-1'
@@ -107,6 +107,7 @@ const CreateTaskModal = forwardRef<HTMLDivElement, CreateTaskModalProps>(
 																						? 'border-2 border-white'
 																						: ''
 																				}
+																				p-2
                                     `}
 										style={{
 											backgroundColor: color,

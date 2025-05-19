@@ -1,0 +1,198 @@
+.profilePage {
+	width: 100vw;
+	height: 100vh;
+	background: #232324;
+}
+
+.header {
+	color: #bdbdbd;
+	font-size: 18px;
+	font-weight: 500;
+	padding: 10px 0 0 10px;
+}
+
+.main {
+	width: 100%;
+	height: calc(100vh - 40px);
+	display: flex;
+	justify-content: flex-start;
+	align-items: center; // центрируем по вертикали
+	padding-top: 0; // убираем отступ сверху
+}
+
+.cardSection {
+	display: flex;
+	align-items: center; // центрируем divider и карточку по вертикали
+	margin-left: 120px;
+	gap: 56px; // добавляем отступ между карточкой, divider и колонками
+}
+
+.profileCard {
+	background: #2c2c2e;
+	border-radius: 14px;
+	border: 1.5px solid #757575;
+	width: 420px; // увеличиваем ширину
+	min-height: 270px; // увеличиваем высоту
+	padding: 54px 38px 28px 38px;
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	box-shadow: 0 4px 24px rgba(0, 0, 0, 0.22);
+}
+
+.avatar {
+	width: 68px;
+	height: 68px;
+	border-radius: 50%;
+	background: #fff;
+	position: absolute;
+	top: -34px;
+	left: 50%;
+	transform: translateX(-50%);
+	border: 2.5px solid #2c2c2e;
+	box-shadow: 0 2px 12px rgba(0, 0, 0, 0.18);
+}
+
+.username {
+	font-size: 26px;
+	font-weight: 700;
+	color: #fff;
+	margin-top: 45px;
+	margin-bottom: 22px;
+	text-align: center;
+}
+
+.stats {
+	display: flex;
+	justify-content: space-between;
+	width: 100%;
+	margin-bottom: 22px;
+}
+
+.statValue {
+	display: block;
+	font-size: 22px;
+	font-weight: 700;
+	color: #fff;
+	text-align: center;
+}
+
+.statLabel {
+	display: block;
+	font-size: 14px;
+	color: #bdbdbd;
+	text-align: center;
+}
+
+.registered {
+	font-size: 13px;
+	color: #bdbdbd;
+	margin-top: 14px;
+}
+
+.verticalDivider {
+	width: 2.5px;
+	height: 270px;
+	background: #444;
+	margin-left: 48px;
+	margin-right: 48px; // добавляем справа для симметрии
+	border-radius: 2px;
+	align-self: center; // центрируем divider по вертикали
+}
+
+.profileColumns {
+	display: flex;
+	gap: 40px;
+	width: 100%;
+	max-height: 350px;
+	min-width: 600px;
+}
+
+.profileColumn {
+	min-width: 220px;
+	max-height: 350px;
+	display: flex;
+	flex-direction: column;
+	padding-right: 16px; // больше отступ справа для separation от скроллбара
+}
+
+.profileColumn:last-child {
+	min-width: 300px;
+	padding-left: 16px; // больше отступ слева для separation от скроллбара
+}
+
+.profileColumnTitle {
+	font-weight: 700;
+	margin-bottom: 8px;
+	color: #fff;
+	font-size: 18px;
+	flex-shrink: 0;
+	background: #232324;
+	z-index: 2;
+	position: sticky;
+	top: 0;
+	padding: 8px 0 8px 0;
+}
+
+.profileColumnList {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+	overflow-y: auto;
+	flex: 1;
+}
+
+.profileColumnList li {
+	padding: 10px 16px;
+	margin-bottom: 6px;
+	border-radius: 8px;
+	background: #2c2c2e;
+	color: #bdbdbd;
+	font-weight: 500;
+	cursor: pointer;
+	transition: background 0.15s, color 0.15s;
+	font-size: 16px;
+	display: flex;
+	align-items: center;
+	justify-content: flex-start;
+	box-shadow: none;
+	min-width: 0;
+	width: 100%;
+	min-height: 36px;
+	height: 36px;
+	max-width: 100%;
+}
+
+.profileColumnList li.selected {
+	background: #ff9900b1;
+	color: #fff;
+	font-weight: 700;
+	box-shadow: 0 2px 8px #ff990033;
+}
+
+.profileColumnList li:hover {
+	background: #ff9900b1;
+	color: #fff;
+	box-shadow: 0 2px 8px #ff990033;
+}
+
+/* Кастомный скроллбар */
+.customScroll {
+	overflow-y: auto;
+	scrollbar-width: thin;
+	scrollbar-color: #ff9900b1 #232324;
+	padding-right: 4px; // чтобы скроллбар не перекрывал кнопки
+}
+.customScroll::-webkit-scrollbar {
+	width: 8px;
+	background: #232324;
+	border-radius: 8px;
+}
+.customScroll::-webkit-scrollbar-thumb {
+	background: linear-gradient(120deg, #ff9900b1 40%, #ffb84d 100%);
+	border-radius: 8px;
+}
+.customScroll::-webkit-scrollbar-thumb:hover {
+	background: #ff9900;
+}
