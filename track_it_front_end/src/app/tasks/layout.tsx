@@ -1,8 +1,9 @@
 'use client';
 import Image from 'next/image';
 import { useRef, useEffect, memo } from 'react';
-import { useTaskStore } from '../store/taskStore'; // Adjust path as needed
+import { useTaskStore } from '../store/taskStore';
 
+// Исправляем пути к изображениям
 import ArrowR from '../../public/right-arrow-white.png';
 import ArrowD from '../../public/down-arrow-white.png';
 import WLogo from '../../public/logo-white.png';
@@ -31,7 +32,8 @@ export default function TaskLayout({
 		settingsOpen,
 		selectedProject,
 		selectedBoard,
-		projectsAndBoards,
+		projects,
+		boards,
 		setProjectVisible,
 		setBoardVisible,
 		setModalVisible,
@@ -42,7 +44,25 @@ export default function TaskLayout({
 		handleModalSelection,
 		toggleNotifications,
 		toggleSettings,
+		loadProjects,
+		loadUserProfile,
 	} = useTaskStore();
+
+	useEffect(() => {
+		loadUserProfile();
+		loadProjects();
+	}, [loadUserProfile, loadProjects]);
+
+	// Формируем projectsAndBoards: { [projectName]: string[] }
+	const projectsAndBoards: Record<string, string[]> = projects.reduce(
+		(acc, project) => {
+			acc[project.name] = boards
+				.filter(board => board.projectId === project.id)
+				.map(board => board.name);
+			return acc;
+		},
+		{} as Record<string, string[]>
+	);
 
 	const projectRef = useRef<HTMLDivElement>(null);
 	const boardRef = useRef<HTMLDivElement>(null);
@@ -94,6 +114,16 @@ export default function TaskLayout({
 		setModalVisible(true);
 	};
 
+	// Получить Project по имени
+	const getProjectByName = (name: string) =>
+		projects.find(p => p.name === name);
+	// Получить Board по имени
+	const getBoardByName = (name: string) =>
+		boards.find(
+			b =>
+				b.name === name && selectedProject && b.projectId === selectedProject.id
+		);
+
 	return (
 		<section lang='en'>
 			<header className={styles.header}>
@@ -104,7 +134,9 @@ export default function TaskLayout({
 							className={styles.projectInfoButtons}
 							onClick={() => setProjectVisible(!projectVisible)}
 						>
-							<span>{selectedProject}</span>
+							<span>
+								{selectedProject ? selectedProject.name : 'Select project'}
+							</span>
 							<Image
 								src={projectVisible ? ArrowD : ArrowR}
 								alt='toggle project list'
@@ -117,13 +149,16 @@ export default function TaskLayout({
 								<ul className='flex flex-col'>
 									{Object.keys(projectsAndBoards)
 										.slice(0, 5)
-										.map(project => (
+										.map(projectName => (
 											<li
-												key={project}
+												key={projectName}
 												className={styles.headerListItem}
-												onClick={() => selectProject(project)}
+												onClick={() => {
+													const project = getProjectByName(projectName);
+													if (project) selectProject(project);
+												}}
 											>
-												{project}
+												{projectName}
 											</li>
 										))}
 									<li
@@ -150,7 +185,7 @@ export default function TaskLayout({
 							className={styles.projectInfoButtons}
 							onClick={() => setBoardVisible(!boardVisible)}
 						>
-							<span>{selectedBoard}</span>
+							<span>{selectedBoard ? selectedBoard.name : 'Select board'}</span>
 							<Image
 								src={boardVisible ? ArrowD : ArrowR}
 								alt='toggle board list'
@@ -158,18 +193,23 @@ export default function TaskLayout({
 								height={24}
 							/>
 						</button>
-						{boardVisible && (
+						{boardVisible && selectedProject && (
 							<div className={styles.headerList}>
 								<ul>
-									{projectsAndBoards[selectedProject].slice(0, 5).map(board => (
-										<li
-											key={board}
-											className={styles.headerListItem}
-											onClick={() => selectBoard(board)}
-										>
-											{board}
-										</li>
-									))}
+									{projectsAndBoards[selectedProject.name]
+										?.slice(0, 5)
+										.map(boardName => (
+											<li
+												key={boardName}
+												className={styles.headerListItem}
+												onClick={() => {
+													const board = getBoardByName(boardName);
+													if (board) selectBoard(board);
+												}}
+											>
+												{boardName}
+											</li>
+										))}
 									<li
 										className={`${styles.headerListItem}`}
 										onClick={openModal}
@@ -233,7 +273,7 @@ export default function TaskLayout({
 						<SettingsModal
 							isOpen={settingsOpen}
 							onClose={() => setSettingsOpen(false)}
-							selectedProject={selectedProject}
+							selectedProject={selectedProject ? selectedProject.name : ''}
 							projectsAndBoards={projectsAndBoards}
 						/>
 					</div>
@@ -247,8 +287,12 @@ export default function TaskLayout({
 				isOpen={modalVisible}
 				onClose={() => setModalVisible(false)}
 				projectsAndBoards={projectsAndBoards}
-				selectedProject={selectedProject}
-				onSelect={handleModalSelection}
+				selectedProject={selectedProject ? selectedProject.name : ''}
+				onSelect={(projectName, boardName) => {
+					const project = getProjectByName(projectName);
+					const board = getBoardByName(boardName);
+					if (project && board) handleModalSelection(project, board);
+				}}
 			/>
 		</section>
 	);

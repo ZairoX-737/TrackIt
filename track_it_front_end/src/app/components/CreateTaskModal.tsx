@@ -1,8 +1,7 @@
-import React, { forwardRef, Ref, useState } from 'react';
+import React, { forwardRef, Ref, useEffect, useState } from 'react';
 import { BsPlus, BsX } from 'react-icons/bs';
 import { useTaskStore } from '../store/taskStore';
 import styles from '../components/Components.module.scss';
-import taskStyles from '../tasks/Tasks.module.scss';
 
 interface CreateTaskModalProps {
 	isOpen: boolean;
@@ -11,36 +10,48 @@ interface CreateTaskModalProps {
 
 const CreateTaskModal = forwardRef<HTMLDivElement, CreateTaskModalProps>(
 	({ isOpen, onClose }: CreateTaskModalProps, ref: Ref<HTMLDivElement>) => {
-		const { addTask } = useTaskStore();
-		const [header, setHeader] = useState('');
+		const { createTask, columns, selectedBoard, loading, labels, loadLabels } =
+			useTaskStore();
+		const [title, setTitle] = useState('');
 		const [description, setDescription] = useState('');
-		const [labels, setLabels] = useState<string[]>([]);
+		const [selectedColumnId, setSelectedColumnId] = useState('');
+		const [priority, setPriority] = useState<'LOW' | 'MEDIUM' | 'HIGH'>(
+			'MEDIUM'
+		);
+		const [selectedLabels, setSelectedLabels] = useState<string[]>([]);
 
-		if (!isOpen) return null;
+		useEffect(() => {
+			loadLabels();
+		}, [loadLabels]);
 
-		const handleSubmit = () => {
-			if (header.trim()) {
-				// Reset form
-				setHeader('');
-				setDescription('');
-				setLabels([]);
-				onClose();
-			}
+		const handleLabelClick = (labelId: string) => {
+			setSelectedLabels(prev =>
+				prev.includes(labelId)
+					? prev.filter(id => id !== labelId)
+					: [...prev, labelId]
+			);
 		};
 
-		const colorOptions = [
-			'#ef4444',
-			'#4ade80',
-			'#60a5fa',
-			'#a855f7',
-			'#f97316',
-		];
-
-		const handleAddLabel = (color: string) => {
-			if (labels.includes(color)) {
-				setLabels(labels.filter(label => label !== color));
-			} else {
-				setLabels([...labels, color]);
+		if (!isOpen) return null;
+		const handleSubmit = async () => {
+			if (title.trim() && selectedColumnId && selectedBoard) {
+				try {
+					await createTask(
+						selectedColumnId,
+						title,
+						description || undefined,
+						selectedLabels
+					);
+					// Reset form
+					setTitle('');
+					setDescription('');
+					setSelectedColumnId('');
+					setPriority('MEDIUM');
+					setSelectedLabels([]);
+					onClose();
+				} catch (error) {
+					console.error('Error creating task:', error);
+				}
 			}
 		};
 
@@ -55,7 +66,7 @@ const CreateTaskModal = forwardRef<HTMLDivElement, CreateTaskModalProps>(
 			>
 				<div className={styles.modalContent} style={{ width: '500px' }}>
 					<div className='flex justify-between items-center mb-4'>
-						<h3 className='text-xl font-bold p-1'>Create New Task</h3>
+						<h3 className='text-xl font-bold p-1'>Create new task</h3>
 						<button
 							onClick={onClose}
 							className='hover:bg-gray-700 rounded-full p-1'
@@ -71,14 +82,15 @@ const CreateTaskModal = forwardRef<HTMLDivElement, CreateTaskModalProps>(
 						}}
 					>
 						<div className='mb-4'>
-							<label className='block mb-2 font-medium'>Task Title</label>
+							<label className='block mb-2 font-medium'>Task title</label>
 							<input
 								type='text'
-								value={header}
-								onChange={e => setHeader(e.target.value)}
+								value={title}
+								onChange={e => setTitle(e.target.value)}
 								placeholder='Enter task title'
 								className='w-full bg-[#3c3c3e] p-2 rounded-md border-none focus:outline-[#ff9900]'
 								required
+								disabled={loading}
 							/>
 						</div>
 
@@ -89,33 +101,77 @@ const CreateTaskModal = forwardRef<HTMLDivElement, CreateTaskModalProps>(
 								onChange={e => setDescription(e.target.value)}
 								placeholder='Enter task description (optional)'
 								className='w-full bg-[#3c3c3e] p-2 rounded-md border-none focus:outline-[#ff9900] min-h-[100px]'
+								disabled={loading}
 							/>
 						</div>
 
 						<div className='mb-4'>
-							<label className='block mb-2 font-medium'>Labels</label>
-							<div className='flex gap-2'>
-								{colorOptions.map(color => (
-									<button
-										key={color}
-										type='button'
-										onClick={() => handleAddLabel(color)}
-										className={`
-                                        ${taskStyles.label} 
-                                        ${
-																					labels.includes(color)
-																						? 'border-2 border-white'
-																						: ''
-																				}
-																				p-2
-                                    `}
-										style={{
-											backgroundColor: color,
-											cursor: 'pointer',
-										}}
-									/>
+							<label className='block mb-2 font-medium'>Column</label>
+							<select
+								value={selectedColumnId}
+								onChange={e => setSelectedColumnId(e.target.value)}
+								className='w-full bg-[#3c3c3e] p-2 rounded-md border-none focus:outline-[#ff9900]'
+								required
+								disabled={loading}
+							>
+								<option value=''>Select column</option>
+								{columns.map(column => (
+									<option key={column.id} value={column.id}>
+										{column.name}
+									</option>
 								))}
-							</div>
+							</select>
+						</div>
+
+						<div className='mb-4'>
+							<label className='block mb-2 font-medium'>Priority</label>
+							<select
+								value={priority}
+								onChange={e =>
+									setPriority(e.target.value as 'LOW' | 'MEDIUM' | 'HIGH')
+								}
+								className='w-full bg-[#3c3c3e] p-2 rounded-md border-none focus:outline-[#ff9900]'
+								disabled={loading}
+							>
+								<option value='LOW'>Low</option>
+								<option value='MEDIUM'>Medium</option>
+								<option value='HIGH'>High</option>
+							</select>
+						</div>
+
+						<div className='mb-4'>
+							<label className='block mb-2 font-medium'>Labels</label>
+							{labels.length > 0 ? (
+								<div className='flex flex-wrap gap-2'>
+									{labels.map(label => (
+										<button
+											type='button'
+											key={label.id}
+											onClick={() => handleLabelClick(label.id)}
+											className={`
+												inline-flex items-center justify-center
+												px-3 py-1 text-xs font-medium
+												rounded-full transition-all duration-200
+												border-2 min-w-[30px] h-[20px]
+												${
+													selectedLabels.includes(label.id)
+														? 'border-white shadow-lg transform scale-105'
+														: 'border-transparent hover:border-gray-300'
+												}
+											`}
+											style={{
+												backgroundColor: label.color,
+												color: label.color === '#D1FF86' ? '#000' : '#fff',
+											}}
+											disabled={loading}
+										>
+											{label.name}
+										</button>
+									))}
+								</div>
+							) : (
+								<div className='text-gray-400 text-xs'>No labels available</div>
+							)}
 						</div>
 
 						<div className='flex justify-end gap-2'>
@@ -123,14 +179,16 @@ const CreateTaskModal = forwardRef<HTMLDivElement, CreateTaskModalProps>(
 								type='button'
 								onClick={onClose}
 								className='px-4 py-2 bg-[#3c3c3e] rounded-md hover:bg-[#ff9900b1]'
+								disabled={loading}
 							>
 								Cancel
 							</button>
 							<button
 								type='submit'
-								className='px-4 py-2 bg-[#ff9900b1] rounded-md hover:bg-[#ff9900]'
+								className='px-4 py-2 bg-[#ff9900b1] rounded-md hover:bg-[#ff9900] disabled:opacity-50'
+								disabled={loading || !title.trim() || !selectedColumnId}
 							>
-								Create Task
+								{loading ? 'Creating...' : 'Create task'}
 							</button>
 						</div>
 					</form>

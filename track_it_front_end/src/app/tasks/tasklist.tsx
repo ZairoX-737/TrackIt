@@ -4,17 +4,10 @@ import styles from './Tasks.module.scss';
 import Task from './task';
 import { nanoid } from 'nanoid';
 import { useTaskStore } from '../store/taskStore';
-import CreateTaskModal from '../components/CreateTaskModal';
-import { useEffect, useRef } from 'react';
+import { Task as TaskType } from '../api/types';
 
 interface IProps {
-	tasks: {
-		id: number;
-		status: string;
-		header: string;
-		description: string;
-		labels: string[];
-	}[];
+	tasks: TaskType[];
 	TaskListHeader: string;
 }
 

@@ -6,11 +6,11 @@ import { nanoid } from 'nanoid';
 
 interface IProps {
 	task: {
-		id: number;
+		id: string;
+		title: string;
+		description?: string;
 		status: string;
-		header: string;
-		description: string;
-		labels: string[];
+		labels?: any[];
 	};
 }
 
@@ -22,14 +22,29 @@ const Task = ({ task }: IProps) => {
 	return (
 		<li key={task.id} className={styles.task}>
 			<div className='flex justify-between items-center'>
-				<div className='flex justify-start items-center mb-[7px] gap-2'>
-					{task.labels.map((label: any) => {
+				{' '}
+				<div className='flex justify-start items-center mb-[7px] gap-1'>
+					{(task.labels ?? []).map((labelData: any, index: number) => {
+						// Определяем цвет лейбла из разных возможных структур данных
+						let labelColor = '';
+
+						if (typeof labelData === 'string') {
+							// Если это просто строка с цветом
+							labelColor = labelData;
+						} else if (labelData.label && labelData.label.color) {
+							// Структура из бэкенда: {label: {color: '#FF6565'}}
+							labelColor = labelData.label.color;
+						} else if (labelData.color) {
+							// Прямая структура: {color: '#FF6565'}
+							labelColor = labelData.color;
+						}
+
 						return (
 							<div
-								key={nanoid()}
+								key={`${task.id}-label-${index}`}
 								className={styles.label}
 								style={{
-									backgroundColor: label,
+									backgroundColor: labelColor,
 								}}
 							></div>
 						);
@@ -41,7 +56,7 @@ const Task = ({ task }: IProps) => {
 					</div>
 				</div>
 			</div>
-			<div className=' font-medium text-[16px] select-none'>{task.header}</div>
+			<div className=' font-medium text-[16px] select-none'>{task.title}</div>
 			<div className={`${styles.taskDescription} font-rubik`}>
 				{showDescr ? <span className=''>{task.description}</span> : ''}
 			</div>

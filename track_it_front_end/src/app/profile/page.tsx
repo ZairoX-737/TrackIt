@@ -1,24 +1,42 @@
 'use client';
 import styles from './Profile.module.scss';
 import { useTaskStore } from '../store/taskStore';
-import { useMemo } from 'react';
+import { useInitializeApp } from '../hooks/useInitializeApp';
 
 export default function UserProfile() {
-	const user = {
-		username: 'Username',
-		registered: '10.10.2024',
-		foreignProjects: 0,
-		selfProjects: 5,
-		comments: 12,
-	};
+	const { loading, error } = useInitializeApp();
+	const { user, projects, selectedProject, boards, tasks } = useTaskStore();
 
-	const projectsAndBoards = useTaskStore(s => s.projectsAndBoards);
-	const selectedProject = useTaskStore(s => s.selectedProject);
-	const selectProject = useTaskStore(s => s.selectProject);
+	if (loading) {
+		return (
+			<div className={styles.profilePage}>
+				<div className={styles.loading}>Loading...</div>
+			</div>
+		);
+	}
 
-	const boards = useMemo(
-		() => projectsAndBoards[selectedProject] || [],
-		[projectsAndBoards, selectedProject]
+	if (error) {
+		return (
+			<div className={styles.profilePage}>
+				<div className={styles.error}>Error: {error}</div>
+			</div>
+		);
+	}
+
+	if (!user) {
+		return (
+			<div className={styles.profilePage}>
+				<div className={styles.error}>User not found</div>
+			</div>
+		);
+	}
+
+	// Подсчитываем статистику
+	const userProjects = projects.filter(p => p.createdBy === user.id);
+	const foreignProjects = projects.filter(p => p.createdBy !== user.id);
+	const userTasks = tasks.filter(t => t.createdBy === user.id);
+	const completedTasks = userTasks.filter(
+		t => t.status === 'done' || t.status === 'completed'
 	);
 
 	return (
@@ -33,87 +51,78 @@ export default function UserProfile() {
 								style={{ width: '100%', height: '100%', borderRadius: '50%' }}
 							/>
 						</div>
-						<div className={styles.username}>{user.username}</div>
-						<div className={styles.stats}>
-							<div>
-								<span className={styles.statValue}>{user.foreignProjects}</span>
-								<span className={styles.statLabel}>Foreign projects</span>
-							</div>
-							<div>
-								<span className={styles.statValue}>{user.selfProjects}</span>
-								<span className={styles.statLabel}>Self projects</span>
-							</div>
-							<div>
-								<span className={styles.statValue}>{user.comments}</span>
-								<span className={styles.statLabel}>Comments</span>
-							</div>
-						</div>
-						<div className={styles.registered}>
-							Registered since: <span>{user.registered}</span>
-						</div>
+						<div className={styles.username}>{user.username || user.email}</div>
 					</div>
-					<div className={styles.verticalDivider}></div>
-					<div
-						style={{
-							flex: 1,
-							display: 'flex',
-							alignItems: 'center',
-							minWidth: 0,
-						}}
-					>
-						<div
-							style={{
-								display: 'flex',
-								gap: '40px',
-								width: '100%',
-								maxHeight: 350,
-								minWidth: 600,
-								overflow: 'hidden',
-							}}
-						>
-							<div className={styles.profileColumns}>
-								{/* Левая колонка: проекты */}
-								<div className={styles.profileColumn + ' ' + styles.customScroll}>
-									<div className={styles.profileColumnTitle}>Projects</div>
-									<ul className={styles.profileColumnList}>
-										{Object.keys(projectsAndBoards).map(project => (
-											<li
-												key={project}
-												className={
-													selectedProject === project ? styles.selected : ''
-												}
-												onClick={() => selectProject(project)}
-											>
-												{project}
-											</li>
-										))}
-									</ul>
-								</div>
-								{/* Правая колонка: доски */}
-								<div className={styles.profileColumn + ' ' + styles.customScroll}>
-									<div className={styles.profileColumnTitle}>Boards</div>
-									<ul className={styles.profileColumnList}>
-										{boards.length === 0 && (
-											<li style={{ color: '#bdbdbd', cursor: 'default' }}>
-												No boards
-											</li>
-										)}
-										{boards.map(board => (
-											<li
-												key={board}
-												onClick={() =>
-													alert(`Go to ${selectedProject} / ${board}`)
-												}
-											>
-												{board}
-											</li>
-										))}
-									</ul>
-								</div>
-							</div>
+
+					<div className={styles.statsCard}>
+						<div className={styles.statItem}>
+							<span className={styles.statNumber}>
+								{new Date(user.createdAt).toLocaleDateString('en')}
+							</span>
+							<span className={styles.statLabel}>Registered</span>
+						</div>
+						<div className={styles.statItem}>
+							<span className={styles.statNumber}>
+								{foreignProjects.length}
+							</span>
+							<span className={styles.statLabel}>Collaborative projects</span>
+						</div>
+						<div className={styles.statItem}>
+							<span className={styles.statNumber}>{userProjects.length}</span>
+							<span className={styles.statLabel}>Own projects</span>
+						</div>
+						<div className={styles.statItem}>
+							<span className={styles.statNumber}>{userTasks.length}</span>
+							<span className={styles.statLabel}>Total tasks</span>
+						</div>
+						<div className={styles.statItem}>
+							<span className={styles.statNumber}>{completedTasks.length}</span>
+							<span className={styles.statLabel}>Completed tasks</span>
 						</div>
 					</div>
 				</section>
+
+				<section className={styles.projectsSection}>
+					<h2 className={styles.sectionTitle}>My projects</h2>
+					<div className={styles.projectGrid}>
+						{userProjects.length > 0 ? (
+							userProjects.map(project => (
+								<div key={project.id} className={styles.projectCard}>
+									<h3 className={styles.projectName}>{project.name}</h3>
+									<p className={styles.projectDescription}>
+										{project.description || 'No description'}
+									</p>
+									<div className={styles.projectStats}>
+										<span>Boards: {project.boards?.length || 0}</span>
+									</div>
+								</div>
+							))
+						) : (
+							<div className={styles.emptyState}>
+								<p>You have no own projects yet</p>
+							</div>
+						)}
+					</div>
+				</section>
+
+				{foreignProjects.length > 0 && (
+					<section className={styles.projectsSection}>
+						<h2 className={styles.sectionTitle}>Collaborative projects</h2>
+						<div className={styles.projectGrid}>
+							{foreignProjects.map(project => (
+								<div key={project.id} className={styles.projectCard}>
+									<h3 className={styles.projectName}>{project.name}</h3>
+									<p className={styles.projectDescription}>
+										{project.description || 'No description'}
+									</p>
+									<div className={styles.projectStats}>
+										<span>Boards: {project.boards?.length || 0}</span>
+									</div>
+								</div>
+							))}
+						</div>
+					</section>
+				)}
 			</main>
 		</div>
 	);

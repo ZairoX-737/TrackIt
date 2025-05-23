@@ -1,177 +1,449 @@
 import { create } from 'zustand';
-
-type ProjectAndBoards = Record<string, string[]>;
-
-type Task = {
-	id: number;
-	status: string;
-	header: string;
-	description: string;
-	labels: string[];
-};
-
-type Column = {
-	id: number;
-	name: string;
-};
+import {
+	Project,
+	Board,
+	Task,
+	Column,
+	User,
+	Label,
+	ProjectService,
+	BoardService,
+	TaskService,
+	ColumnService,
+	UserService,
+	LabelService,
+} from '../api';
+import Cookies from 'js-cookie';
 
 interface TaskState {
+	// UI State
 	projectVisible: boolean;
 	boardVisible: boolean;
 	modalVisible: boolean;
 	notifOpen: boolean;
 	createTaskOpen: boolean;
 	settingsOpen: boolean;
-	selectedProject: string;
-	selectedBoard: string;
-	projectsAndBoards: ProjectAndBoards;
+	loading: boolean;
+	error: string | null;
+
+	// Data State
+	user: User | null;
+	projects: Project[];
+	boards: Board[];
 	tasks: Task[];
 	columns: Column[];
+	labels: Label[];
+	selectedProject: Project | null;
+	selectedBoard: Board | null;
 
+	// UI Actions
 	setProjectVisible: (visible: boolean) => void;
 	setBoardVisible: (visible: boolean) => void;
 	setModalVisible: (visible: boolean) => void;
 	setCreateTaskOpen: (open: boolean) => void;
 	setNotifOpen: (open: boolean) => void;
 	setSettingsOpen: (open: boolean) => void;
-	selectProject: (project: string) => void;
-	selectBoard: (board: string) => void;
-	handleModalSelection: (project: string, board: string) => void;
 	toggleNotifications: () => void;
 	toggleSettings: () => void;
-	setTasks: (tasks: Task[]) => void; // New action to set tasks
-	setColumns: (columns: Column[]) => void; // New action to set columns
-	addTask: (task: Omit<Task, 'id'>) => void; // Optional: Add a task
-	moveTask: (taskId: number, newStatus: string) => void; // Optional: Move task between columns
+
+	// Data Actions
+	loadUserProfile: () => Promise<void>;
+	loadProjects: () => Promise<void>;
+	loadBoards: (projectId: string) => Promise<void>;
+	loadTasks: () => Promise<void>;
+	loadColumns: (boardId: string) => Promise<void>;
+	loadLabels: () => Promise<void>;
+	selectProject: (project: Project) => Promise<void>;
+	selectBoard: (board: Board) => Promise<void>;
+	handleModalSelection: (project: Project, board: Board) => Promise<void>;
+
+	// CRUD Actions
+	createProject: (name: string) => Promise<void>;
+	createBoard: (
+		projectId: string,
+		name: string,
+		description?: string
+	) => Promise<void>;
+	createTask: (
+		columnId: string,
+		title: string,
+		description?: string,
+		labelIds?: string[]
+	) => Promise<void>;
+	createColumn: (boardId: string, name: string) => Promise<void>;
+	createLabel: (name: string, color: string) => Promise<void>;
+	updateTask: (taskId: string, data: Partial<Task>) => Promise<void>;
+	updateLabel: (
+		labelId: string,
+		name?: string,
+		color?: string
+	) => Promise<void>;
+	deleteTask: (taskId: string) => Promise<void>;
+	deleteLabel: (labelId: string) => Promise<void>;
+	moveTask: (taskId: string, newColumnId: string) => Promise<void>;
+
+	// Auth check
+	checkAuth: () => boolean;
+	clearStore: () => void;
 }
 
-export const useTaskStore = create<TaskState>(set => ({
+export const useTaskStore = create<TaskState>((set, get) => ({
+	// Initial UI State
 	projectVisible: false,
 	boardVisible: false,
 	modalVisible: false,
 	createTaskOpen: false,
 	notifOpen: false,
 	settingsOpen: false,
-	selectedProject: 'Marketing',
-	selectedBoard: 'Sprint 1',
-	projectsAndBoards: {
-		Marketing: ['Sprint 1', 'Sprint 2'],
-		Development: ['Bug Fixes', 'Feature Development'],
-		Design: ['UI Improvements', 'UX Research'],
-		Sales: ['Client Outreach', 'Lead Generation'],
-		test1: ['Client Outreach', 'Lead Generation'],
-		test2: ['Client Outreach', 'Lead Generation'],
-		test3: ['Client Outreach', 'Lead Generation'],
-		test4: ['Client Outreach', 'Lead Generation'],
-		test5: ['Client Outreach', 'Lead Generation'],
-		test6: ['Client Outreach', 'Lead Generation'],
-		test7: ['Client Outreach', 'Lead Generation'],
-		test8: ['Client Outreach', 'Lead Generation'],
-		test9: ['Client Outreach', 'Lead Generation'],
-		test10: ['Client Outreach', 'Lead Generation'],
-	},
-	tasks: [
-		{
-			id: 1,
-			status: 'backlog',
-			header: 'Task1',
-			description: 'Lorem ipsum dolor',
-			labels: ['#ef4444', '#4ade80', '#60a5fa'],
-		},
-		{
-			id: 2,
-			status: 'backlog',
-			header: 'Task1',
-			description: 'Lorem ipsum dolor',
-			labels: ['#4ade80', '#60a5fa'],
-		},
-		{
-			id: 3,
-			status: 'backlog',
-			header: 'Task1',
-			description: 'Lorem ipsum dolor',
-			labels: ['#ef4444', '#60a5fa'],
-		},
-		{
-			id: 4,
-			status: 'backlog',
-			header:
-				'Lorem ipsum dolor Lorem ipsum dolor Lorem ipsum dolor Lorem ipsum dolor Lorem ipsum dolor Lorem ipsum dolor Lorem ipsum dolorLorem ipsum dolorLorem ipsum dolorLorem ipsum dolorLorem ipsum dolorLorem ipsum dolor',
-			description: 'Lorem ipsum dolor',
-			labels: ['#60a5fa'],
-		},
-		{
-			id: 5,
-			status: 'backlog',
-			header:
-				'Lorem ipsum dolor Lorem ipsum dolor Lorem ipsum dolor Lorem ipsum dolor Lorem ipsum dolor Lorem ipsum dolor Lorem ipsum dolorLorem ipsum dolorLorem ipsum dolorLorem ipsum dolorLorem ipsum dolorLorem ipsum dolor',
-			description: 'Lorem ipsum dolor',
-			labels: ['#ef4444'],
-		},
-		{
-			id: 6,
-			status: 'backlog',
-			header: 'Task2',
-			description: 'Lorem ipsum dolor',
-			labels: ['#ef4444', '#60a5fa'],
-		},
-		{
-			id: 7,
-			status: 'doing',
-			header: 'Task3',
-			description: 'Lorem ipsum dolor',
-			labels: ['#4ade80', '#ef4444', '#60a5fa'],
-		},
-		{
-			id: 8,
-			status: 'review',
-			header: 'Task4',
-			description: 'Lorem ipsum dolor',
-			labels: ['#4ade80', '#60a5fa'],
-		},
-	],
-	columns: [
-		{ id: 1, name: 'backlog' },
-		{ id: 2, name: 'doing' },
-		{ id: 3, name: 'review' },
-		{ id: 4, name: 'done' },
-		{ id: 5, name: 'rework' },
-		{ id: 6, name: 'Steve Jobs' },
-	],
+	loading: false,
+	error: null,
+
+	// Initial Data State
+	user: null,
+	projects: [],
+	boards: [],
+	tasks: [],
+	columns: [],
+	labels: [],
+	selectedProject: null,
+	selectedBoard: null,
+
+	// UI Actions
 	setProjectVisible: visible => set({ projectVisible: visible }),
 	setBoardVisible: visible => set({ boardVisible: visible }),
 	setModalVisible: visible => set({ modalVisible: visible }),
 	setCreateTaskOpen: open => set({ createTaskOpen: open }),
 	setNotifOpen: open => set({ notifOpen: open }),
 	setSettingsOpen: open => set({ settingsOpen: open }),
-	selectProject: project =>
-		set(state => ({
-			selectedProject: project,
-			selectedBoard: state.projectsAndBoards[project][0],
-			projectVisible: false,
-		})),
-	selectBoard: board => set({ selectedBoard: board, boardVisible: false }),
-	handleModalSelection: (project, board) =>
-		set({
-			selectedProject: project,
-			selectedBoard: board,
-			modalVisible: false,
-		}),
 	toggleNotifications: () =>
 		set(state => ({ notifOpen: !state.notifOpen, settingsOpen: false })),
 	toggleSettings: () =>
 		set(state => ({ settingsOpen: !state.settingsOpen, notifOpen: false })),
 
-	setTasks: tasks => set({ tasks }),
-	setColumns: columns => set({ columns }),
-	addTask: task =>
-		set(state => ({
-			tasks: [...state.tasks, { ...task, id: state.tasks.length + 1 }],
-		})),
-	moveTask: (taskId, newStatus) =>
-		set(state => ({
-			tasks: state.tasks.map(task =>
-				task.id === taskId ? { ...task, status: newStatus } : task
-			),
-		})),
+	// Auth check
+	checkAuth: () => {
+		const token = Cookies.get('accessToken');
+		return !!token;
+	},
+
+	clearStore: () =>
+		set({
+			user: null,
+			projects: [],
+			boards: [],
+			tasks: [],
+			columns: [],
+			labels: [],
+			selectedProject: null,
+			selectedBoard: null,
+			projectVisible: false,
+			boardVisible: false,
+			modalVisible: false,
+			createTaskOpen: false,
+			notifOpen: false,
+			settingsOpen: false,
+			loading: false,
+			error: null,
+		}),
+
+	// Data Loading Actions
+	loadUserProfile: async () => {
+		try {
+			set({ loading: true, error: null });
+			const user = await UserService.getProfile();
+			set({ user, loading: false });
+		} catch (error) {
+			set({ error: 'Ошибка загрузки профиля пользователя', loading: false });
+			console.error('Error loading user profile:', error);
+		}
+	},
+
+	loadProjects: async () => {
+		try {
+			set({ loading: true, error: null });
+			const projects = await ProjectService.getAllDetailed();
+			set({ projects, loading: false });
+
+			// Auto-select first project if none selected
+			const { selectedProject } = get();
+			if (!selectedProject && projects.length > 0) {
+				await get().selectProject(projects[0]);
+			}
+		} catch (error) {
+			set({ error: 'Ошибка загрузки проектов', loading: false });
+			console.error('Error loading projects:', error);
+		}
+	},
+
+	loadBoards: async (projectId: string) => {
+		try {
+			set({ loading: true, error: null });
+			const boards = await BoardService.getAll(projectId);
+			set({ boards, loading: false });
+
+			// Auto-select first board if none selected
+			const { selectedBoard } = get();
+			if (!selectedBoard && boards.length > 0) {
+				await get().selectBoard(boards[0]);
+			}
+		} catch (error) {
+			set({ error: 'Ошибка загрузки досок', loading: false });
+			console.error('Error loading boards:', error);
+		}
+	},
+
+	loadTasks: async () => {
+		try {
+			set({ loading: true, error: null });
+			const tasks = await TaskService.getAll();
+			set({ tasks, loading: false });
+		} catch (error) {
+			set({ error: 'Ошибка загрузки задач', loading: false });
+			console.error('Error loading tasks:', error);
+		}
+	},
+
+	loadColumns: async (boardId: string) => {
+		try {
+			set({ loading: true, error: null });
+			const columns = await ColumnService.getAll(boardId);
+			set({ columns, loading: false });
+		} catch (error) {
+			set({ error: 'Ошибка загрузки колонок', loading: false });
+			console.error('Error loading columns:', error);
+		}
+	},
+
+	loadLabels: async () => {
+		try {
+			set({ loading: true, error: null });
+			const labels = await LabelService.getAll();
+			set({ labels, loading: false });
+		} catch (error) {
+			set({ error: 'Ошибка загрузки лейблов', loading: false });
+			console.error('Error loading labels:', error);
+		}
+	},
+
+	// Selection Actions
+	selectProject: async (project: Project) => {
+		set({
+			selectedProject: project,
+			projectVisible: false,
+			selectedBoard: null,
+			boards: [],
+			columns: [],
+			tasks: [],
+		});
+		await get().loadBoards(project.id);
+	},
+
+	selectBoard: async (board: Board) => {
+		set({
+			selectedBoard: board,
+			boardVisible: false,
+			columns: [],
+			tasks: [],
+		});
+		await get().loadColumns(board.id);
+		await get().loadTasks();
+	},
+
+	handleModalSelection: async (project: Project, board: Board) => {
+		set({
+			selectedProject: project,
+			selectedBoard: board,
+			modalVisible: false,
+		});
+		await get().loadColumns(board.id);
+		await get().loadTasks();
+	},
+
+	// CRUD Actions
+	createProject: async (name: string, description?: string) => {
+		try {
+			set({ loading: true, error: null });
+			// description больше не передаём
+			const newProject = await ProjectService.create({ name });
+			set(state => ({
+				projects: [...state.projects, newProject],
+				loading: false,
+			}));
+		} catch (error) {
+			set({ error: 'Ошибка создания проекта', loading: false });
+			console.error('Error creating project:', error);
+		}
+	},
+
+	createBoard: async (projectId: string, name: string) => {
+		try {
+			set({ loading: true, error: null });
+			const newBoard = await BoardService.create(projectId, {
+				name,
+			});
+			set(state => ({
+				boards: [...state.boards, newBoard],
+				loading: false,
+			}));
+		} catch (error) {
+			set({ error: 'Ошибка создания доски', loading: false });
+			console.error('Error creating board:', error);
+		}
+	},
+	createTask: async (
+		columnId: string,
+		title: string,
+		description?: string,
+		labelIds?: string[]
+	) => {
+		try {
+			set({ loading: true, error: null });
+
+			// Если labelIds содержат цвета (fallback лейблы), создаем задачу с лейблами как цветами
+			const isUsingColors = labelIds?.some(id => id.startsWith('#'));
+
+			const newTask = await TaskService.create(columnId, {
+				title,
+				description,
+				status: 'todo',
+				labelIds: isUsingColors ? undefined : labelIds,
+			});
+
+			// Если используем цвета, добавляем их прямо в задачу для отображения
+			if (isUsingColors && labelIds) {
+				newTask.labels = labelIds.map(color => ({
+					id: color, // Use color as a temporary id or generate a unique id if needed
+					name: color, // Or use a placeholder name
+					color,
+					createdAt: new Date().toISOString(),
+					updatedAt: new Date().toISOString(),
+				}));
+			}
+
+			set(state => ({
+				tasks: [...state.tasks, newTask],
+				loading: false,
+			}));
+		} catch (error) {
+			set({ error: 'Ошибка создания задачи', loading: false });
+			console.error('Error creating task:', error);
+		}
+	},
+
+	createColumn: async (boardId: string, name: string) => {
+		try {
+			set({ loading: true, error: null });
+			const newColumn = await ColumnService.create(boardId, { name });
+			set(state => ({
+				columns: [...state.columns, newColumn],
+				loading: false,
+			}));
+		} catch (error) {
+			set({ error: 'Ошибка создания колонки', loading: false });
+			console.error('Error creating column:', error);
+		}
+	},
+
+	updateTask: async (taskId: string, data: Partial<Task>) => {
+		try {
+			set({ loading: true, error: null });
+			const updatedTask = await TaskService.update(taskId, data as any);
+			set(state => ({
+				tasks: state.tasks.map(task =>
+					task.id === taskId ? updatedTask : task
+				),
+				loading: false,
+			}));
+		} catch (error) {
+			set({ error: 'Ошибка обновления задачи', loading: false });
+			console.error('Error updating task:', error);
+		}
+	},
+
+	deleteTask: async (taskId: string) => {
+		try {
+			set({ loading: true, error: null });
+			await TaskService.delete(taskId);
+			set(state => ({
+				tasks: state.tasks.filter(task => task.id !== taskId),
+				loading: false,
+			}));
+		} catch (error) {
+			set({ error: 'Ошибка удаления задачи', loading: false });
+			console.error('Error deleting task:', error);
+		}
+	},
+
+	moveTask: async (taskId: string, newColumnId: string) => {
+		try {
+			set({ loading: true, error: null });
+			// Найдем задачу и обновим её columnId
+			const { tasks } = get();
+			const task = tasks.find(t => t.id === taskId);
+			if (task) {
+				await TaskService.update(taskId, {
+					...task,
+					columnId: newColumnId,
+				} as any);
+				set(state => ({
+					tasks: state.tasks.map(task =>
+						task.id === taskId ? { ...task, columnId: newColumnId } : task
+					),
+					loading: false,
+				}));
+			}
+		} catch (error) {
+			set({ error: 'Ошибка перемещения задачи', loading: false });
+			console.error('Error moving task:', error);
+		}
+	},
+
+	// Label CRUD Actions
+	createLabel: async (name: string, color: string) => {
+		try {
+			set({ loading: true, error: null });
+			const newLabel = await LabelService.create({ name, color });
+			set(state => ({
+				labels: [...state.labels, newLabel],
+				loading: false,
+			}));
+		} catch (error) {
+			set({ error: 'Ошибка создания лейбла', loading: false });
+			console.error('Error creating label:', error);
+		}
+	},
+
+	updateLabel: async (labelId: string, name?: string, color?: string) => {
+		try {
+			set({ loading: true, error: null });
+			const updateData: any = {};
+			if (name !== undefined) updateData.name = name;
+			if (color !== undefined) updateData.color = color;
+
+			const updatedLabel = await LabelService.update(labelId, updateData);
+			set(state => ({
+				labels: state.labels.map(label =>
+					label.id === labelId ? updatedLabel : label
+				),
+				loading: false,
+			}));
+		} catch (error) {
+			set({ error: 'Ошибка обновления лейбла', loading: false });
+			console.error('Error updating label:', error);
+		}
+	},
+
+	deleteLabel: async (labelId: string) => {
+		try {
+			set({ loading: true, error: null });
+			await LabelService.delete(labelId);
+			set(state => ({
+				labels: state.labels.filter(label => label.id !== labelId),
+				loading: false,
+			}));
+		} catch (error) {
+			set({ error: 'Ошибка удаления лейбла', loading: false });
+			console.error('Error deleting label:', error);
+		}
+	},
 }));

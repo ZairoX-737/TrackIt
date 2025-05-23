@@ -4,7 +4,7 @@ import { FiUsers, FiUserPlus, FiXCircle } from 'react-icons/fi';
 
 interface User {
 	id: string;
-	name: string;
+	username: string; // Меняем name на username
 	email: string;
 	role: 'admin' | 'editor' | 'viewer';
 	avatarUrl?: string;
@@ -28,21 +28,21 @@ export default function ProjectUsersModal({
 	const [users, setUsers] = useState<User[]>([
 		{
 			id: '1',
-			name: 'John Doe',
+			username: 'John Doe',
 			email: 'john@example.com',
 			role: 'admin',
 			avatarUrl: 'https://i.pravatar.cc/150?img=1',
 		},
 		{
 			id: '2',
-			name: 'Jane Smith',
+			username: 'Jane Smith',
 			email: 'jane@example.com',
 			role: 'editor',
 			avatarUrl: 'https://i.pravatar.cc/150?img=5',
 		},
 		{
 			id: '3',
-			name: 'Mike Johnson',
+			username: 'Mike Johnson',
 			email: 'mike@example.com',
 			role: 'viewer',
 			avatarUrl: 'https://i.pravatar.cc/150?img=8',
@@ -142,17 +142,21 @@ export default function ProjectUsersModal({
 											{user.avatarUrl ? (
 												<img
 													src='/api/placeholder/40/40'
-													alt={user.name}
+													alt={user.username}
 													className='w-full h-full object-cover'
 												/>
 											) : (
 												<div className='w-full h-full flex items-center justify-center text-lg font-semibold'>
-													{user.name.charAt(0)}
+													{user.username
+														? user.username.charAt(0)
+														: user.email.charAt(0)}
 												</div>
 											)}
 										</div>
 										<div>
-											<div className='font-medium'>{user.name}</div>
+											<div className='font-medium'>
+												{user.username || user.email}
+											</div>
 											<div className='text-sm text-gray-400'>{user.email}</div>
 										</div>
 									</div>

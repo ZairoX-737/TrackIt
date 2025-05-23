@@ -68,8 +68,8 @@ export default function SettingsModal({
 			{/* Render the appropriate modal based on state */}
 			{projectSettingsOpen && (
 				<ProjectSettingsModal
-					boards={projectsAndBoards[selectedProject]} // Add the boards data
-					onSave={updatedBoards => handleSaveSettings(updatedBoards)} // Add a save handler
+					boards={projectsAndBoards?.[selectedProject] || []} // Добавляем проверку на undefined с помощью ?. оператора и дефолтное значение в виде пустого массива
+					onSave={updatedBoards => handleSaveSettings(updatedBoards)}
 					isOpen={projectSettingsOpen}
 					onClose={() => setProjectSettingsOpen(false)}
 					projectName={selectedProject}

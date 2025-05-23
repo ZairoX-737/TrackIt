@@ -4,8 +4,30 @@ import styles from './mainpage.module.scss';
 import WLogo from '../public/logo-white.png';
 import Link from 'next/link';
 import LandingScreen from '../public/landing_screen.png';
+import { useAuth } from './hooks/useAuth';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function MainPage() {
+	const { isAuthenticated, loading } = useAuth();
+	const router = useRouter();
+
+	useEffect(() => {
+		// Если пользователь аутентифицирован, перенаправляем на страницу задач
+		if (!loading && isAuthenticated) {
+			router.replace('/tasks');
+		}
+	}, [isAuthenticated, loading, router]);
+
+	// Показываем загрузку пока проверяем аутентификацию
+	if (loading) {
+		return (
+			<div className='w-screen h-screen flex items-center justify-center'>
+				<div className='text-white text-xl'>Loading...</div>
+			</div>
+		);
+	}
+
 	return (
 		<>
 			<header>

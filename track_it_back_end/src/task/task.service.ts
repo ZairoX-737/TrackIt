@@ -5,11 +5,17 @@ import { TaskDto } from './dto/task.dto';
 @Injectable()
 export class TaskService {
 	constructor(private prisma: PrismaService) {}
-
 	async getAll(createdBy: string) {
 		return this.prisma.task.findMany({
 			where: {
 				createdBy,
+			},
+			include: {
+				labels: {
+					include: {
+						label: true,
+					},
+				},
 			},
 		});
 	}
@@ -22,11 +28,12 @@ export class TaskService {
 			},
 		});
 	}
-
 	async create(dto: TaskDto, createdBy: string, columnId: string) {
-		return this.prisma.task.create({
+		const { labelIds, ...taskData } = dto;
+
+		const task = await this.prisma.task.create({
 			data: {
-				...dto,
+				...taskData,
 				user: {
 					connect: {
 						id: createdBy,
@@ -35,6 +42,28 @@ export class TaskService {
 				column: {
 					connect: {
 						id: columnId,
+					},
+				},
+			},
+		});
+
+		// Если есть labelIds, создаём связи с лейблами
+		if (labelIds && labelIds.length > 0) {
+			await this.prisma.labelOnTask.createMany({
+				data: labelIds.map(labelId => ({
+					taskId: task.id,
+					labelId,
+				})),
+			});
+		}
+
+		// Возвращаем задачу с лейблами
+		return this.prisma.task.findUnique({
+			where: { id: task.id },
+			include: {
+				labels: {
+					include: {
+						label: true,
 					},
 				},
 			},

@@ -15,9 +15,16 @@ export class ColumnService {
 	}
 
 	async create(dto: ColumnDto, boardId: string) {
+		// Получаем максимальный position для этой доски
+		const lastColumn = await this.prisma.column.findFirst({
+			where: { boardId },
+			orderBy: { position: 'desc' },
+		});
+		const nextPosition = lastColumn ? lastColumn.position + 1 : 1;
 		return this.prisma.column.create({
 			data: {
 				...dto,
+				position: dto.position ?? nextPosition,
 				board: {
 					connect: {
 						id: boardId,

@@ -1,6 +1,12 @@
 import { Priority } from '@prisma/client';
 import { Transform } from 'class-transformer';
-import { IsEnum, IsOptional, IsString, MaxLength } from 'class-validator';
+import {
+	IsEnum,
+	IsOptional,
+	IsString,
+	MaxLength,
+	IsArray,
+} from 'class-validator';
 
 export class TaskDto {
 	@IsString()
@@ -21,4 +27,9 @@ export class TaskDto {
 	@IsOptional()
 	@Transform(({ value }) => ('' + value).toLowerCase())
 	priority: Priority;
+
+	@IsArray()
+	@IsOptional()
+	@IsString({ each: true })
+	labelIds?: string[];
 }

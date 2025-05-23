@@ -55,15 +55,8 @@ export class ProjectService {
 	}
 
 	async getBoards(projectId: string) {
-		return this.prisma.project.findMany({
-			where: {
-				id: projectId,
-			},
-			select: {
-				id: true,
-				name: true,
-				boards: true,
-			},
+		return this.prisma.board.findMany({
+			where: { projectId },
 		});
 	}
 

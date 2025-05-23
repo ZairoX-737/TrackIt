@@ -17,14 +17,8 @@ export class BoardService {
 	}
 
 	async getColumns(boardId: string) {
-		return this.prisma.board.findMany({
-			where: {
-				id: boardId,
-			},
-			select: {
-				name: true,
-				columns: true,
-			},
+		return this.prisma.column.findMany({
+			where: { boardId },
 		});
 	}
 
