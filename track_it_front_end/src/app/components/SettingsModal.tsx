@@ -4,28 +4,23 @@ import { FiSettings, FiUsers, FiTrash2 } from 'react-icons/fi';
 import DeleteProjectModal from './DeleteModal';
 import ProjectSettingsModal from './ProjectSettingsModal';
 import ProjectUsersModal from './ProjectUsersModal';
+import { Project } from '../api/types';
 
 export default function SettingsModal({
 	isOpen,
 	onClose,
-	projectsAndBoards,
 	selectedProject,
 }: {
 	isOpen: boolean;
 	onClose: () => void;
-	selectedProject: string;
-	projectsAndBoards: Record<string, string[]>;
+	selectedProject: Project | null;
 }) {
 	// Track which modal is currently open
 	const [projectSettingsOpen, setProjectSettingsOpen] = useState(false);
 	const [projectUsersOpen, setProjectUsersOpen] = useState(false);
 	const [deleteProjectOpen, setDeleteProjectOpen] = useState(false);
 
-	if (!isOpen) return null;
-
-	function handleSaveSettings(updatedBoards: string): void {
-		throw new Error('Function not implemented.');
-	}
+	if (!isOpen || !selectedProject) return null;
 
 	return (
 		<div
@@ -38,7 +33,6 @@ export default function SettingsModal({
 					<IoClose size={20} />
 				</button>
 			</div>
-
 			<div className='p-2'>
 				<button
 					className='w-full text-left p-2 flex items-center gap-2 hover:bg-[#3c3c3e] rounded transition-colors'
@@ -64,31 +58,31 @@ export default function SettingsModal({
 					<span>Delete Project</span>
 				</button>
 			</div>
-
 			{/* Render the appropriate modal based on state */}
 			{projectSettingsOpen && (
 				<ProjectSettingsModal
-					boards={projectsAndBoards?.[selectedProject] || []} // Добавляем проверку на undefined с помощью ?. оператора и дефолтное значение в виде пустого массива
-					onSave={updatedBoards => handleSaveSettings(updatedBoards)}
+					project={selectedProject}
 					isOpen={projectSettingsOpen}
 					onClose={() => setProjectSettingsOpen(false)}
-					projectName={selectedProject}
 				/>
-			)}
-
+			)}{' '}
 			{projectUsersOpen && (
 				<ProjectUsersModal
-					projectName={selectedProject}
+					projectId={selectedProject.id}
+					projectName={selectedProject.name}
 					isOpen={projectUsersOpen}
 					onClose={() => setProjectUsersOpen(false)}
 				/>
-			)}
-
+			)}{' '}
 			{deleteProjectOpen && (
 				<DeleteProjectModal
 					isOpen={deleteProjectOpen}
 					onClose={() => setDeleteProjectOpen(false)}
-					projectName={selectedProject}
+					project={selectedProject}
+					onProjectDeleted={() => {
+						setDeleteProjectOpen(false);
+						onClose(); // Закрываем настройки после удаления проекта
+					}}
 				/>
 			)}
 		</div>

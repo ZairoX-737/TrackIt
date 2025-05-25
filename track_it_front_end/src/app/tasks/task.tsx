@@ -1,8 +1,8 @@
 'use client';
-import { useState } from 'react';
+import { useRef } from 'react';
 import styles from './Tasks.module.scss';
-import { BsThreeDots } from 'react-icons/bs';
 import { nanoid } from 'nanoid';
+import { useTaskStore } from '../store/taskStore';
 
 interface IProps {
 	task: {
@@ -15,14 +15,22 @@ interface IProps {
 }
 
 const Task = ({ task }: IProps) => {
-	const [showDescr, setShowDescr] = useState(false);
-	function handleClick() {
-		console.log(task.id);
+	const { setTaskDetailOpen, setSelectedTaskForDetail } = useTaskStore();
+	const taskRef = useRef<HTMLLIElement>(null);
+
+	function handleTaskClick() {
+		setSelectedTaskForDetail(task as any);
+		setTaskDetailOpen(true);
 	}
+
 	return (
-		<li key={task.id} className={styles.task}>
+		<li
+			ref={taskRef}
+			key={task.id}
+			className={styles.task}
+			onClick={handleTaskClick}
+		>
 			<div className='flex justify-between items-center'>
-				{' '}
 				<div className='flex justify-start items-center mb-[7px] gap-1'>
 					{(task.labels ?? []).map((labelData: any, index: number) => {
 						// Определяем цвет лейбла из разных возможных структур данных
@@ -50,15 +58,12 @@ const Task = ({ task }: IProps) => {
 						);
 					})}
 				</div>
-				<div>
-					<div className={styles.taskSettings} onClick={handleClick}>
-						<BsThreeDots size='1.4em' className={styles.taskSettings} />
-					</div>
-				</div>
 			</div>
-			<div className=' font-medium text-[16px] select-none'>{task.title}</div>
+			<div className='font-medium text-[16px] select-none'>{task.title}</div>
 			<div className={`${styles.taskDescription} font-rubik`}>
-				{showDescr ? <span className=''>{task.description}</span> : ''}
+				{task.description && (
+					<span className='text-gray-400 text-sm'>{task.description}</span>
+				)}
 			</div>
 		</li>
 	);

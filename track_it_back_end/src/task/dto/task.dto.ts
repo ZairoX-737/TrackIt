@@ -32,4 +32,8 @@ export class TaskDto {
 	@IsOptional()
 	@IsString({ each: true })
 	labelIds?: string[];
+
+	@IsString()
+	@IsOptional()
+	columnId?: string;
 }

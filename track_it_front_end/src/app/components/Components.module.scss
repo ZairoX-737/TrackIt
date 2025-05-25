@@ -81,3 +81,85 @@
 	background: #ff9900b1;
 	color: white;
 }
+
+.createButton {
+	width: 100%;
+	padding: 8px 12px;
+	background-color: #3c3c3e;
+	color: white;
+	border: none;
+	border-radius: 4px;
+	cursor: pointer;
+	font-size: 14px;
+	transition: background-color 0.2s ease;
+	&:hover:not(:disabled) {
+		background-color: #ff9800;
+	}
+	&:disabled {
+		background-color: #555;
+		cursor: not-allowed;
+		opacity: 0.6;
+	}
+}
+
+.input {
+	width: 100%;
+	padding: 10px;
+	border-radius: 5px;
+	border: 1px solid #555;
+	background-color: #3c3c3e;
+	color: white;
+	font-size: 14px;
+	&:focus {
+		outline: none;
+		border-color: #ff9800;
+	}
+	&:disabled {
+		background-color: #555;
+		cursor: not-allowed;
+	}
+}
+
+.error {
+	color: #ff4444;
+	font-size: 14px;
+}
+
+.modalActions {
+	display: flex;
+	gap: 10px;
+	justify-content: flex-end;
+}
+
+.cancelButton {
+	padding: 10px 20px;
+	border-radius: 5px;
+	border: none;
+	background-color: #6c757d;
+	color: white;
+	cursor: pointer;
+	&:hover:not(:disabled) {
+		background-color: #5a6268;
+	}
+	&:disabled {
+		cursor: not-allowed;
+		opacity: 0.6;
+	}
+}
+
+.submitButton {
+	padding: 10px 20px;
+	border-radius: 5px;
+	border: none;
+	background-color: #ff9800;
+	color: white;
+	cursor: pointer;
+	&:hover:not(:disabled) {
+		background-color: #e68900;
+	}
+	&:disabled {
+		background-color: #6c757d;
+		cursor: not-allowed;
+		opacity: 0.6;
+	}
+}

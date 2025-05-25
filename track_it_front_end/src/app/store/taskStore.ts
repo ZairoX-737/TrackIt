@@ -23,6 +23,8 @@ interface TaskState {
 	notifOpen: boolean;
 	createTaskOpen: boolean;
 	settingsOpen: boolean;
+	taskDetailOpen: boolean;
+	selectedTaskForDetail: Task | null;
 	loading: boolean;
 	error: string | null;
 
@@ -35,7 +37,6 @@ interface TaskState {
 	labels: Label[];
 	selectedProject: Project | null;
 	selectedBoard: Board | null;
-
 	// UI Actions
 	setProjectVisible: (visible: boolean) => void;
 	setBoardVisible: (visible: boolean) => void;
@@ -43,6 +44,8 @@ interface TaskState {
 	setCreateTaskOpen: (open: boolean) => void;
 	setNotifOpen: (open: boolean) => void;
 	setSettingsOpen: (open: boolean) => void;
+	setTaskDetailOpen: (open: boolean) => void;
+	setSelectedTaskForDetail: (task: Task | null) => void;
 	toggleNotifications: () => void;
 	toggleSettings: () => void;
 
@@ -73,12 +76,20 @@ interface TaskState {
 	createColumn: (boardId: string, name: string) => Promise<void>;
 	createLabel: (name: string, color: string) => Promise<void>;
 	updateTask: (taskId: string, data: Partial<Task>) => Promise<void>;
+	updateProject: (projectId: string, name: string) => Promise<void>;
+	updateBoard: (
+		projectId: string,
+		boardId: string,
+		name: string
+	) => Promise<void>;
 	updateLabel: (
 		labelId: string,
 		name?: string,
 		color?: string
 	) => Promise<void>;
 	deleteTask: (taskId: string) => Promise<void>;
+	deleteProject: (projectId: string) => Promise<void>;
+	deleteBoard: (projectId: string, boardId: string) => Promise<void>;
 	deleteLabel: (labelId: string) => Promise<void>;
 	moveTask: (taskId: string, newColumnId: string) => Promise<void>;
 
@@ -95,6 +106,8 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 	createTaskOpen: false,
 	notifOpen: false,
 	settingsOpen: false,
+	taskDetailOpen: false,
+	selectedTaskForDetail: null,
 	loading: false,
 	error: null,
 
@@ -107,7 +120,6 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 	labels: [],
 	selectedProject: null,
 	selectedBoard: null,
-
 	// UI Actions
 	setProjectVisible: visible => set({ projectVisible: visible }),
 	setBoardVisible: visible => set({ boardVisible: visible }),
@@ -115,6 +127,8 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 	setCreateTaskOpen: open => set({ createTaskOpen: open }),
 	setNotifOpen: open => set({ notifOpen: open }),
 	setSettingsOpen: open => set({ settingsOpen: open }),
+	setTaskDetailOpen: open => set({ taskDetailOpen: open }),
+	setSelectedTaskForDetail: task => set({ selectedTaskForDetail: task }),
 	toggleNotifications: () =>
 		set(state => ({ notifOpen: !state.notifOpen, settingsOpen: false })),
 	toggleSettings: () =>
@@ -125,7 +139,6 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 		const token = Cookies.get('accessToken');
 		return !!token;
 	},
-
 	clearStore: () =>
 		set({
 			user: null,
@@ -142,6 +155,8 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 			createTaskOpen: false,
 			notifOpen: false,
 			settingsOpen: false,
+			taskDetailOpen: false,
+			selectedTaskForDetail: null,
 			loading: false,
 			error: null,
 		}),
@@ -153,7 +168,7 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 			const user = await UserService.getProfile();
 			set({ user, loading: false });
 		} catch (error) {
-			set({ error: 'Ошибка загрузки профиля пользователя', loading: false });
+			set({ error: 'Failed to load user profile', loading: false });
 			console.error('Error loading user profile:', error);
 		}
 	},
@@ -170,7 +185,7 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 				await get().selectProject(projects[0]);
 			}
 		} catch (error) {
-			set({ error: 'Ошибка загрузки проектов', loading: false });
+			set({ error: 'Failed to load projects', loading: false });
 			console.error('Error loading projects:', error);
 		}
 	},
@@ -187,7 +202,7 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 				await get().selectBoard(boards[0]);
 			}
 		} catch (error) {
-			set({ error: 'Ошибка загрузки досок', loading: false });
+			set({ error: 'Failed to load boards', loading: false });
 			console.error('Error loading boards:', error);
 		}
 	},
@@ -198,7 +213,7 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 			const tasks = await TaskService.getAll();
 			set({ tasks, loading: false });
 		} catch (error) {
-			set({ error: 'Ошибка загрузки задач', loading: false });
+			set({ error: 'Failed to load tasks', loading: false });
 			console.error('Error loading tasks:', error);
 		}
 	},
@@ -209,7 +224,7 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 			const columns = await ColumnService.getAll(boardId);
 			set({ columns, loading: false });
 		} catch (error) {
-			set({ error: 'Ошибка загрузки колонок', loading: false });
+			set({ error: 'Failed to load columns', loading: false });
 			console.error('Error loading columns:', error);
 		}
 	},
@@ -220,7 +235,7 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 			const labels = await LabelService.getAll();
 			set({ labels, loading: false });
 		} catch (error) {
-			set({ error: 'Ошибка загрузки лейблов', loading: false });
+			set({ error: 'Failed to load labels', loading: false });
 			console.error('Error loading labels:', error);
 		}
 	},
@@ -260,36 +275,63 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 	},
 
 	// CRUD Actions
-	createProject: async (name: string, description?: string) => {
+	createProject: async (name: string) => {
 		try {
 			set({ loading: true, error: null });
-			// description больше не передаём
 			const newProject = await ProjectService.create({ name });
 			set(state => ({
 				projects: [...state.projects, newProject],
+				selectedProject: newProject,
+				selectedBoard: null,
+				boards: [],
+				tasks: [],
+				columns: [],
 				loading: false,
 			}));
-		} catch (error) {
-			set({ error: 'Ошибка создания проекта', loading: false });
-			console.error('Error creating project:', error);
+		} catch (error: any) {
+			set({
+				error: error.response?.data?.message || 'Failed to create project',
+				loading: false,
+			});
+			throw error;
 		}
 	},
-
 	createBoard: async (projectId: string, name: string) => {
 		try {
 			set({ loading: true, error: null });
-			const newBoard = await BoardService.create(projectId, {
-				name,
+			const newBoard = await BoardService.create(projectId, { name });
+			set(state => {
+				const updatedProjects = state.projects.map(project =>
+					project.id === projectId
+						? { ...project, boards: [...(project.boards || []), newBoard] }
+						: project
+				);
+
+				// Update selectedProject if it's the same project where we added the board
+				const updatedSelectedProject =
+					state.selectedProject?.id === projectId
+						? updatedProjects.find(p => p.id === projectId)
+						: state.selectedProject;
+
+				return {
+					boards: [...state.boards, newBoard],
+					selectedBoard: newBoard,
+					projects: updatedProjects,
+					selectedProject: updatedSelectedProject,
+					columns: [],
+					tasks: [],
+					loading: false,
+				};
 			});
-			set(state => ({
-				boards: [...state.boards, newBoard],
+		} catch (error: any) {
+			set({
+				error: error.response?.data?.message || 'Failed to create board',
 				loading: false,
-			}));
-		} catch (error) {
-			set({ error: 'Ошибка создания доски', loading: false });
-			console.error('Error creating board:', error);
+			});
+			throw error;
 		}
 	},
+
 	createTask: async (
 		columnId: string,
 		title: string,
@@ -325,7 +367,7 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 				loading: false,
 			}));
 		} catch (error) {
-			set({ error: 'Ошибка создания задачи', loading: false });
+			set({ error: 'Failed to create task', loading: false });
 			console.error('Error creating task:', error);
 		}
 	},
@@ -339,11 +381,10 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 				loading: false,
 			}));
 		} catch (error) {
-			set({ error: 'Ошибка создания колонки', loading: false });
+			set({ error: 'Failed to create column', loading: false });
 			console.error('Error creating column:', error);
 		}
 	},
-
 	updateTask: async (taskId: string, data: Partial<Task>) => {
 		try {
 			set({ loading: true, error: null });
@@ -355,8 +396,59 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 				loading: false,
 			}));
 		} catch (error) {
-			set({ error: 'Ошибка обновления задачи', loading: false });
+			set({ error: 'Failed to update task', loading: false });
 			console.error('Error updating task:', error);
+		}
+	},
+
+	updateProject: async (projectId: string, name: string) => {
+		try {
+			set({ loading: true, error: null });
+			const updatedProject = await ProjectService.update(projectId, { name });
+			set(state => ({
+				projects: state.projects.map(project =>
+					project.id === projectId ? { ...project, name } : project
+				),
+				selectedProject:
+					state.selectedProject?.id === projectId
+						? { ...state.selectedProject, name }
+						: state.selectedProject,
+				loading: false,
+			}));
+		} catch (error) {
+			set({ error: 'Failed to update project', loading: false });
+			console.error('Error updating project:', error);
+			throw error;
+		}
+	},
+
+	updateBoard: async (projectId: string, boardId: string, name: string) => {
+		try {
+			set({ loading: true, error: null });
+			const updatedBoard = await BoardService.update(projectId, boardId, {
+				name,
+			});
+			set(state => ({
+				projects: state.projects.map(project =>
+					project.id === projectId
+						? {
+								...project,
+								boards: project.boards?.map(board =>
+									board.id === boardId ? { ...board, name } : board
+								),
+						  }
+						: project
+				),
+				selectedBoard:
+					state.selectedBoard?.id === boardId
+						? { ...state.selectedBoard, name }
+						: state.selectedBoard,
+				loading: false,
+			}));
+		} catch (error) {
+			set({ error: 'Ошибка обновления доски', loading: false });
+			console.error('Error updating board:', error);
+			throw error;
 		}
 	},
 
@@ -369,8 +461,51 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 				loading: false,
 			}));
 		} catch (error) {
-			set({ error: 'Ошибка удаления задачи', loading: false });
+			set({ error: 'Failed to delete task', loading: false });
 			console.error('Error deleting task:', error);
+		}
+	},
+
+	deleteProject: async (projectId: string) => {
+		try {
+			set({ loading: true, error: null });
+			await ProjectService.delete(projectId);
+			set(state => ({
+				projects: state.projects.filter(project => project.id !== projectId),
+				selectedProject:
+					state.selectedProject?.id === projectId
+						? null
+						: state.selectedProject,
+				selectedBoard:
+					state.selectedProject?.id === projectId ? null : state.selectedBoard,
+				boards: state.selectedProject?.id === projectId ? [] : state.boards,
+				columns: state.selectedProject?.id === projectId ? [] : state.columns,
+				tasks: state.selectedProject?.id === projectId ? [] : state.tasks,
+				loading: false,
+			}));
+		} catch (error) {
+			set({ error: 'Failed to delete project', loading: false });
+			console.error('Error deleting project:', error);
+			throw error;
+		}
+	},
+
+	deleteBoard: async (projectId: string, boardId: string) => {
+		try {
+			set({ loading: true, error: null });
+			await BoardService.delete(projectId, boardId);
+			set(state => ({
+				boards: state.boards.filter(board => board.id !== boardId),
+				selectedBoard:
+					state.selectedBoard?.id === boardId ? null : state.selectedBoard,
+				columns: state.selectedBoard?.id === boardId ? [] : state.columns,
+				tasks: state.selectedBoard?.id === boardId ? [] : state.tasks,
+				loading: false,
+			}));
+		} catch (error) {
+			set({ error: 'Failed to delete board', loading: false });
+			console.error('Error deleting board:', error);
+			throw error;
 		}
 	},
 
@@ -393,7 +528,7 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 				}));
 			}
 		} catch (error) {
-			set({ error: 'Ошибка перемещения задачи', loading: false });
+			set({ error: 'Failed to move task', loading: false });
 			console.error('Error moving task:', error);
 		}
 	},
@@ -408,7 +543,7 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 				loading: false,
 			}));
 		} catch (error) {
-			set({ error: 'Ошибка создания лейбла', loading: false });
+			set({ error: 'Failed to create label', loading: false });
 			console.error('Error creating label:', error);
 		}
 	},
@@ -428,7 +563,7 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 				loading: false,
 			}));
 		} catch (error) {
-			set({ error: 'Ошибка обновления лейбла', loading: false });
+			set({ error: 'Failed to update label', loading: false });
 			console.error('Error updating label:', error);
 		}
 	},
@@ -442,7 +577,7 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 				loading: false,
 			}));
 		} catch (error) {
-			set({ error: 'Ошибка удаления лейбла', loading: false });
+			set({ error: 'Failed to delete label', loading: false });
 			console.error('Error deleting label:', error);
 		}
 	},

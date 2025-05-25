@@ -99,6 +99,11 @@ export interface Task {
 	createdAt: string;
 	updatedAt: string;
 	labels?: Label[];
+	user?: {
+		id: string;
+		username?: string;
+		email: string;
+	};
 	comments?: Comment[];
 }
 
@@ -110,6 +115,7 @@ export interface TaskDto {
 	dueDate?: string;
 	assignedTo?: string;
 	labelIds?: string[];
+	columnId?: string;
 }
 
 // Label types

@@ -28,8 +28,12 @@ export class BoardService {
 		);
 		return response.data;
 	}
-
 	static async delete(projectId: string, boardId: string): Promise<void> {
-		await $api.delete(`/user/project/${projectId}/board/${boardId}`);
+		try {
+			await $api.delete(`/user/project/${projectId}/board/${boardId}`);
+		} catch (error) {
+			console.error('API Error in BoardService.delete:', error);
+			throw error;
+		}
 	}
 }

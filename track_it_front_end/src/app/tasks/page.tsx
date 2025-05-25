@@ -59,16 +59,28 @@ const TasksContainer = () => {
 						) : (
 							<form
 								onSubmit={handleCreateBoard}
-								className={styles.createColumnForm}
+								className={styles.columnCreateForm}
 							>
 								<input
 									type='text'
 									placeholder='Board name'
 									value={newBoardName}
 									onChange={e => setNewBoardName(e.target.value)}
+									className={styles.columnNameInput}
 									autoFocus
 								/>
-								<button type='submit'>Add</button>
+								<div className={styles.formButtons}>
+									<button type='submit' className={styles.submitBtn}>
+										Create
+									</button>
+									<button
+										type='button'
+										className={styles.cancelBtn}
+										onClick={() => setShowBoardInput(false)}
+									>
+										Cancel
+									</button>
+								</div>
 							</form>
 						)}
 					</div>

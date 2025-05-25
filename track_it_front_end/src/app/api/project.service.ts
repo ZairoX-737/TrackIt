@@ -22,8 +22,23 @@ export class ProjectService {
 	static async connectToProject(projectId: string): Promise<void> {
 		await $api.post(`/user/project/connect/${projectId}`);
 	}
-
 	static async disconnectFromProject(projectId: string): Promise<void> {
 		await $api.post(`/user/project/disconnect/${projectId}`);
+	}
+
+	static async update(projectId: string, data: ProjectDto): Promise<Project> {
+		const response = await $api.put<Project>(
+			`/user/project/${projectId}`,
+			data
+		);
+		return response.data;
+	}
+	static async delete(projectId: string): Promise<void> {
+		try {
+			await $api.delete(`/user/project/${projectId}`);
+		} catch (error) {
+			console.error('API Error in ProjectService.delete:', error);
+			throw error;
+		}
 	}
 }

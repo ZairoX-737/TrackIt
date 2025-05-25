@@ -24,11 +24,18 @@ export class TaskController {
 	async completedTasks(@CurrentUser('id') userId: string) {
 		return this.taskService.getCompletedTasks(userId);
 	}
-
 	@Get('allTasks')
 	@Auth()
 	async getAll(@CurrentUser('id') userId: string) {
 		return this.taskService.getAll(userId);
+	}
+	@Get(':taskId')
+	@Auth()
+	async getById(
+		@Param('taskId') taskId: string,
+		@CurrentUser('id') userId: string
+	) {
+		return this.taskService.getById(taskId, userId);
 	}
 
 	@UsePipes(new ValidationPipe())
@@ -54,11 +61,13 @@ export class TaskController {
 	) {
 		return this.taskService.update(dto, taskId, createdBy);
 	}
-
 	@HttpCode(200)
 	@Delete(':taskId')
 	@Auth()
-	async delete(@Param('taskId') taskId: string) {
-		return this.taskService.delete(taskId);
+	async delete(
+		@Param('taskId') taskId: string,
+		@CurrentUser('id') userId: string
+	) {
+		return this.taskService.delete(taskId, userId);
 	}
 }

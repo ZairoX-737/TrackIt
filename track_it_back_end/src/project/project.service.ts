@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+	BadRequestException,
+	Injectable,
+	ForbiddenException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { ProjectDto } from './dto/project.dto';
 import { UserOnProjectService } from 'src/user-on-project/user-on-project.service';
@@ -9,11 +13,20 @@ export class ProjectService {
 		private prisma: PrismaService,
 		private userOnProject: UserOnProjectService
 	) {}
-
-	async getAll(createdBy: string) {
+	async getAll(userId: string) {
+		// Получаем как созданные пользователем проекты, так и проекты, в которых пользователь участвует
 		return this.prisma.project.findMany({
 			where: {
-				createdBy,
+				OR: [
+					{ createdBy: userId }, // Проекты, созданные пользователем
+					{
+						users: {
+							some: {
+								userId: userId, // Проекты, в которых пользователь является участником
+							},
+						},
+					},
+				],
 			},
 			include: {
 				users: {
@@ -29,11 +42,19 @@ export class ProjectService {
 	async getAllUserOnProject() {
 		return this.userOnProject.getAll();
 	}
-
-	async getAllDetailed(createdBy: string) {
+	async getAllDetailed(userId: string) {
 		return this.prisma.project.findMany({
 			where: {
-				createdBy,
+				OR: [
+					{ createdBy: userId }, // Проекты, созданные пользователем
+					{
+						users: {
+							some: {
+								userId: userId, // Проекты, в которых пользователь является участником
+							},
+						},
+					},
+				],
 			},
 			include: {
 				boards: {
@@ -115,17 +136,28 @@ export class ProjectService {
 			data: dto,
 		});
 	}
-
 	async delete(projectId: string, userId: string) {
-		const admin = await this.userOnProject.getAdmin(userId, projectId);
+		try {
+			const admin = await this.userOnProject.getAdmin(userId, projectId);
 
-		if (!admin)
-			throw new BadRequestException('you must be an admin to do this');
+			if (!admin) {
+				throw new ForbiddenException(
+					'У вас нет прав администратора для удаления проекта'
+				);
+			}
 
-		return this.prisma.project.delete({
-			where: {
-				id: projectId,
-			},
-		});
+			return this.prisma.project.delete({
+				where: {
+					id: projectId,
+				},
+			});
+		} catch (error) {
+			if (error instanceof ForbiddenException) {
+				throw error;
+			}
+			throw new BadRequestException(
+				'Ошибка при удалении проекта: ' + error.message
+			);
+		}
 	}
 }

@@ -18,11 +18,13 @@ import { CurrentUser } from 'src/decorators/user.decorator';
 @Controller('user/project/:PROJECT_ID/board')
 export class BoardController {
 	constructor(private readonly boardService: BoardService) {}
-
 	@Get('allBoards')
 	@Auth()
-	async getAll(@Param('PROJECT_ID') projectId: string) {
-		return this.boardService.getAll(projectId);
+	async getAll(
+		@Param('PROJECT_ID') projectId: string,
+		@CurrentUser('id') userId: string
+	) {
+		return this.boardService.getAll(projectId, userId);
 	}
 
 	@UsePipes(new ValidationPipe())

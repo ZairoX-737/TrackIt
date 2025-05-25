@@ -105,7 +105,7 @@ model LabelOnTask {
   labelId String @map("label_id")
   taskId  String @map("task_id")
   label   Label  @relation(fields: [labelId], references: [id])
-  task    Task   @relation(fields: [taskId], references: [id])
+  task    Task   @relation(fields: [taskId], references: [id], onDelete: Cascade)
 
   @@id([labelId, taskId])
   @@map("label_on_task")

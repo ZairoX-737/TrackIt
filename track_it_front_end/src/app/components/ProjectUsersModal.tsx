@@ -1,72 +1,87 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { IoClose, IoCopy } from 'react-icons/io5';
 import { FiUsers, FiUserPlus, FiXCircle } from 'react-icons/fi';
-
-interface User {
-	id: string;
-	username: string; // Меняем name на username
-	email: string;
-	role: 'admin' | 'editor' | 'viewer';
-	avatarUrl?: string;
-}
+import { UserOnProjectService, ProjectUser } from '../api';
 
 interface ProjectUsersModalProps {
 	isOpen: boolean;
 	onClose: () => void;
+	projectId: string;
 	projectName: string;
 }
 
 export default function ProjectUsersModal({
 	isOpen,
 	onClose,
+	projectId,
 	projectName,
 }: ProjectUsersModalProps) {
-	const [inviteLink, setInviteLink] = useState('');
-	const [inviteLinkGenerated, setInviteLinkGenerated] = useState(false);
+	const [users, setUsers] = useState<ProjectUser[]>([]);
+	const [loading, setLoading] = useState(false);
+	const [error, setError] = useState<string | null>(null);
+	const [inviteEmail, setInviteEmail] = useState('');
+	const [inviteRole, setInviteRole] = useState<'admin' | 'editor'>('editor');
+	const [inviting, setInviting] = useState(false);
 
-	// Mock user data
-	const [users, setUsers] = useState<User[]>([
-		{
-			id: '1',
-			username: 'John Doe',
-			email: 'john@example.com',
-			role: 'admin',
-			avatarUrl: 'https://i.pravatar.cc/150?img=1',
-		},
-		{
-			id: '2',
-			username: 'Jane Smith',
-			email: 'jane@example.com',
-			role: 'editor',
-			avatarUrl: 'https://i.pravatar.cc/150?img=5',
-		},
-		{
-			id: '3',
-			username: 'Mike Johnson',
-			email: 'mike@example.com',
-			role: 'viewer',
-			avatarUrl: 'https://i.pravatar.cc/150?img=8',
-		},
-	]);
+	// Load users when modal opens
+	useEffect(() => {
+		if (isOpen && projectId) {
+			loadUsers();
+		}
+	}, [isOpen, projectId]);
 
+	const loadUsers = async () => {
+		try {
+			setLoading(true);
+			setError(null);
+			const data = await UserOnProjectService.getProjectUsers(projectId);
+			setUsers(data);
+		} catch (err: any) {
+			setError(err.response?.data?.message || 'Failed to load users');
+		} finally {
+			setLoading(false);
+		}
+	};
+	const handleInviteUser = async (e: React.FormEvent) => {
+		e.preventDefault();
+		if (!inviteEmail.trim()) return;
+
+		try {
+			setInviting(true);
+			setError(null);
+			console.log(
+				'Inviting user to project:',
+				projectId,
+				inviteEmail.trim(),
+				inviteRole
+			);
+			const newUser = await UserOnProjectService.inviteUser(
+				projectId,
+				inviteEmail.trim(),
+				inviteRole
+			);
+			console.log('User invited successfully:', newUser);
+			setUsers([...users, newUser]);
+			setInviteEmail('');
+			setInviteRole('editor');
+		} catch (err: any) {
+			console.error('Error inviting user:', err);
+			setError(err.response?.data?.message || 'Failed to invite user');
+		} finally {
+			setInviting(false);
+		}
+	};
+
+	const handleRemoveUser = async (userId: string) => {
+		try {
+			setError(null);
+			await UserOnProjectService.removeUser(userId, projectId);
+			setUsers(users.filter(user => user.userId !== userId));
+		} catch (err: any) {
+			setError(err.response?.data?.message || 'Failed to remove user');
+		}
+	};
 	if (!isOpen) return null;
-
-	const generateInviteLink = () => {
-		const link = `https://trackit.app/invite/${projectName
-			.toLowerCase()
-			.replace(/\s+/g, '-')}-${Math.random().toString(36).substring(2, 10)}`;
-		setInviteLink(link);
-		setInviteLinkGenerated(true);
-	};
-
-	const copyInviteLink = () => {
-		navigator.clipboard.writeText(inviteLink);
-		// You could add a toast notification here
-	};
-
-	const removeUser = (userId: string) => {
-		setUsers(users.filter(user => user.id !== userId));
-	};
 
 	return (
 		<div
@@ -88,103 +103,105 @@ export default function ProjectUsersModal({
 				</div>
 
 				<div className='p-4 overflow-y-auto max-h-[calc(80vh-120px)]'>
+					{error && (
+						<div className='mb-4 p-3 bg-red-600 text-white rounded-md'>
+							{error}
+						</div>
+					)}
+
 					{/* Invite Users */}
 					<div className='mb-6 bg-[#3c3c3e] p-4 rounded-lg'>
 						<h3 className='text-lg font-medium mb-3 flex items-center gap-2'>
 							<FiUserPlus size={18} />
 							Invite Users
 						</h3>
-						<div className='flex flex-col gap-3'>
-							{!inviteLinkGenerated ? (
-								<button
-									onClick={generateInviteLink}
-									className='bg-[#ff9800] hover:bg-[#f57c00] text-white px-4 py-2 rounded-md'
+						<form onSubmit={handleInviteUser} className='flex flex-col gap-3'>
+							<div className='flex gap-2'>
+								<input
+									type='email'
+									value={inviteEmail}
+									onChange={e => setInviteEmail(e.target.value)}
+									placeholder='Enter user email'
+									className='bg-[#252528] text-white px-3 py-2 rounded-md flex-1 focus:outline-none focus:ring-2 focus:ring-[#ff9800]'
+									required
+								/>
+								<select
+									value={inviteRole}
+									onChange={e =>
+										setInviteRole(e.target.value as 'admin' | 'editor')
+									}
+									className='bg-[#252528] text-white px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-[#ff9800]'
 								>
-									Generate Invite Link
+									<option value='editor'>Editor</option>
+									<option value='admin'>Admin</option>
+								</select>
+								<button
+									type='submit'
+									disabled={inviting || !inviteEmail.trim()}
+									className='bg-[#ff9800] hover:bg-[#f57c00] disabled:bg-gray-600 disabled:cursor-not-allowed text-white px-4 py-2 rounded-md'
+								>
+									{inviting ? 'Inviting...' : 'Invite'}
 								</button>
-							) : (
-								<>
-									<div className='flex'>
-										<input
-											type='text'
-											value={inviteLink}
-											readOnly
-											className='bg-[#252528] text-white px-3 py-2 rounded-l-md w-full focus:outline-none'
-										/>
-										<button
-											onClick={copyInviteLink}
-											className='bg-[#4c4c4e] hover:bg-[#5c5c5e] px-3 py-2 rounded-r-md'
-											title='Copy to clipboard'
-										>
-											<IoCopy size={18} />
-										</button>
-									</div>
-									<div className='text-sm text-gray-400'>
-										Anyone with this link can join the project. The link will
-										expire in 7 days.
-									</div>
-								</>
-							)}
-						</div>
+							</div>
+						</form>
 					</div>
 
 					{/* Users List */}
 					<div>
 						<h3 className='text-lg font-medium mb-3'>Project Members</h3>
-						<div className='space-y-2'>
-							{users.map(user => (
-								<div
-									key={user.id}
-									className='flex items-center justify-between bg-[#3c3c3e] p-3 rounded-md'
-								>
-									<div className='flex items-center gap-3'>
-										<div className='w-10 h-10 bg-[#4c4c4e] rounded-full overflow-hidden'>
-											{user.avatarUrl ? (
-												<img
-													src='/api/placeholder/40/40'
-													alt={user.username}
-													className='w-full h-full object-cover'
-												/>
-											) : (
-												<div className='w-full h-full flex items-center justify-center text-lg font-semibold'>
-													{user.username
-														? user.username.charAt(0)
-														: user.email.charAt(0)}
+						{loading ? (
+							<div className='text-center py-4'>Loading users...</div>
+						) : (
+							<div className='space-y-2'>
+								{users.map(user => (
+									<div
+										key={user.userId}
+										className='flex items-center justify-between bg-[#3c3c3e] p-3 rounded-md'
+									>
+										<div className='flex items-center gap-3'>
+											<div className='w-10 h-10 bg-[#4c4c4e] rounded-full flex items-center justify-center text-lg font-semibold'>
+												{user.user.username
+													? user.user.username.charAt(0).toUpperCase()
+													: user.user.email.charAt(0).toUpperCase()}
+											</div>
+											<div>
+												<div className='font-medium'>
+													{user.user.username || user.user.email}
 												</div>
+												<div className='text-sm text-gray-400'>
+													{user.user.email}
+												</div>
+											</div>
+										</div>
+										<div className='flex items-center gap-3'>
+											<span
+												className={`text-sm px-2 py-1 rounded ${
+													user.role === 'admin'
+														? 'bg-[#ff9800] text-white'
+														: 'bg-[#60a5fa] text-white'
+												}`}
+											>
+												{user.role.charAt(0).toUpperCase() + user.role.slice(1)}
+											</span>
+											{user.role !== 'admin' && (
+												<button
+													onClick={() => handleRemoveUser(user.userId)}
+													className='text-gray-400 hover:text-red-500'
+													title='Remove user'
+												>
+													<FiXCircle size={18} />
+												</button>
 											)}
 										</div>
-										<div>
-											<div className='font-medium'>
-												{user.username || user.email}
-											</div>
-											<div className='text-sm text-gray-400'>{user.email}</div>
-										</div>
 									</div>
-									<div className='flex items-center gap-3'>
-										<span
-											className={`text-sm px-2 py-1 rounded ${
-												user.role === 'admin'
-													? 'bg-[#ff9800] text-white'
-													: user.role === 'editor'
-													? 'bg-[#60a5fa] text-white'
-													: 'bg-[#4c4c4e] text-white'
-											}`}
-										>
-											{user.role.charAt(0).toUpperCase() + user.role.slice(1)}
-										</span>
-										{user.role !== 'admin' && (
-											<button
-												onClick={() => removeUser(user.id)}
-												className='text-gray-400 hover:text-red-500'
-												title='Remove user'
-											>
-												<FiXCircle size={18} />
-											</button>
-										)}
+								))}
+								{users.length === 0 && !loading && (
+									<div className='text-center py-4 text-gray-400'>
+										No users in this project yet
 									</div>
-								</div>
-							))}
-						</div>
+								)}
+							</div>
+						)}
 					</div>
 				</div>
 

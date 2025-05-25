@@ -14,7 +14,7 @@ export default function WelcomePage() {
 	const [error, setError] = useState('');
 
 	useEffect(() => {
-		// Загружаем профиль пользователя, если еще не загружен
+		// Load user profile if not already loaded
 		const loadUser = async () => {
 			if (!user) {
 				await loadUserProfile();

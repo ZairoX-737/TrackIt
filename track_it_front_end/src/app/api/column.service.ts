@@ -4,7 +4,7 @@ import { Column, ColumnDto } from './types';
 export class ColumnService {
 	static async getAll(boardId: string): Promise<Column[]> {
 		const response = await $api.get<Column[]>(
-			`/user/column/allColumns?boardId=${boardId}`
+			`/user/column/${boardId}/allColumns`
 		);
 		return response.data;
 	}
