@@ -31,6 +31,13 @@ export class TaskService {
 				},
 			},
 			include: {
+				user: {
+					select: {
+						id: true,
+						username: true,
+						email: true,
+					},
+				},
 				labels: {
 					include: {
 						label: true,
@@ -43,7 +50,11 @@ export class TaskService {
 		return this.prisma.task.count({
 			where: {
 				createdBy,
-				status: 'done',
+				column: {
+					name: {
+						in: ['Done', 'Completed', 'Завершено', 'Готово'],
+					},
+				},
 			},
 		});
 	}
@@ -204,12 +215,21 @@ export class TaskService {
 
 		const { labelIds, ...taskData } = dto;
 
+		// Извлекаем только разрешенные для обновления поля
+		const allowedFields = {
+			...(taskData.title && { title: taskData.title }),
+			...(taskData.description !== undefined && {
+				description: taskData.description,
+			}),
+			...(taskData.columnId && { columnId: taskData.columnId }),
+		};
+
 		// Первый шаг: обновляем данные задачи
 		const updatedTask = await this.prisma.task.update({
 			where: {
 				id: taskId,
 			},
-			data: taskData,
+			data: allowedFields,
 		});
 
 		// Если массив labelIds определен, обновляем метки

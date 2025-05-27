@@ -377,6 +377,7 @@ export default function TaskLayout({
 					setSelectedTaskForDetail(null);
 				}}
 				task={selectedTaskForDetail}
+				projectId={selectedProject?.id}
 				onTaskUpdate={updatedTask => {
 					updateTask(updatedTask.id, updatedTask);
 					setSelectedTaskForDetail(updatedTask);

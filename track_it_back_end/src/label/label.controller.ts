@@ -23,6 +23,11 @@ export class LabelController {
 		return this.labelService.getAll();
 	}
 
+	@Get('project/:projectId')
+	async getByProject(@Param('projectId') projectId: string) {
+		return this.labelService.getByProject(projectId);
+	}
+
 	@Get(':id')
 	async getById(@Param('id') id: string) {
 		return this.labelService.getById(id);

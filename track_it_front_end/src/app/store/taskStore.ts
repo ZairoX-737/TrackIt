@@ -55,7 +55,7 @@ interface TaskState {
 	loadBoards: (projectId: string) => Promise<void>;
 	loadTasks: () => Promise<void>;
 	loadColumns: (boardId: string) => Promise<void>;
-	loadLabels: () => Promise<void>;
+	loadLabels: (projectId?: string) => Promise<void>;
 	selectProject: (project: Project) => Promise<void>;
 	selectBoard: (board: Board) => Promise<void>;
 	handleModalSelection: (project: Project, board: Board) => Promise<void>;
@@ -74,7 +74,11 @@ interface TaskState {
 		labelIds?: string[]
 	) => Promise<void>;
 	createColumn: (boardId: string, name: string) => Promise<void>;
-	createLabel: (name: string, color: string) => Promise<void>;
+	createLabel: (
+		name: string,
+		color: string,
+		projectId?: string
+	) => Promise<void>;
 	updateTask: (taskId: string, data: Partial<Task>) => Promise<void>;
 	updateProject: (projectId: string, name: string) => Promise<void>;
 	updateBoard: (
@@ -91,6 +95,8 @@ interface TaskState {
 	deleteProject: (projectId: string) => Promise<void>;
 	deleteBoard: (projectId: string, boardId: string) => Promise<void>;
 	deleteLabel: (labelId: string) => Promise<void>;
+	updateColumn: (columnId: string, name: string) => Promise<void>;
+	deleteColumn: (columnId: string) => Promise<void>;
 	moveTask: (taskId: string, newColumnId: string) => Promise<void>;
 
 	// Auth check
@@ -229,10 +235,12 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 		}
 	},
 
-	loadLabels: async () => {
+	loadLabels: async (projectId?: string) => {
 		try {
 			set({ loading: true, error: null });
-			const labels = await LabelService.getAll();
+			const labels = projectId
+				? await LabelService.getByProject(projectId)
+				: await LabelService.getAll();
 			set({ labels, loading: false });
 		} catch (error) {
 			set({ error: 'Failed to load labels', loading: false });
@@ -251,6 +259,7 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 			tasks: [],
 		});
 		await get().loadBoards(project.id);
+		await get().loadLabels(project.id);
 	},
 
 	selectBoard: async (board: Board) => {
@@ -272,6 +281,7 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 		});
 		await get().loadColumns(board.id);
 		await get().loadTasks();
+		await get().loadLabels(project.id);
 	},
 
 	// CRUD Actions
@@ -347,7 +357,6 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 			const newTask = await TaskService.create(columnId, {
 				title,
 				description,
-				status: 'todo',
 				labelIds: isUsingColors ? undefined : labelIds,
 			});
 
@@ -357,6 +366,7 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 					id: color, // Use color as a temporary id or generate a unique id if needed
 					name: color, // Or use a placeholder name
 					color,
+					projectId: '', // Fallback for legacy colors
 					createdAt: new Date().toISOString(),
 					updatedAt: new Date().toISOString(),
 				}));
@@ -509,6 +519,39 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 		}
 	},
 
+	updateColumn: async (columnId: string, name: string) => {
+		try {
+			set({ loading: true, error: null });
+			const updatedColumn = await ColumnService.update(columnId, { name });
+			set(state => ({
+				columns: state.columns.map(column =>
+					column.id === columnId ? { ...column, name } : column
+				),
+				loading: false,
+			}));
+		} catch (error) {
+			set({ error: 'Failed to update column', loading: false });
+			console.error('Error updating column:', error);
+			throw error;
+		}
+	},
+
+	deleteColumn: async (columnId: string) => {
+		try {
+			set({ loading: true, error: null });
+			await ColumnService.delete(columnId);
+			set(state => ({
+				columns: state.columns.filter(column => column.id !== columnId),
+				tasks: state.tasks.filter(task => task.columnId !== columnId),
+				loading: false,
+			}));
+		} catch (error) {
+			set({ error: 'Failed to delete column', loading: false });
+			console.error('Error deleting column:', error);
+			throw error;
+		}
+	},
+
 	moveTask: async (taskId: string, newColumnId: string) => {
 		try {
 			set({ loading: true, error: null });
@@ -534,10 +577,10 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 	},
 
 	// Label CRUD Actions
-	createLabel: async (name: string, color: string) => {
+	createLabel: async (name: string, color: string, projectId?: string) => {
 		try {
 			set({ loading: true, error: null });
-			const newLabel = await LabelService.create({ name, color });
+			const newLabel = await LabelService.create({ name, color, projectId });
 			set(state => ({
 				labels: [...state.labels, newLabel],
 				loading: false,

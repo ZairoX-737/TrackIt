@@ -6,23 +6,26 @@ import styles from '../components/Components.module.scss';
 interface CreateTaskModalProps {
 	isOpen: boolean;
 	onClose: () => void;
+	projectId?: string;
 }
 
 const CreateTaskModal = forwardRef<HTMLDivElement, CreateTaskModalProps>(
-	({ isOpen, onClose }: CreateTaskModalProps, ref: Ref<HTMLDivElement>) => {
+	(
+		{ isOpen, onClose, projectId }: CreateTaskModalProps,
+		ref: Ref<HTMLDivElement>
+	) => {
 		const { createTask, columns, selectedBoard, loading, labels, loadLabels } =
 			useTaskStore();
 		const [title, setTitle] = useState('');
 		const [description, setDescription] = useState('');
 		const [selectedColumnId, setSelectedColumnId] = useState('');
-		const [priority, setPriority] = useState<'LOW' | 'MEDIUM' | 'HIGH'>(
-			'MEDIUM'
-		);
 		const [selectedLabels, setSelectedLabels] = useState<string[]>([]);
 
 		useEffect(() => {
-			loadLabels();
-		}, [loadLabels]);
+			if (projectId) {
+				loadLabels(projectId);
+			}
+		}, [loadLabels, projectId]);
 
 		const handleLabelClick = (labelId: string) => {
 			setSelectedLabels(prev =>
@@ -46,7 +49,6 @@ const CreateTaskModal = forwardRef<HTMLDivElement, CreateTaskModalProps>(
 					setTitle('');
 					setDescription('');
 					setSelectedColumnId('');
-					setPriority('MEDIUM');
 					setSelectedLabels([]);
 					onClose();
 				} catch (error) {
@@ -120,22 +122,6 @@ const CreateTaskModal = forwardRef<HTMLDivElement, CreateTaskModalProps>(
 										{column.name}
 									</option>
 								))}
-							</select>
-						</div>
-
-						<div className='mb-4'>
-							<label className='block mb-2 font-medium'>Priority</label>
-							<select
-								value={priority}
-								onChange={e =>
-									setPriority(e.target.value as 'LOW' | 'MEDIUM' | 'HIGH')
-								}
-								className='w-full bg-[#3c3c3e] p-2 rounded-md border-none focus:outline-[#ff9900]'
-								disabled={loading}
-							>
-								<option value='LOW'>Low</option>
-								<option value='MEDIUM'>Medium</option>
-								<option value='HIGH'>High</option>
 							</select>
 						</div>
 

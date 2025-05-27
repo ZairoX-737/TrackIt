@@ -204,6 +204,7 @@ const TasksContainer = () => {
 			<CreateTaskModal
 				isOpen={createTaskOpen}
 				onClose={() => setCreateTaskOpen(false)}
+				projectId={selectedProject?.id}
 			/>
 		</div>
 	);

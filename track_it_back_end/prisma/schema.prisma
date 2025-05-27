@@ -31,6 +31,7 @@ model Project {
   createdBy String          @map("created_by")
   user      User            @relation(fields: [createdBy], references: [id])
   boards    Board[]
+  labels    Label[]
   users     UserOnProject[]
 
   @@map("project")
@@ -78,10 +79,8 @@ model Task {
   updatedAt   DateTime      @updatedAt @map("updated_at")
   title       String
   description String?
-  status      String?       @db.VarChar(50)
   createdBy   String        @map("created_by")
   columnId    String        @map("column_id")
-  priority    Priority?
   comments    Comment[]
   labels      LabelOnTask[]
   column      Column        @relation(fields: [columnId], references: [id], onDelete: Cascade)
@@ -96,6 +95,8 @@ model Label {
   updatedAt DateTime      @updatedAt @map("updated_at")
   name      String
   color     String        @db.VarChar(7)
+  projectId String        @map("project_id")
+  project   Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
   tasks     LabelOnTask[]
 
   @@map("label")
@@ -104,7 +105,7 @@ model Label {
 model LabelOnTask {
   labelId String @map("label_id")
   taskId  String @map("task_id")
-  label   Label  @relation(fields: [labelId], references: [id])
+  label   Label  @relation(fields: [labelId], references: [id], onDelete: Cascade)
   task    Task   @relation(fields: [taskId], references: [id], onDelete: Cascade)
 
   @@id([labelId, taskId])
@@ -132,12 +133,6 @@ model Comment {
   user      User     @relation(fields: [userId], references: [id])
 
   @@map("comment")
-}
-
-enum Priority {
-  low
-  medium
-  high
 }
 
 enum Role {

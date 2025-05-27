@@ -14,6 +14,10 @@ export class CreateLabelDto {
 		message: 'Color must be a valid hex color (e.g., #FF6565)',
 	})
 	color: string;
+
+	@IsString()
+	@IsNotEmpty()
+	projectId: string;
 }
 
 export class UpdateLabelDto {

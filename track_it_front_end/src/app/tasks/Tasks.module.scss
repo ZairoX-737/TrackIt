@@ -1,6 +1,8 @@
 .taskContainer {
 	display: flex;
+	overflow-x: auto;
 	overflow-y: hidden;
+	height: calc(100vh - 65px); /* Вычитаем высоту хедера (55px) + отступы */
 	margin-top: 10px;
 	padding-bottom: 5px;
 	&::-webkit-scrollbar {
@@ -47,6 +49,7 @@
 
 .task {
 	width: 100%;
+	max-width: 300px;
 	margin-bottom: 10px;
 	padding: 7px 10px 7px 10px;
 	height: fit-content;
@@ -67,6 +70,11 @@
 	user-select: none;
 	align-self: flex-start;
 	text-transform: capitalize;
+	word-wrap: break-word;
+	overflow-wrap: break-word;
+	white-space: normal;
+	hyphens: auto;
+	max-width: 100%;
 }
 
 .taskSettings {
@@ -81,6 +89,21 @@
 .taskDescription {
 	font-size: 14px;
 	transition: all 2s ease-in-out;
+	display: -webkit-box;
+	-webkit-line-clamp: 3;
+	line-clamp: 3;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+	word-wrap: break-word;
+	word-break: break-word;
+}
+
+.taskTitle {
+	word-wrap: break-word;
+	word-break: break-word;
+	overflow-wrap: break-word;
+	hyphens: auto;
+	line-height: 1.4;
 }
 
 .addTask {

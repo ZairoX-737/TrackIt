@@ -14,6 +14,15 @@ export class LabelService {
 		});
 	}
 
+	async getByProject(projectId: string) {
+		return this.prisma.label.findMany({
+			where: { projectId },
+			orderBy: {
+				createdAt: 'asc',
+			},
+		});
+	}
+
 	async getById(id: string) {
 		return this.prisma.label.findUnique({
 			where: { id },
@@ -36,6 +45,19 @@ export class LabelService {
 	async delete(id: string) {
 		return this.prisma.label.delete({
 			where: { id },
+		});
+	}
+
+	async createDefaultLabels(projectId: string) {
+		const defaultLabels = [
+			{ name: 'Not Started', color: '#6B7280', projectId }, // gray
+			{ name: 'In Progress', color: '#3B82F6', projectId }, // blue
+			{ name: 'Critical', color: '#EF4444', projectId }, // red
+			{ name: 'Done', color: '#10B981', projectId }, // green
+		];
+
+		return this.prisma.label.createMany({
+			data: defaultLabels,
 		});
 	}
 }

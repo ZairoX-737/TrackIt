@@ -5,7 +5,8 @@ import { useInitializeApp } from '../hooks/useInitializeApp';
 
 export default function UserProfile() {
 	const { loading, error } = useInitializeApp();
-	const { user, projects, selectedProject, boards, tasks } = useTaskStore();
+	const { user, projects, selectedProject, boards, tasks, columns } =
+		useTaskStore();
 
 	if (loading) {
 		return (
@@ -35,9 +36,16 @@ export default function UserProfile() {
 	const userProjects = projects.filter(p => p.createdBy === user.id);
 	const foreignProjects = projects.filter(p => p.createdBy !== user.id);
 	const userTasks = tasks.filter(t => t.createdBy === user.id);
-	const completedTasks = userTasks.filter(
-		t => t.status === 'done' || t.status === 'completed'
-	);
+	// Находим завершенные задачи по названию колонки
+	const completedTasks = userTasks.filter(task => {
+		const column = columns.find(col => col.id === task.columnId);
+		return (
+			column &&
+			(column.name.toLowerCase().includes('done') ||
+				column.name.toLowerCase().includes('completed') ||
+				column.name.toLowerCase().includes('finish'))
+		);
+	});
 
 	return (
 		<div className={styles.profilePage}>

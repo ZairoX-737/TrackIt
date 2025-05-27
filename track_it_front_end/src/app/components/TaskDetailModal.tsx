@@ -29,6 +29,7 @@ interface TaskDetailModalProps {
 	task: Task | null;
 	onTaskUpdate?: (updatedTask: Task) => void;
 	onTaskDelete?: (taskId: string) => void;
+	projectId?: string;
 }
 
 export default function TaskDetailModal({
@@ -37,6 +38,7 @@ export default function TaskDetailModal({
 	task,
 	onTaskUpdate,
 	onTaskDelete,
+	projectId,
 }: TaskDetailModalProps) {
 	const { columns } = useTaskStore();
 	const [comments, setComments] = useState<Comment[]>([]);
@@ -49,13 +51,11 @@ export default function TaskDetailModal({
 	const [labels, setLabels] = useState<Label[]>([]);
 	const [selectedLabels, setSelectedLabels] = useState<string[]>([]);
 	const [showLabelSelector, setShowLabelSelector] = useState(false);
-	const [editedStatus, setEditedStatus] = useState('');
 	const [editedColumnId, setEditedColumnId] = useState('');
 	useEffect(() => {
 		if (isOpen && task) {
 			setEditedTitle(task.title);
 			setEditedDescription(task.description || '');
-			setEditedStatus(task.status || 'todo');
 			setEditedColumnId(task.columnId);
 			loadComments();
 			loadLabels();
@@ -76,7 +76,9 @@ export default function TaskDetailModal({
 
 	const loadLabels = async () => {
 		try {
-			const data = await LabelService.getAll();
+			const data = projectId
+				? await LabelService.getByProject(projectId)
+				: await LabelService.getAll();
 			setLabels(data);
 		} catch (err: any) {
 			console.error('Failed to load labels:', err);
@@ -131,8 +133,6 @@ export default function TaskDetailModal({
 			const updatedTask = await TaskService.update(task.id, {
 				title: editedTitle,
 				description: editedDescription,
-				status: editedStatus,
-				priority: task.priority,
 				labelIds: selectedLabels,
 				columnId: editedColumnId,
 			});
@@ -194,25 +194,17 @@ export default function TaskDetailModal({
 								type='text'
 								value={editedTitle}
 								onChange={e => setEditedTitle(e.target.value)}
-								className='bg-[#3c3c3e] text-white px-2 py-1 rounded text-xl font-semibold focus:outline-none focus:ring-2 focus:ring-[#ff9800]'
+								className='bg-[#3c3c3e] text-white px-2 py-1 rounded text-xl font-semibold focus:outline-none focus:ring-2 focus:ring-[#ff9800] break-words overflow-wrap-anywhere'
 								autoFocus
 							/>
 						) : (
-							<h2 className='text-xl font-semibold'>{task.title}</h2>
+							<h2 className='text-xl font-semibold break-words overflow-wrap-anywhere'>
+								{task.title}
+							</h2>
 						)}
 
 						{isEditing && (
 							<div className='flex gap-2'>
-								{/* Селектор статуса */}
-								<select
-									value={editedStatus}
-									onChange={e => setEditedStatus(e.target.value)}
-									className='bg-[#3c3c3e] text-white px-2 py-1 rounded text-base font-normal focus:outline-none focus:ring-2 focus:ring-[#ff9800]'
-								>
-									<option value='todo'>To Do</option>
-									<option value='in_progress'>In Progress</option>
-									<option value='done'>Done</option>
-								</select>
 								{/* Селектор колонки */}
 								<select
 									value={editedColumnId}
@@ -298,13 +290,15 @@ export default function TaskDetailModal({
 								<textarea
 									value={editedDescription}
 									onChange={e => setEditedDescription(e.target.value)}
-									className='w-full h-32 bg-[#3c3c3e] text-white p-3 rounded-md focus:outline-none focus:ring-2 focus:ring-[#ff9800] resize-none'
+									className='w-full h-32 bg-[#3c3c3e] text-white p-3 rounded-md focus:outline-none focus:ring-2 focus:ring-[#ff9800] resize-none break-words overflow-wrap-anywhere'
 									placeholder='Add a description...'
 								/>
 							) : (
 								<div className='bg-[#3c3c3e] p-3 rounded-md min-h-[100px]'>
 									{task.description ? (
-										<p className='whitespace-pre-wrap'>{task.description}</p>
+										<p className='whitespace-pre-wrap break-words overflow-wrap-anywhere'>
+											{task.description}
+										</p>
 									) : (
 										<p className='text-gray-400 italic'>
 											No description available
@@ -353,23 +347,6 @@ export default function TaskDetailModal({
 									{new Date(task.createdAt).toLocaleDateString()}
 								</p>
 							</div>
-							{task.priority && (
-								<div>
-									<h4 className='font-medium mb-1'>Priority</h4>
-									<span
-										className={`text-sm px-2 py-1 rounded ${
-											task.priority === 'high'
-												? 'bg-red-600 text-white'
-												: task.priority === 'medium'
-												? 'bg-yellow-600 text-white'
-												: 'bg-green-600 text-white'
-										}`}
-									>
-										{task.priority.charAt(0).toUpperCase() +
-											task.priority.slice(1)}
-									</span>
-								</div>
-							)}{' '}
 							<div>
 								<h4 className='font-medium mb-1 flex items-center justify-between'>
 									<span className='flex items-center gap-2'>

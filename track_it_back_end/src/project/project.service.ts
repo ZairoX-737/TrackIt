@@ -6,12 +6,14 @@ import {
 import { PrismaService } from 'src/prisma.service';
 import { ProjectDto } from './dto/project.dto';
 import { UserOnProjectService } from 'src/user-on-project/user-on-project.service';
+import { LabelService } from 'src/label/label.service';
 
 @Injectable()
 export class ProjectService {
 	constructor(
 		private prisma: PrismaService,
-		private userOnProject: UserOnProjectService
+		private userOnProject: UserOnProjectService,
+		private labelService: LabelService
 	) {}
 	async getAll(userId: string) {
 		// Получаем как созданные пользователем проекты, так и проекты, в которых пользователь участвует
@@ -94,6 +96,10 @@ export class ProjectService {
 		});
 		const projectId = project.id;
 		this.userOnProject.createAdmin(userId, projectId);
+
+		// Create default labels for the new project
+		await this.labelService.createDefaultLabels(projectId);
+
 		return project;
 	}
 

@@ -4,6 +4,7 @@ import { Label } from './types';
 export interface CreateLabelDto {
 	name: string;
 	color: string;
+	projectId?: string;
 }
 
 export interface UpdateLabelDto {
@@ -14,6 +15,11 @@ export interface UpdateLabelDto {
 export class LabelService {
 	static async getAll(): Promise<Label[]> {
 		const response = await $api.get<Label[]>('/labels/allLabels');
+		return response.data;
+	}
+
+	static async getByProject(projectId: string): Promise<Label[]> {
+		const response = await $api.get<Label[]>(`/labels/project/${projectId}`);
 		return response.data;
 	}
 

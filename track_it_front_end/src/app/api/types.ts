@@ -80,18 +80,10 @@ export interface ColumnDto {
 }
 
 // Task types
-export enum Priority {
-	LOW = 'low',
-	MEDIUM = 'medium',
-	HIGH = 'high',
-}
-
 export interface Task {
 	id: string;
 	title: string;
 	description?: string;
-	status: string;
-	priority?: Priority; // исправляем на нижний регистр
 	dueDate?: string;
 	columnId: string;
 	createdBy: string;
@@ -110,8 +102,6 @@ export interface Task {
 export interface TaskDto {
 	title: string;
 	description?: string;
-	status: string;
-	priority?: Priority; // исправляем на нижний регистр
 	dueDate?: string;
 	assignedTo?: string;
 	labelIds?: string[];
@@ -123,6 +113,7 @@ export interface Label {
 	id: string;
 	name: string;
 	color: string;
+	projectId: string;
 	createdAt: string;
 	updatedAt: string;
 }

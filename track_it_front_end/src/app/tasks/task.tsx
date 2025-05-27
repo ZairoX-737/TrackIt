@@ -1,7 +1,6 @@
 'use client';
 import { useRef } from 'react';
 import styles from './Tasks.module.scss';
-import { nanoid } from 'nanoid';
 import { useTaskStore } from '../store/taskStore';
 
 interface IProps {
@@ -59,7 +58,11 @@ const Task = ({ task }: IProps) => {
 					})}
 				</div>
 			</div>
-			<div className='font-medium text-[16px] select-none'>{task.title}</div>
+			<div
+				className={`font-medium text-[16px] select-none ${styles.taskTitle}`}
+			>
+				{task.title}
+			</div>
 			<div className={`${styles.taskDescription} font-rubik`}>
 				{task.description && (
 					<span className='text-gray-400 text-sm'>{task.description}</span>

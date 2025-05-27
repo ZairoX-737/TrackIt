@@ -1,12 +1,5 @@
-import { Priority } from '@prisma/client';
 import { Transform } from 'class-transformer';
-import {
-	IsEnum,
-	IsOptional,
-	IsString,
-	MaxLength,
-	IsArray,
-} from 'class-validator';
+import { IsOptional, IsString, IsArray } from 'class-validator';
 
 export class TaskDto {
 	@IsString()
@@ -15,18 +8,6 @@ export class TaskDto {
 	@IsString()
 	@IsOptional()
 	description: string;
-
-	@IsString()
-	@IsOptional()
-	@MaxLength(50, {
-		message: 'Status must not be longer than 50 characters',
-	})
-	status: string;
-
-	@IsEnum(Priority)
-	@IsOptional()
-	@Transform(({ value }) => ('' + value).toLowerCase())
-	priority: Priority;
 
 	@IsArray()
 	@IsOptional()
