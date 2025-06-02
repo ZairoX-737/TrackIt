@@ -2,37 +2,31 @@
 	width: 100vw;
 	height: 100vh;
 	background: #232324;
-}
-
-.header {
-	color: #bdbdbd;
-	font-size: 18px;
-	font-weight: 500;
-	padding: 10px 0 0 10px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
 .main {
 	width: 100%;
-	height: calc(100vh - 40px);
+	height: 100%;
 	display: flex;
-	justify-content: flex-start;
-	align-items: center; // центрируем по вертикали
-	padding-top: 0; // убираем отступ сверху
+	justify-content: center;
+	align-items: center;
 }
 
 .cardSection {
 	display: flex;
-	align-items: center; // центрируем divider и карточку по вертикали
-	margin-left: 120px;
-	gap: 56px; // добавляем отступ между карточкой, divider и колонками
+	align-items: center;
+	gap: 48px;
 }
 
 .profileCard {
 	background: #2c2c2e;
 	border-radius: 14px;
 	border: 1.5px solid #757575;
-	width: 420px; // увеличиваем ширину
-	min-height: 270px; // увеличиваем высоту
+	width: 480px; /* Увеличили с 420px до 480px */
+	min-height: 270px;
 	padding: 54px 38px 28px 38px;
 	position: relative;
 	display: flex;
@@ -58,7 +52,7 @@
 	font-size: 26px;
 	font-weight: 700;
 	color: #fff;
-	margin-top: 45px;
+	margin-top: 8px;
 	margin-bottom: 22px;
 	text-align: center;
 }
@@ -68,6 +62,12 @@
 	justify-content: space-between;
 	width: 100%;
 	margin-bottom: 22px;
+}
+
+.statItem {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
 }
 
 .statValue {
@@ -88,17 +88,17 @@
 .registered {
 	font-size: 13px;
 	color: #bdbdbd;
-	margin-top: 14px;
+	position: absolute;
+	bottom: 18px;
+	left: 38px;
 }
 
 .verticalDivider {
 	width: 2.5px;
 	height: 270px;
 	background: #444;
-	margin-left: 48px;
-	margin-right: 48px; // добавляем справа для симметрии
 	border-radius: 2px;
-	align-self: center; // центрируем divider по вертикали
+	align-self: center;
 }
 
 .profileColumns {
@@ -114,12 +114,12 @@
 	max-height: 350px;
 	display: flex;
 	flex-direction: column;
-	padding-right: 16px; // больше отступ справа для separation от скроллбара
+	padding-right: 16px;
 }
 
 .profileColumn:last-child {
 	min-width: 300px;
-	padding-left: 16px; // больше отступ слева для separation от скроллбара
+	padding-left: 16px;
 }
 
 .profileColumnTitle {
@@ -177,22 +177,25 @@
 	box-shadow: 0 2px 8px #ff990033;
 }
 
-/* Кастомный скроллбар */
+/* Custom scrollbar */
 .customScroll {
 	overflow-y: auto;
 	scrollbar-width: thin;
 	scrollbar-color: #ff9900b1 #232324;
-	padding-right: 4px; // чтобы скроллбар не перекрывал кнопки
+	padding-right: 4px;
 }
+
 .customScroll::-webkit-scrollbar {
 	width: 8px;
 	background: #232324;
 	border-radius: 8px;
 }
+
 .customScroll::-webkit-scrollbar-thumb {
 	background: linear-gradient(120deg, #ff9900b1 40%, #ffb84d 100%);
 	border-radius: 8px;
 }
+
 .customScroll::-webkit-scrollbar-thumb:hover {
 	background: #ff9900;
 }

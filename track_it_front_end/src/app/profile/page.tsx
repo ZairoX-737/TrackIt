@@ -2,16 +2,19 @@
 import styles from './Profile.module.scss';
 import { useTaskStore } from '../store/taskStore';
 import { useInitializeApp } from '../hooks/useInitializeApp';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function UserProfile() {
 	const { loading, error } = useInitializeApp();
-	const { user, projects, selectedProject, boards, tasks, columns } =
-		useTaskStore();
+	const { user, projects, handleModalSelection } = useTaskStore();
+	const [selectedProjectName, setSelectedProjectName] = useState<string>('');
+	const router = useRouter();
 
 	if (loading) {
 		return (
 			<div className={styles.profilePage}>
-				<div className={styles.loading}>Loading...</div>
+				<div className='text-white text-center pt-20'>Loading...</div>
 			</div>
 		);
 	}
@@ -19,7 +22,7 @@ export default function UserProfile() {
 	if (error) {
 		return (
 			<div className={styles.profilePage}>
-				<div className={styles.error}>Error: {error}</div>
+				<div className='text-red-500 text-center pt-20'>Error: {error}</div>
 			</div>
 		);
 	}
@@ -27,110 +30,179 @@ export default function UserProfile() {
 	if (!user) {
 		return (
 			<div className={styles.profilePage}>
-				<div className={styles.error}>User not found</div>
+				<div className='text-red-500 text-center pt-20'>User not found</div>
 			</div>
 		);
 	}
 
 	// Подсчитываем статистику
+	// Проекты, где пользователь является создателем
 	const userProjects = projects.filter(p => p.createdBy === user.id);
-	const foreignProjects = projects.filter(p => p.createdBy !== user.id);
-	const userTasks = tasks.filter(t => t.createdBy === user.id);
-	// Находим завершенные задачи по названию колонки
-	const completedTasks = userTasks.filter(task => {
-		const column = columns.find(col => col.id === task.columnId);
+	// Проекты, где пользователь является участником, но не создателем
+	const foreignProjects = projects.filter(
+		p =>
+			p.createdBy !== user.id &&
+			p.users?.some(projectUser => projectUser.userId === user.id)
+	);
+	const allComments = projects.reduce((acc, project) => {
 		return (
-			column &&
-			(column.name.toLowerCase().includes('done') ||
-				column.name.toLowerCase().includes('completed') ||
-				column.name.toLowerCase().includes('finish'))
+			acc +
+			(project.boards?.reduce((boardAcc, board) => {
+				return (
+					boardAcc +
+					(board.columns?.reduce((colAcc, column) => {
+						return (
+							colAcc +
+							(column.tasks?.reduce((taskAcc, task) => {
+								return taskAcc + (task.comments?.length || 0);
+							}, 0) || 0)
+						);
+					}, 0) || 0)
+				);
+			}, 0) || 0)
 		);
-	});
+	}, 0);
+
+	// Получаем доски выбранного проекта
+	const selectedProject = projects.find(p => p.name === selectedProjectName);
+	const selectedProjectBoards = selectedProject?.boards || [];
+
+	// Функция для обработки клика по доске
+	const handleBoardClick = async (board: any) => {
+		if (selectedProject) {
+			await handleModalSelection(selectedProject, board);
+			router.push('/tasks');
+		}
+	};
 
 	return (
 		<div className={styles.profilePage}>
 			<main className={styles.main}>
-				<section className={styles.cardSection}>
+				<div className={styles.cardSection}>
+					{/* Profile Card */}
 					<div className={styles.profileCard}>
-						<div className={styles.avatar}>
-							<img
-								src='/user-profile-white.png'
-								alt='avatar'
-								style={{ width: '100%', height: '100%', borderRadius: '50%' }}
-							/>
-						</div>
-						<div className={styles.username}>{user.username || user.email}</div>
-					</div>
+						<div className={styles.avatar}></div>
+						<div className={styles.username}>{user.username || 'Username'}</div>
 
-					<div className={styles.statsCard}>
-						<div className={styles.statItem}>
-							<span className={styles.statNumber}>
-								{new Date(user.createdAt).toLocaleDateString('en')}
-							</span>
-							<span className={styles.statLabel}>Registered</span>
-						</div>
-						<div className={styles.statItem}>
-							<span className={styles.statNumber}>
-								{foreignProjects.length}
-							</span>
-							<span className={styles.statLabel}>Collaborative projects</span>
-						</div>
-						<div className={styles.statItem}>
-							<span className={styles.statNumber}>{userProjects.length}</span>
-							<span className={styles.statLabel}>Own projects</span>
-						</div>
-						<div className={styles.statItem}>
-							<span className={styles.statNumber}>{userTasks.length}</span>
-							<span className={styles.statLabel}>Total tasks</span>
-						</div>
-						<div className={styles.statItem}>
-							<span className={styles.statNumber}>{completedTasks.length}</span>
-							<span className={styles.statLabel}>Completed tasks</span>
-						</div>
-					</div>
-				</section>
-
-				<section className={styles.projectsSection}>
-					<h2 className={styles.sectionTitle}>My projects</h2>
-					<div className={styles.projectGrid}>
-						{userProjects.length > 0 ? (
-							userProjects.map(project => (
-								<div key={project.id} className={styles.projectCard}>
-									<h3 className={styles.projectName}>{project.name}</h3>
-									<p className={styles.projectDescription}>
-										{project.description || 'No description'}
-									</p>
-									<div className={styles.projectStats}>
-										<span>Boards: {project.boards?.length || 0}</span>
-									</div>
-								</div>
-							))
-						) : (
-							<div className={styles.emptyState}>
-								<p>You have no own projects yet</p>
+						<div className={styles.stats}>
+							<div className={styles.statItem}>
+								<span className={styles.statValue}>
+									{foreignProjects.length}
+								</span>
+								<span className={styles.statLabel}>Foreign projects</span>
 							</div>
-						)}
-					</div>
-				</section>
-
-				{foreignProjects.length > 0 && (
-					<section className={styles.projectsSection}>
-						<h2 className={styles.sectionTitle}>Collaborative projects</h2>
-						<div className={styles.projectGrid}>
-							{foreignProjects.map(project => (
-								<div key={project.id} className={styles.projectCard}>
-									<h3 className={styles.projectName}>{project.name}</h3>
-									<p className={styles.projectDescription}>
-										{project.description || 'No description'}
-									</p>
-									<div className={styles.projectStats}>
-										<span>Boards: {project.boards?.length || 0}</span>
-									</div>
-								</div>
-							))}
+							<div className={styles.statItem}>
+								<span className={styles.statValue}>{userProjects.length}</span>
+								<span className={styles.statLabel}>Self projects</span>
+							</div>
+							<div className={styles.statItem}>
+								<span className={styles.statValue}>{allComments}</span>
+								<span className={styles.statLabel}>Comments</span>
+							</div>
 						</div>
-					</section>
-				)}
+
+						<div className={styles.registered}>
+							Registered since:{' '}
+							{new Date(user.createdAt).toLocaleDateString('en-GB', {
+								day: '2-digit',
+								month: '2-digit',
+								year: 'numeric',
+							})}
+						</div>
+					</div>
+
+					{/* Vertical Divider */}
+					<div className={styles.verticalDivider}></div>
+
+					{/* Projects and Boards Section */}
+					<div className={styles.profileColumns}>
+						{/* My Projects Column */}
+						<div className={styles.profileColumn}>
+							<h3 className={styles.profileColumnTitle}>My projects</h3>
+							<ul
+								className={`${styles.profileColumnList} ${styles.customScroll}`}
+							>
+								{userProjects.map(project => (
+									<li
+										key={project.id}
+										className={
+											selectedProjectName === project.name
+												? styles.selected
+												: ''
+										}
+										onClick={() => setSelectedProjectName(project.name)}
+									>
+										{project.name}
+									</li>
+								))}
+								{userProjects.length === 0 && (
+									<li style={{ opacity: 0.5, cursor: 'default' }}>
+										No projects yet
+									</li>
+								)}
+							</ul>
+						</div>
+
+						{/* Foreign Projects Column */}
+						<div className={styles.profileColumn}>
+							<h3 className={styles.profileColumnTitle}>Foreign projects</h3>
+							<ul
+								className={`${styles.profileColumnList} ${styles.customScroll}`}
+							>
+								{foreignProjects.map(project => (
+									<li
+										key={project.id}
+										className={
+											selectedProjectName === project.name
+												? styles.selected
+												: ''
+										}
+										onClick={() => setSelectedProjectName(project.name)}
+									>
+										{project.name}
+									</li>
+								))}
+								{foreignProjects.length === 0 && (
+									<li style={{ opacity: 0.5, cursor: 'default' }}>
+										No foreign projects
+									</li>
+								)}
+							</ul>
+						</div>
+
+						{/* Boards Column */}
+						<div className={styles.profileColumn}>
+							<h3 className={styles.profileColumnTitle}>
+								{selectedProjectName
+									? `Boards for ${selectedProjectName}`
+									: 'Select project'}
+							</h3>
+							<ul
+								className={`${styles.profileColumnList} ${styles.customScroll}`}
+							>
+								{selectedProjectBoards.map(board => (
+									<li
+										key={board.id}
+										onClick={() => handleBoardClick(board)}
+										style={{ cursor: 'pointer' }}
+									>
+										{board.name}
+									</li>
+								))}
+								{selectedProjectName && selectedProjectBoards.length === 0 && (
+									<li style={{ opacity: 0.5, cursor: 'default' }}>
+										No boards in this project
+									</li>
+								)}
+								{!selectedProjectName && (
+									<li style={{ opacity: 0.5, cursor: 'default' }}>
+										Select a project to view boards
+									</li>
+								)}
+							</ul>
+						</div>
+					</div>
+				</div>
 			</main>
 		</div>
 	);

@@ -31,8 +31,11 @@ export class TaskService {
 	}
 	static async delete(taskId: string): Promise<void> {
 		try {
-			await $api.delete(`/user/task/${taskId}`);
-		} catch (error) {
+			const response = await $api.delete(`/user/task/${taskId}`);
+			if (response.status === 204 || response.status === 200) {
+				return;
+			}
+		} catch (error: any) {
 			console.error('API Error in TaskService.delete:', error);
 			throw error;
 		}

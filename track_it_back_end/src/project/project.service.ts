@@ -59,6 +59,12 @@ export class ProjectService {
 				],
 			},
 			include: {
+				users: {
+					select: {
+						userId: true,
+						role: true,
+					},
+				},
 				boards: {
 					include: {
 						columns: {

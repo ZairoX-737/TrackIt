@@ -56,20 +56,45 @@ export default function ProjectSettingsModal({
 
 	// Инициализация состояний при открытии модалки или изменении проекта
 	useEffect(() => {
-		if (project && isOpen) {
-			setEditedProjectName(project.name);
-			// Сбрасываем изменения досок и колонок
-			setBoardChanges({});
-			setColumnChanges({});
-			setEditingProjectName(false);
-			setEditingBoardId(null);
-			setEditingColumnId(null);
-		}
-	}, [project, isOpen]);
+		const initializeModal = async () => {
+			if (project && isOpen) {
+				try {
+					// Загружаем актуальные данные проектов при открытии модалки
+					await loadProjects();
+
+					// Получаем обновленные данные проекта после загрузки
+					const { projects } = useTaskStore.getState();
+					const updatedProject =
+						projects.find(p => p.id === project.id) || project;
+
+					console.log('ProjectSettingsModal: Loaded fresh data', {
+						updatedProject,
+						boards: updatedProject.boards,
+						columns: updatedProject.boards?.flatMap(b => b.columns || []),
+					});
+
+					setEditedProjectName(updatedProject.name);
+					// Сбрасываем изменения досок и колонок
+					setBoardChanges({});
+					setColumnChanges({});
+					setEditingProjectName(false);
+					setEditingBoardId(null);
+					setEditingColumnId(null);
+				} catch (error) {
+					console.error('Error initializing project settings modal:', error);
+				}
+			}
+		};
+
+		initializeModal();
+	}, [project, isOpen, loadProjects]);
 
 	if (!isOpen || !project) return null;
 
-	const boards = project.boards || [];
+	// Используем свежие данные проекта из store вместо переданных пропсов
+	const { projects } = useTaskStore();
+	const currentProject = projects.find(p => p.id === project.id) || project;
+	const boards = currentProject.boards || [];
 
 	// Функция для получения текущего имени доски (с учетом локальных изменений)
 	const getBoardDisplayName = (board: Board): string => {
@@ -286,7 +311,9 @@ export default function ProjectSettingsModal({
 			// Перезагружаем проекты для обновления UI
 			await loadProjects();
 
-			// Закрываем модалку
+			console.log('Changes saved successfully');
+
+			// Закрываем модалку после успешного сохранения
 			onClose();
 		} catch (error) {
 			console.error('Error saving changes:', error);
@@ -310,21 +337,31 @@ export default function ProjectSettingsModal({
 			onClick={handleCancel}
 		>
 			<div
-				className='bg-[#2c2c2e] w-[500px] max-h-[80vh] rounded-lg shadow-lg overflow-hidden'
+				className='bg-[#2c2c2e] w-[700px] max-h-[80vh] rounded-lg shadow-lg overflow-hidden'
 				onClick={e => e.stopPropagation()}
 			>
 				{' '}
 				<div className='flex justify-between items-center p-4 border-b border-[#3c3c3e]'>
 					<h2 className='text-xl font-semibold'>Project Settings</h2>
-					<button onClick={handleCancel} disabled={loading}>
-						<IoClose size={24} className='text-gray-400 hover:text-white' />
-					</button>
+					<div className='flex items-center gap-4'>
+						<button
+							onClick={() => setShowLabelsModal(true)}
+							className='px-3 py-1 bg-[#ff9800] hover:bg-[#f57c00] text-white rounded-md text-sm'
+						>
+							Manage Labels
+						</button>
+						<button onClick={handleCancel} disabled={loading}>
+							<IoClose size={24} className='text-gray-400 hover:text-white' />
+						</button>
+					</div>
 				</div>
-				<div className='p-4 overflow-y-auto max-h-[calc(80vh-120px)]'>
+				<div className='p-6 overflow-y-auto max-h-[calc(80vh-120px)]'>
 					{/* Project Name */}
-					<div className='mb-6'>
-						<h3 className='text-lg font-medium mb-2'>Project name</h3>
-						<div className='flex items-center'>
+					<div className='mb-8'>
+						<h3 className='text-xl font-medium mb-3 text-[#ff9800]'>
+							Project name
+						</h3>
+						<div className='flex items-center bg-[#333] p-4 rounded-md'>
 							{editingProjectName ? (
 								<input
 									type='text'
@@ -333,18 +370,18 @@ export default function ProjectSettingsModal({
 									onBlur={() => setEditingProjectName(false)}
 									onKeyDown={handleProjectNameKeyDown}
 									autoFocus
-									className='bg-[#3c3c3e] text-white px-3 py-2 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-[#ff9800]'
+									className='bg-[#3c3c3e] text-white px-3 py-2 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-[#ff9800] text-lg'
 								/>
 							) : (
 								<div
 									onClick={handleProjectNameClick}
-									className='bg-[#3c3c3e] text-white px-3 py-2 rounded-md w-full cursor-pointer hover:bg-[#4c4c4e] transition-colors'
+									className='bg-[#3c3c3e] text-white px-4 py-3 rounded-md w-full cursor-pointer hover:bg-[#4c4c4e] transition-colors text-lg'
 								>
 									{editedProjectName}
 								</div>
 							)}
-						</div>{' '}
-						<p className='text-xs text-gray-400 mt-1'>Click to edit</p>
+						</div>
+						<p className='text-xs text-gray-400 mt-2 ml-1'>Click to edit</p>
 					</div>
 
 					{/* Boards */}
@@ -352,83 +389,85 @@ export default function ProjectSettingsModal({
 						<div className='flex justify-between items-center mb-2'>
 							<h3 className='text-lg font-medium'>Boards</h3>
 						</div>
-						{boards.length > 0 ? (
-							<ul className='space-y-2'>
-								{boards.map(board => {
-									const isDeleted = isBoardDeleted(board);
-									const displayName = getBoardDisplayName(board);
+						<div className='bg-[#333] rounded-md p-3'>
+							{boards.length > 0 ? (
+								<ul className='space-y-2'>
+									{boards.map(board => {
+										const isDeleted = isBoardDeleted(board);
+										const displayName = getBoardDisplayName(board);
 
-									return (
-										<li
-											key={board.id}
-											className={`flex items-center justify-between p-3 rounded-md ${
-												isDeleted
-													? 'bg-red-900/20 border border-red-500/30'
-													: 'bg-[#3c3c3e]'
-											}`}
-										>
-											{editingBoardId === board.id ? (
-												<input
-													type='text'
-													value={displayName}
-													onChange={e =>
-														handleBoardNameChange(board.id, e.target.value)
-													}
-													onBlur={() => setEditingBoardId(null)}
-													onKeyDown={e => handleBoardNameKeyDown(e, board.id)}
-													autoFocus
-													className='bg-[#4c4c4e] text-white px-2 py-1 rounded-md w-full focus:outline-none focus:ring-1 focus:ring-[#ff9800]'
-												/>
-											) : (
-												<div
-													onClick={() =>
-														!isDeleted && handleBoardNameClick(board.id)
-													}
-													className={`px-2 py-1 rounded flex-1 transition-colors ${
-														isDeleted
-															? 'text-red-400 line-through cursor-not-allowed'
-															: 'cursor-pointer hover:bg-[#4c4c4e]'
-													}`}
-												>
-													{displayName}{' '}
-													{isDeleted && (
-														<span className='ml-2 text-xs'>
-															(will be deleted)
-														</span>
+										return (
+											<li
+												key={board.id}
+												className={`flex items-center justify-between p-3 rounded-md ${
+													isDeleted
+														? 'bg-red-900/20 border border-red-500/30'
+														: 'bg-[#3c3c3e]'
+												}`}
+											>
+												{editingBoardId === board.id ? (
+													<input
+														type='text'
+														value={displayName}
+														onChange={e =>
+															handleBoardNameChange(board.id, e.target.value)
+														}
+														onBlur={() => setEditingBoardId(null)}
+														onKeyDown={e => handleBoardNameKeyDown(e, board.id)}
+														autoFocus
+														className='bg-[#4c4c4e] text-white px-2 py-1 rounded-md w-full focus:outline-none focus:ring-1 focus:ring-[#ff9800]'
+													/>
+												) : (
+													<div
+														onClick={() =>
+															!isDeleted && handleBoardNameClick(board.id)
+														}
+														className={`px-2 py-1 rounded flex-1 transition-colors ${
+															isDeleted
+																? 'text-red-400 line-through cursor-not-allowed'
+																: 'cursor-pointer hover:bg-[#4c4c4e]'
+														}`}
+													>
+														{displayName}{' '}
+														{isDeleted && (
+															<span className='ml-2 text-xs'>
+																(will be deleted)
+															</span>
+														)}
+													</div>
+												)}
+												<div className='flex items-center gap-1 ml-2'>
+													{isDeleted ? (
+														<button
+															onClick={() => handleRestoreBoard(board.id)}
+															className='text-green-400 hover:text-green-300 p-1'
+															title='Restore board'
+														>
+															<IoClose size={18} className='rotate-45' />
+														</button>
+													) : (
+														<button
+															onClick={() => handleDeleteBoard(board.id)}
+															className='text-gray-400 hover:text-red-500 p-1'
+															title='Delete board'
+														>
+															<IoTrash size={16} />
+														</button>
 													)}
 												</div>
-											)}
-											<div className='flex items-center gap-1 ml-2'>
-												{isDeleted ? (
-													<button
-														onClick={() => handleRestoreBoard(board.id)}
-														className='text-green-400 hover:text-green-300 p-1'
-														title='Restore board'
-													>
-														<IoClose size={18} className='rotate-45' />
-													</button>
-												) : (
-													<button
-														onClick={() => handleDeleteBoard(board.id)}
-														className='text-gray-400 hover:text-red-500 p-1'
-														title='Delete board'
-													>
-														<IoTrash size={16} />
-													</button>
-												)}
-											</div>
-										</li>
-									);
-								})}
-							</ul>
-						) : (
-							<div className='text-gray-400 text-center py-4'>
-								No boards in this project
-							</div>
-						)}{' '}
-						<p className='text-xs text-gray-400 mt-2'>
-							Click on board name to edit
-						</p>
+											</li>
+										);
+									})}
+								</ul>
+							) : (
+								<div className='text-gray-400 text-center py-4'>
+									No boards in this project
+								</div>
+							)}{' '}
+							<p className='text-xs text-gray-400 mt-2'>
+								Click on board name to edit
+							</p>
+						</div>
 					</div>
 
 					{/* Columns */}
@@ -436,159 +475,146 @@ export default function ProjectSettingsModal({
 						<div className='flex justify-between items-center mb-2'>
 							<h3 className='text-lg font-medium'>Columns</h3>
 						</div>
-						{boards.length > 0 ? (
-							<div className='space-y-4'>
-								{boards.map(board => {
-									const boardColumns = board.columns || [];
-									const boardDeleted = isBoardDeleted(board);
+						<div className='bg-[#333] rounded-md p-3'>
+							{boards.length > 0 ? (
+								<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+									{boards.map(board => {
+										const boardColumns = board.columns || [];
+										const boardDeleted = isBoardDeleted(board);
 
-									return (
-										<div
-											key={board.id}
-											className={`p-3 rounded-md ${
-												boardDeleted ? 'opacity-50' : 'bg-[#3a3a3c]'
-											}`}
-										>
-											<h4 className='text-md font-medium mb-2 text-[#ff9800]'>
-												{getBoardDisplayName(board)}
-												{boardDeleted && (
-													<span className='ml-2 text-xs text-red-400'>
-														(board will be deleted)
+										return (
+											<div
+												key={board.id}
+												className={`p-3 rounded-md ${
+													boardDeleted ? 'opacity-50' : 'bg-[#3a3a3c]'
+												}`}
+											>
+												<h4 className='text-md font-medium mb-2 text-[#ff9800] flex items-center justify-between'>
+													<span>
+														{getBoardDisplayName(board)}
+														{boardDeleted && (
+															<span className='ml-2 text-xs text-red-400'>
+																(board will be deleted)
+															</span>
+														)}
 													</span>
-												)}
-											</h4>
-											{boardColumns.length > 0 && !boardDeleted ? (
-												<ul className='space-y-2'>
-													{boardColumns.map(column => {
-														const isDeleted = isColumnDeleted(column);
-														const displayName = getColumnDisplayName(column);
+												</h4>
+												{boardColumns.length > 0 && !boardDeleted ? (
+													<ul className='space-y-2'>
+														{boardColumns.map(column => {
+															const isDeleted = isColumnDeleted(column);
+															const displayName = getColumnDisplayName(column);
 
-														return (
-															<li
-																key={column.id}
-																className={`flex items-center justify-between p-2 rounded-md ${
-																	isDeleted
-																		? 'bg-red-900/20 border border-red-500/30'
-																		: 'bg-[#4c4c4e]'
-																}`}
-															>
-																{editingColumnId === column.id ? (
-																	<input
-																		type='text'
-																		value={displayName}
-																		onChange={e =>
-																			handleColumnNameChange(
-																				column.id,
-																				e.target.value
-																			)
-																		}
-																		onBlur={() => setEditingColumnId(null)}
-																		onKeyDown={e =>
-																			handleColumnNameKeyDown(e, column.id)
-																		}
-																		autoFocus
-																		className='bg-[#5c5c5e] text-white px-2 py-1 rounded-md w-full focus:outline-none focus:ring-1 focus:ring-[#ff9800]'
-																	/>
-																) : (
-																	<div
-																		onClick={() =>
-																			!isDeleted &&
-																			handleColumnNameClick(column.id)
-																		}
-																		className={`px-2 py-1 rounded flex-1 transition-colors ${
-																			isDeleted
-																				? 'text-red-400 line-through cursor-not-allowed'
-																				: 'cursor-pointer hover:bg-[#5c5c5e]'
-																		}`}
-																	>
-																		{displayName}
-																		{isDeleted && (
-																			<span className='ml-2 text-xs'>
-																				(will be deleted)
-																			</span>
+															return (
+																<li
+																	key={column.id}
+																	className={`flex items-center justify-between p-2 rounded-md ${
+																		isDeleted
+																			? 'bg-red-900/20 border border-red-500/30'
+																			: 'bg-[#4c4c4e]'
+																	}`}
+																>
+																	{editingColumnId === column.id ? (
+																		<input
+																			type='text'
+																			value={displayName}
+																			onChange={e =>
+																				handleColumnNameChange(
+																					column.id,
+																					e.target.value
+																				)
+																			}
+																			onBlur={() => setEditingColumnId(null)}
+																			onKeyDown={e =>
+																				handleColumnNameKeyDown(e, column.id)
+																			}
+																			autoFocus
+																			className='bg-[#5c5c5e] text-white px-2 py-1 rounded-md w-full focus:outline-none focus:ring-1 focus:ring-[#ff9800]'
+																		/>
+																	) : (
+																		<div
+																			onClick={() =>
+																				!isDeleted &&
+																				handleColumnNameClick(column.id)
+																			}
+																			className={`px-2 py-1 rounded flex-1 transition-colors ${
+																				isDeleted
+																					? 'text-red-400 line-through cursor-not-allowed'
+																					: 'cursor-pointer hover:bg-[#5c5c5e]'
+																			}`}
+																		>
+																			{displayName}
+																			{isDeleted && (
+																				<span className='ml-2 text-xs'>
+																					(will be deleted)
+																				</span>
+																			)}
+																		</div>
+																	)}
+																	<div className='flex items-center gap-1 ml-2'>
+																		{isDeleted ? (
+																			<button
+																				onClick={() =>
+																					handleRestoreColumn(column.id)
+																				}
+																				className='text-green-400 hover:text-green-300 p-1'
+																				title='Restore column'
+																			>
+																				<IoClose
+																					size={18}
+																					className='rotate-45'
+																				/>
+																			</button>
+																		) : (
+																			<button
+																				onClick={() =>
+																					handleDeleteColumn(column.id)
+																				}
+																				className='text-gray-400 hover:text-red-500 p-1'
+																				title='Delete column'
+																			>
+																				<IoTrash size={14} />
+																			</button>
 																		)}
 																	</div>
-																)}
-																<div className='flex items-center gap-1 ml-2'>
-																	{isDeleted ? (
-																		<button
-																			onClick={() =>
-																				handleRestoreColumn(column.id)
-																			}
-																			className='text-green-400 hover:text-green-300 p-1'
-																			title='Restore column'
-																		>
-																			<IoClose
-																				size={18}
-																				className='rotate-45'
-																			/>
-																		</button>
-																	) : (
-																		<button
-																			onClick={() =>
-																				handleDeleteColumn(column.id)
-																			}
-																			className='text-gray-400 hover:text-red-500 p-1'
-																			title='Delete column'
-																		>
-																			<IoTrash size={14} />
-																		</button>
-																	)}
-																</div>
-															</li>
-														);
-													})}
-												</ul>
-											) : (
-												<div className='text-gray-400 text-sm py-2'>
-													{boardDeleted
-														? 'Board will be deleted'
-														: 'No columns in this board'}
-												</div>
-											)}
-										</div>
-									);
-								})}
-							</div>
-						) : (
-							<div className='text-gray-400 text-center py-4'>
-								No boards in this project
-							</div>
-						)}
-						<p className='text-xs text-gray-400 mt-2'>
-							Click on column name to edit
-						</p>
-					</div>
-
-					{/* Labels */}
-					<div className='mb-6'>
-						<div className='flex justify-between items-center mb-2'>
-							<h3 className='text-lg font-medium'>Labels</h3>
-							<button
-								onClick={() => setShowLabelsModal(true)}
-								className='px-3 py-1 bg-[#ff9800] hover:bg-[#f57c00] text-white rounded-md text-sm'
-							>
-								Manage Labels
-							</button>
+																</li>
+															);
+														})}
+													</ul>
+												) : (
+													<div className='text-gray-400 text-sm py-2'>
+														{boardDeleted
+															? 'Board will be deleted'
+															: 'No columns in this board'}
+													</div>
+												)}
+											</div>
+										);
+									})}
+								</div>
+							) : (
+								<div className='text-gray-400 text-center py-4'>
+									No boards in this project
+								</div>
+							)}
+							<p className='text-xs text-gray-400 mt-2'>
+								Click on column name to edit
+							</p>
 						</div>
-						<p className='text-xs text-gray-400'>
-							Click "Manage Labels" to add, edit, or delete project labels
-						</p>
 					</div>
 				</div>
-				<div className='flex justify-end gap-3 p-4 border-t border-[#3c3c3e]'>
-					{' '}
+				<div className='flex justify-end gap-4 py-3 px-4 border-t border-[#3c3c3e] bg-[#333] items-center'>
 					<button
 						onClick={handleCancel}
 						disabled={loading}
-						className='px-4 py-2 bg-[#3c3c3e] hover:bg-[#4c4c4e] rounded-md disabled:opacity-50'
+						className='px-5 py-1.5 bg-[#3c3c3e] hover:bg-[#4c4c4e] rounded-md disabled:opacity-50 transition-colors'
 					>
 						Cancel
 					</button>
 					<button
 						onClick={handleSaveChanges}
 						disabled={loading || !hasChanges()}
-						className={`px-4 py-2 rounded-md flex items-center gap-2 disabled:opacity-50 ${
+						className={`px-5 py-1.5 rounded-md flex items-center gap-2 disabled:opacity-50 transition-colors ${
 							hasChanges()
 								? 'bg-[#ff9800] hover:bg-[#f57c00] text-white'
 								: 'bg-[#3c3c3e] text-gray-400'

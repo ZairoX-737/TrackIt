@@ -9,12 +9,18 @@ import { Task as TaskType } from '../api/types';
 interface IProps {
 	tasks: TaskType[];
 	TaskListHeader: string;
+	columnId?: string; // Добавляем ID колонки
 }
 
-const TasksList = ({ tasks, TaskListHeader }: IProps) => {
-	const { createTaskOpen, setCreateTaskOpen } = useTaskStore();
+const TasksList = ({ tasks, TaskListHeader, columnId }: IProps) => {
+	const { createTaskOpen, setCreateTaskOpen, setPreselectedColumnId } =
+		useTaskStore();
 
 	const handleChangeState = () => {
+		// Устанавливаем предварительно выбранную колонку
+		if (columnId) {
+			setPreselectedColumnId(columnId);
+		}
 		setCreateTaskOpen(!createTaskOpen);
 	};
 

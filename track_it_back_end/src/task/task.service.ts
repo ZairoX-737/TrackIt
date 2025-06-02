@@ -304,11 +304,12 @@ export class TaskService {
 				where: { taskId },
 			});
 
-			return this.prisma.task.delete({
+			await this.prisma.task.delete({
 				where: {
 					id: taskId,
 				},
 			});
+			return;
 		}
 
 		// Админы проекта могут удалять любые задачи, остальные - только свои
@@ -323,7 +324,7 @@ export class TaskService {
 			where: { taskId },
 		});
 
-		return this.prisma.task.delete({
+		await this.prisma.task.delete({
 			where: {
 				id: taskId,
 			},

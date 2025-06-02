@@ -24,7 +24,6 @@
 	min-width: 300px;
 	max-width: 500px;
 	height: fit-content;
-	max-height: 89vh;
 	padding: 10px 10px 12px 10px;
 	background-color: #2c2c2e;
 	border: 1px solid rgba(255, 255, 255, 0.2);
@@ -35,7 +34,7 @@
 .taskList {
 	overflow-y: auto;
 	width: 100%;
-	max-height: 100%;
+	max-height: calc(100vh - 200px); /* Ограничиваем максимальную высоту */
 	padding-right: 8px;
 	box-sizing: border-box;
 	&::-webkit-scrollbar {
@@ -285,8 +284,9 @@
 	border: 1px solid rgba(255, 255, 255, 0.2);
 	border-radius: 5px;
 	outline: none;
-	width: 250px;
+	width: 100%;
 	color: white;
+	box-sizing: border-box;
 
 	&:focus {
 		border-color: #ff9800;
@@ -325,7 +325,8 @@
 }
 
 .addColumnContainer {
-	min-width: 250px;
+	min-width: 300px;
+	max-width: 300px;
 	margin: 0 20px;
 	align-self: flex-start;
 	margin-top: 40px;
@@ -347,10 +348,12 @@
 }
 
 .addColumnFormContainer {
-	min-width: 250px;
+	min-width: 300px;
+	max-width: 300px;
 	margin: 0 20px;
 	padding: 15px;
 	background-color: #2c2c2e;
 	border-radius: 8px;
 	border: 1px solid rgba(255, 255, 255, 0.2);
+	align-self: flex-start;
 }

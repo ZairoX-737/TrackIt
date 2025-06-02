@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import {
 	IoClose,
 	IoTrash,
-	IoPencil,
 	IoCheckmark,
 	IoClose as IoCancel,
 } from 'react-icons/io5';
@@ -146,8 +145,26 @@ export default function TaskDetailModal({
 
 	const handleCancelEdit = () => {
 		setIsEditing(false);
+		setShowLabelSelector(false); // Закрываем панель меток при отмене
 		setEditedTitle(task?.title || '');
 		setEditedDescription(task?.description || '');
+		setEditedColumnId(task?.columnId || '');
+		// Сбрасываем выбранные метки к исходному состоянию
+		if (task?.labels && task.labels.length > 0) {
+			const labelIds = task.labels.map((label: any) => {
+				if (typeof label === 'string') return label;
+				else if (label.label) return label.label.id;
+				else return label.id;
+			});
+			setSelectedLabels(labelIds);
+		} else {
+			setSelectedLabels([]);
+		}
+	};
+
+	const handleStartEdit = () => {
+		setIsEditing(true);
+		setShowLabelSelector(true); // Автоматически открываем панель меток
 	};
 
 	const handleToggleLabel = (labelId: string) => {
@@ -165,12 +182,15 @@ export default function TaskDetailModal({
 		if (confirm('Are you sure you want to delete this task?')) {
 			try {
 				setError(null);
+				// Выполняем API вызов для удаления задачи
 				await TaskService.delete(task.id);
+				// При успешном удалении обновляем локальное состояние и закрываем модальное окно
 				onTaskDelete?.(task.id);
 				onClose();
 			} catch (err: any) {
 				console.error('Error deleting task:', err);
 				setError(err.response?.data?.message || 'Failed to delete task');
+				// НЕ закрываем модальное окно при ошибке, чтобы пользователь видел сообщение об ошибке
 			}
 		}
 	};
@@ -198,9 +218,16 @@ export default function TaskDetailModal({
 								autoFocus
 							/>
 						) : (
-							<h2 className='text-xl font-semibold break-words overflow-wrap-anywhere'>
-								{task.title}
-							</h2>
+							<div className='flex items-center gap-3'>
+								<h2 className='text-xl font-semibold break-words overflow-wrap-anywhere'>
+									{task.title}
+								</h2>
+								{/* Column indicator */}
+								<div className='bg-[#3c3c3e] px-3 py-1 rounded-full text-sm text-gray-300 border border-[#4c4c4e]'>
+									{columns.find(col => col.id === task.columnId)?.name ||
+										'Unknown Column'}
+								</div>
+							</div>
 						)}
 
 						{isEditing && (
@@ -219,36 +246,18 @@ export default function TaskDetailModal({
 								</select>
 							</div>
 						)}
-
-						{isEditing ? (
-							<div className='flex gap-2'>
-								<button
-									onClick={handleSaveEdit}
-									className='text-green-500 hover:text-green-400'
-									title='Save changes'
-								>
-									<IoCheckmark size={20} />
-								</button>
-								<button
-									onClick={handleCancelEdit}
-									className='text-red-500 hover:text-red-400'
-									title='Cancel editing'
-								>
-									<IoCancel size={20} />
-								</button>
-							</div>
-						) : (
-							<button
-								onClick={() => setIsEditing(true)}
-								className='text-gray-400 hover:text-white'
-								title='Edit task'
-							>
-								<IoPencil size={18} />
-							</button>
-						)}
 					</div>
 
 					<div className='flex items-center gap-2'>
+						{!isEditing && (
+							<button
+								onClick={handleStartEdit}
+								className='bg-[#ff9800] hover:bg-[#f57c00] text-white px-3 py-1 rounded text-sm'
+								title='Edit task'
+							>
+								Edit
+							</button>
+						)}
 						<button
 							onClick={handleDeleteTask}
 							className='text-red-500 hover:text-red-400'
@@ -275,17 +284,7 @@ export default function TaskDetailModal({
 
 						{/* Description */}
 						<div className='mb-6'>
-							<h3 className='text-lg font-medium mb-2 flex justify-between'>
-								Description
-								{!isEditing && (
-									<button
-										onClick={() => setIsEditing(true)}
-										className='text-xs bg-[#3c3c3e] hover:bg-[#4c4c4e] px-2 py-1 rounded'
-									>
-										Edit
-									</button>
-								)}
-							</h3>
+							<h3 className='text-lg font-medium mb-2'>Description</h3>
 							{isEditing ? (
 								<textarea
 									value={editedDescription}
@@ -308,25 +307,6 @@ export default function TaskDetailModal({
 							)}
 						</div>
 
-						{isEditing && (
-							<div className='mb-6'>
-								<div className='flex justify-end'>
-									<button
-										onClick={handleSaveEdit}
-										className='bg-[#ff9800] hover:bg-[#f57c00] text-white px-4 py-2 rounded-md mr-2'
-									>
-										Сохранить изменения
-									</button>
-									<button
-										onClick={handleCancelEdit}
-										className='bg-[#3c3c3e] hover:bg-[#4c4c4e] text-white px-4 py-2 rounded-md'
-									>
-										Отмена
-									</button>
-								</div>
-							</div>
-						)}
-
 						{/* Task metadata */}
 						<div className='grid grid-cols-2 gap-4'>
 							<div>
@@ -347,96 +327,99 @@ export default function TaskDetailModal({
 									{new Date(task.createdAt).toLocaleDateString()}
 								</p>
 							</div>
-							<div>
-								<h4 className='font-medium mb-1 flex items-center justify-between'>
-									<span className='flex items-center gap-2'>
-										<FiTag size={16} />
-										Labels
-									</span>
-									{isEditing && (
-										<button
-											onClick={() => setShowLabelSelector(!showLabelSelector)}
-											className='text-xs bg-[#3c3c3e] hover:bg-[#4c4c4e] px-2 py-1 rounded flex items-center gap-1'
-										>
-											{showLabelSelector ? 'Hide' : 'Edit'} Labels
-										</button>
-									)}
+							<div className='col-span-2'>
+								<h4 className='font-medium mb-1 flex items-center gap-2'>
+									<FiTag size={16} />
+									Labels
 								</h4>
 								{showLabelSelector && isEditing && (
-									<div className='bg-[#252528] border border-[#3c3c3e] p-3 rounded-md mb-2'>
-										<div className='mb-2 font-medium text-sm'>
-											Select Labels:
-										</div>
-										<div className='grid grid-cols-2 gap-2 max-h-32 overflow-y-auto'>
-											{labels.map(label => (
-												<div
-													key={label.id}
-													className={`flex items-center p-2 rounded cursor-pointer ${
+									<div className='flex flex-wrap gap-2 mb-2'>
+										{labels.map(label => (
+											<button
+												key={label.id}
+												type='button'
+												onClick={() => handleToggleLabel(label.id)}
+												className={`
+													inline-flex items-center justify-center
+													px-3 py-1 text-xs font-medium
+													rounded-full transition-all duration-200
+													border-2 min-w-[30px] h-[20px]
+													${
 														selectedLabels.includes(label.id)
-															? 'bg-[#3c3c3e]'
-															: 'hover:bg-[#2c2c2e]'
-													}`}
-													onClick={() => handleToggleLabel(label.id)}
-												>
+															? 'border-white shadow-lg transform scale-105'
+															: 'border-transparent hover:border-gray-300'
+													}
+												`}
+												style={{
+													backgroundColor: label.color,
+													color: label.color === '#D1FF86' ? '#000' : '#fff',
+												}}
+											>
+												{label.name}
+											</button>
+										))}
+									</div>
+								)}
+								{!isEditing && (
+									<div className='flex flex-wrap gap-1'>
+										{task.labels && task.labels.length > 0 ? (
+											task.labels.map((labelData: any) => {
+												// Обрабатываем разные форматы меток
+												let id = '';
+												let name = '';
+												let color = '';
+
+												if (typeof labelData === 'string') {
+													id = labelData;
+													name = labelData;
+													color = labelData;
+												} else if (labelData.label) {
+													id = labelData.label.id;
+													name = labelData.label.name;
+													color = labelData.label.color;
+												} else {
+													id = labelData.id;
+													name = labelData.name;
+													color = labelData.color;
+												}
+
+												return (
 													<span
-														className='w-3 h-3 rounded-full mr-2'
-														style={{ backgroundColor: label.color }}
-													></span>
-													<span className='text-sm'>{label.name}</span>
-													{selectedLabels.includes(label.id) && (
-														<IoCheckmark
-															size={16}
-															className='ml-auto text-green-500'
-														/>
-													)}
-												</div>
-											))}
-										</div>
-										{labels.length === 0 && (
-											<p className='text-sm text-gray-400'>
-												No labels available
-											</p>
+														key={id}
+														className='text-xs px-2 py-1 rounded'
+														style={{ backgroundColor: color, color: 'white' }}
+													>
+														{name}
+													</span>
+												);
+											})
+										) : (
+											<span className='text-xs text-gray-400'>No labels</span>
 										)}
 									</div>
 								)}
-								<div className='flex flex-wrap gap-1'>
-									{task.labels && task.labels.length > 0 ? (
-										task.labels.map((labelData: any) => {
-											// Обрабатываем разные форматы меток
-											let id = '';
-											let name = '';
-											let color = '';
-
-											if (typeof labelData === 'string') {
-												id = labelData;
-												name = labelData;
-												color = labelData;
-											} else if (labelData.label) {
-												id = labelData.label.id;
-												name = labelData.label.name;
-												color = labelData.label.color;
-											} else {
-												id = labelData.id;
-												name = labelData.name;
-												color = labelData.color;
-											}
-
-											return (
-												<span
-													key={id}
-													className='text-xs px-2 py-1 rounded'
-													style={{ backgroundColor: color, color: 'white' }}
-												>
-													{name}
-												</span>
-											);
-										})
-									) : (
-										<span className='text-xs text-gray-400'>No labels</span>
-									)}
-								</div>
 							</div>
 						</div>
+
+						{/* Edit Action Buttons */}
+						{isEditing && (
+							<div className='flex gap-2 mt-6 pt-4 border-t border-[#3c3c3e]'>
+								<button
+									onClick={handleSaveEdit}
+									className='bg-[#ff9800] hover:bg-[#f57c00] text-white px-4 py-2 rounded text-sm flex items-center gap-2'
+								>
+									<IoCheckmark size={16} />
+									Save Changes
+								</button>
+								<button
+									onClick={handleCancelEdit}
+									className='bg-gray-600 hover:bg-gray-500 text-white px-4 py-2 rounded text-sm flex items-center gap-2'
+								>
+									<IoCancel size={16} />
+									Cancel
+								</button>
+							</div>
+						)}
 					</div>
 					{/* Right side - Comments */}
 					<div className='w-80 border-l border-[#3c3c3e] flex flex-col'>

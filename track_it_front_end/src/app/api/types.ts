@@ -40,7 +40,10 @@ export interface Project {
 	createdAt: string;
 	updatedAt: string;
 	boards?: Board[];
-	users?: User[];
+	users?: Array<{
+		userId: string;
+		role: 'admin' | 'editor';
+	}>;
 }
 
 export interface ProjectDto {

@@ -25,6 +25,7 @@ interface TaskState {
 	settingsOpen: boolean;
 	taskDetailOpen: boolean;
 	selectedTaskForDetail: Task | null;
+	preselectedColumnId: string | null; // Добавляем предварительно выбранную колонку
 	loading: boolean;
 	error: string | null;
 
@@ -46,6 +47,7 @@ interface TaskState {
 	setSettingsOpen: (open: boolean) => void;
 	setTaskDetailOpen: (open: boolean) => void;
 	setSelectedTaskForDetail: (task: Task | null) => void;
+	setPreselectedColumnId: (columnId: string | null) => void; // Добавляем функцию
 	toggleNotifications: () => void;
 	toggleSettings: () => void;
 
@@ -114,6 +116,7 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 	settingsOpen: false,
 	taskDetailOpen: false,
 	selectedTaskForDetail: null,
+	preselectedColumnId: null,
 	loading: false,
 	error: null,
 
@@ -135,6 +138,7 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 	setSettingsOpen: open => set({ settingsOpen: open }),
 	setTaskDetailOpen: open => set({ taskDetailOpen: open }),
 	setSelectedTaskForDetail: task => set({ selectedTaskForDetail: task }),
+	setPreselectedColumnId: columnId => set({ preselectedColumnId: columnId }),
 	toggleNotifications: () =>
 		set(state => ({ notifOpen: !state.notifOpen, settingsOpen: false })),
 	toggleSettings: () =>
@@ -163,6 +167,7 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 			settingsOpen: false,
 			taskDetailOpen: false,
 			selectedTaskForDetail: null,
+			preselectedColumnId: null,
 			loading: false,
 			error: null,
 		}),
@@ -465,7 +470,8 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 	deleteTask: async (taskId: string) => {
 		try {
 			set({ loading: true, error: null });
-			await TaskService.delete(taskId);
+			// Удаляем задачу только из локального состояния
+			// API вызов уже был выполнен в компоненте
 			set(state => ({
 				tasks: state.tasks.filter(task => task.id !== taskId),
 				loading: false,
@@ -473,6 +479,7 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 		} catch (error) {
 			set({ error: 'Failed to delete task', loading: false });
 			console.error('Error deleting task:', error);
+			throw error;
 		}
 	},
 

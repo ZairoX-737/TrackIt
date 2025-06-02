@@ -3,8 +3,10 @@ import { User, UserDto } from './types';
 
 export class UserService {
 	static async getProfile(): Promise<User> {
-		const response = await $api.get<User>('/user/profile');
-		return response.data;
+		const response = await $api.get<{ user: User; statistics: any[] }>(
+			'/user/profile'
+		);
+		return response.data.user;
 	}
 
 	static async updateProfile(data: UserDto): Promise<User> {

@@ -152,6 +152,7 @@ const TasksContainer = () => {
 						key={nanoid()}
 						tasks={listTasks as any[]}
 						TaskListHeader={column.name}
+						columnId={column.id}
 					/>
 				);
 			})}

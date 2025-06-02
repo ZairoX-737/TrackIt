@@ -61,13 +61,14 @@ export class TaskController {
 	) {
 		return this.taskService.update(dto, taskId, createdBy);
 	}
-	@HttpCode(200)
+	@HttpCode(204)
 	@Delete(':taskId')
 	@Auth()
 	async delete(
 		@Param('taskId') taskId: string,
 		@CurrentUser('id') userId: string
 	) {
-		return this.taskService.delete(taskId, userId);
+		await this.taskService.delete(taskId, userId);
+		return;
 	}
 }

@@ -339,21 +339,42 @@ export default function LabelsModal({
 											<button
 												key={color}
 												onClick={() => setNewLabelColor(color)}
-												className={`w-8 h-8 rounded-full border-2 ${
+												className={`w-8 h-8 rounded-full transition-all duration-200 hover:scale-110 ${
 													newLabelColor === color
-														? 'border-white'
-														: 'border-transparent'
+														? 'ring-2 ring-white ring-offset-2 ring-offset-[#3c3c3e] shadow-lg'
+														: 'hover:ring-1 hover:ring-gray-400'
 												}`}
 												style={{ backgroundColor: color }}
 											/>
 										))}
+										<div className='relative'>
+											<input
+												type='color'
+												value={newLabelColor}
+												onChange={e => setNewLabelColor(e.target.value)}
+												className='absolute opacity-0 w-0 h-0'
+												id='newLabelColorPicker'
+											/>
+											<label
+												htmlFor='newLabelColorPicker'
+												className='inline-flex items-center gap-1 px-2 py-2 rounded-md cursor-pointer transition-all duration-300 hover:scale-105'
+												style={{
+													background:
+														'linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab)',
+													backgroundSize: '400% 400%',
+													animation: 'gradient 4s ease infinite',
+												}}
+											>
+												<div
+													className='w-5 h-4 rounded border-2 border-white shadow-sm'
+													style={{ backgroundColor: newLabelColor }}
+												/>
+												<span className='text-white text-sm font-medium w-full'>
+													Custom Color
+												</span>
+											</label>
+										</div>
 									</div>
-									<input
-										type='color'
-										value={newLabelColor}
-										onChange={e => setNewLabelColor(e.target.value)}
-										className='w-16 h-8 rounded border border-gray-500'
-									/>
 								</div>
 								<div className='flex gap-2'>
 									<button
@@ -398,31 +419,56 @@ export default function LabelsModal({
 										{/* Label Info */}
 										<div className='flex items-center gap-3 flex-1'>
 											{/* Color Preview */}
-											<div className='flex gap-2'>
+											<div className='flex gap-2 items-center'>
 												{predefinedColors.map(color => (
 													<button
 														key={color}
 														onClick={() =>
 															handleLabelColorChange(label.id, color)
 														}
-														className={`w-6 h-6 rounded-full border ${
+														className={`w-6 h-6 rounded-full transition-all duration-200 hover:scale-110 ${
 															displayColor === color
-																? 'border-white border-2'
-																: 'border-gray-500'
+																? 'ring-2 ring-white ring-offset-1 ring-offset-[#3c3c3e] shadow-lg'
+																: 'hover:ring-1 hover:ring-gray-400'
 														}`}
 														style={{ backgroundColor: color }}
 														disabled={isDeleted}
 													/>
 												))}
-												<input
-													type='color'
-													value={displayColor}
-													onChange={e =>
-														handleLabelColorChange(label.id, e.target.value)
-													}
-													className='w-6 h-6 rounded border border-gray-500'
-													disabled={isDeleted}
-												/>
+												<div className='relative'>
+													<input
+														type='color'
+														value={displayColor}
+														onChange={e =>
+															handleLabelColorChange(label.id, e.target.value)
+														}
+														className='absolute opacity-0 w-0 h-0'
+														disabled={isDeleted}
+														id={`colorPicker-${label.id}`}
+													/>
+													<label
+														htmlFor={`colorPicker-${label.id}`}
+														className={`inline-flex items-center justify-center w-6 h-6 rounded cursor-pointer transition-all duration-300 ${
+															isDeleted
+																? 'opacity-50 cursor-not-allowed'
+																: 'hover:scale-110'
+														}`}
+														style={{
+															background: isDeleted
+																? '#666'
+																: 'linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab)',
+															backgroundSize: '400% 400%',
+															animation: isDeleted
+																? 'none'
+																: 'gradient 4s ease infinite',
+														}}
+													>
+														<div
+															className='w-4 h-4 rounded border border-white/50'
+															style={{ backgroundColor: displayColor }}
+														/>
+													</label>
+												</div>
 											</div>
 
 											{/* Label Name */}

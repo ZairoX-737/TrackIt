@@ -14,8 +14,16 @@ const CreateTaskModal = forwardRef<HTMLDivElement, CreateTaskModalProps>(
 		{ isOpen, onClose, projectId }: CreateTaskModalProps,
 		ref: Ref<HTMLDivElement>
 	) => {
-		const { createTask, columns, selectedBoard, loading, labels, loadLabels } =
-			useTaskStore();
+		const {
+			createTask,
+			columns,
+			selectedBoard,
+			loading,
+			labels,
+			loadLabels,
+			preselectedColumnId,
+			setPreselectedColumnId,
+		} = useTaskStore();
 		const [title, setTitle] = useState('');
 		const [description, setDescription] = useState('');
 		const [selectedColumnId, setSelectedColumnId] = useState('');
@@ -26,6 +34,14 @@ const CreateTaskModal = forwardRef<HTMLDivElement, CreateTaskModalProps>(
 				loadLabels(projectId);
 			}
 		}, [loadLabels, projectId]);
+
+		// Устанавливаем предварительно выбранную колонку при открытии модального окна
+		useEffect(() => {
+			if (preselectedColumnId && isOpen) {
+				setSelectedColumnId(preselectedColumnId);
+				setPreselectedColumnId(null); // Сбрасываем после использования
+			}
+		}, [preselectedColumnId, isOpen, setPreselectedColumnId]);
 
 		const handleLabelClick = (labelId: string) => {
 			setSelectedLabels(prev =>
