@@ -84,60 +84,86 @@ export default function ProjectUsersModal({
 	if (!isOpen) return null;
 	return (
 		<div
-			className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[2100]'
+			className='fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-[2100]'
 			onClick={onClose}
 		>
 			<div
-				className='bg-[#2c2c2e] w-[600px] max-h-[80vh] rounded-lg shadow-lg overflow-hidden'
+				className='bg-[rgba(10,10,10,0.95)] w-[700px] max-h-[85vh] rounded-2xl border border-[rgba(255,255,255,0.15)] backdrop-blur-xl shadow-2xl overflow-hidden'
 				onClick={e => e.stopPropagation()}
 			>
-				<div className='flex justify-between items-center p-4 border-b border-[#3c3c3e]'>
-					<div className='flex items-center gap-2'>
-						<FiUsers size={20} />
-						<h2 className='text-xl font-semibold'>Project Users</h2>
+				{/* Header */}
+				<div className='flex justify-between items-center p-6 pb-4'>
+					<div className='flex items-center gap-3'>
+						<div className='p-2.5 bg-[rgba(139,92,246,0.15)] rounded-xl'>
+							<FiUsers className='text-purple-400' size={20} />
+						</div>
+						<div>
+							<h2 className='text-xl font-bold bg-gradient-to-r from-white to-[rgba(255,255,255,0.8)] bg-clip-text text-transparent'>
+								Project Users
+							</h2>
+							<p className='text-sm text-[rgba(255,255,255,0.6)]'>
+								{projectName}
+							</p>
+						</div>
 					</div>
-					<button onClick={onClose}>
-						<IoClose size={24} className='text-gray-400 hover:text-white' />
+					<button
+						onClick={onClose}
+						className='text-[rgba(255,255,255,0.5)] hover:text-white transition-all duration-200 p-2 rounded-xl hover:bg-[rgba(255,255,255,0.1)] hover:scale-105'
+					>
+						<IoClose size={20} />
 					</button>
 				</div>
 
-				<div className='p-4 overflow-y-auto max-h-[calc(80vh-120px)]'>
+				<div className='px-6 pb-6 overflow-y-auto max-h-[calc(85vh-140px)] custom-scrollbar'>
+					{/* Error Message */}
 					{error && (
-						<div className='mb-4 p-3 bg-red-600 text-white rounded-md'>
-							{error}
+						<div className='mb-6 p-4 bg-[rgba(239,68,68,0.15)] border border-[rgba(239,68,68,0.3)] rounded-xl backdrop-blur-sm'>
+							<div className='flex items-center gap-2 text-red-400'>
+								<FiXCircle size={16} />
+								<span className='font-medium'>{error}</span>
+							</div>
 						</div>
 					)}
 
-					{/* Invite Users */}
-					<div className='mb-6 bg-[#3c3c3e] p-4 rounded-lg'>
-						<h3 className='text-lg font-medium mb-3 flex items-center gap-2'>
-							<FiUserPlus size={18} />
-							Invite Users
+					{/* Invite Users Section */}
+					<div className='mb-8 bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.1)] p-5 rounded-2xl'>
+						<h3 className='text-lg font-semibold mb-4 flex items-center gap-3'>
+							<div className='p-2 bg-[rgba(34,197,94,0.15)] rounded-lg'>
+								<FiUserPlus className='text-green-400' size={18} />
+							</div>
+							<span className='text-white'>Invite New User</span>
 						</h3>
-						<form onSubmit={handleInviteUser} className='flex flex-col gap-3'>
-							<div className='flex gap-2'>
-								<input
-									type='email'
-									value={inviteEmail}
-									onChange={e => setInviteEmail(e.target.value)}
-									placeholder='Enter user email'
-									className='bg-[#252528] text-white px-3 py-2 rounded-md flex-1 focus:outline-none focus:ring-2 focus:ring-[#ff9800]'
-									required
-								/>
+
+						<form onSubmit={handleInviteUser} className='space-y-4'>
+							<div className='flex gap-3'>
+								<div className='flex-1'>
+									<input
+										type='email'
+										value={inviteEmail}
+										onChange={e => setInviteEmail(e.target.value)}
+										placeholder='Enter user email address'
+										className='w-full bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] text-white px-4 py-3 rounded-xl focus:outline-none focus:border-purple-400 focus:bg-[rgba(255,255,255,0.08)] transition-all duration-200 placeholder-[rgba(255,255,255,0.4)]'
+										required
+									/>
+								</div>
 								<select
 									value={inviteRole}
 									onChange={e =>
 										setInviteRole(e.target.value as 'admin' | 'editor')
 									}
-									className='bg-[#252528] text-white px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-[#ff9800]'
+									className='bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] text-white px-4 py-3 rounded-xl focus:outline-none focus:border-purple-400 min-w-[120px]'
 								>
-									<option value='editor'>Editor</option>
-									<option value='admin'>Admin</option>
+									<option value='editor' className='bg-gray-800'>
+										Editor
+									</option>
+									<option value='admin' className='bg-gray-800'>
+										Admin
+									</option>
 								</select>
 								<button
 									type='submit'
 									disabled={inviting || !inviteEmail.trim()}
-									className='bg-[#ff9800] hover:bg-[#f57c00] disabled:bg-gray-600 disabled:cursor-not-allowed text-white px-4 py-2 rounded-md'
+									className='px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 disabled:from-gray-600 disabled:to-gray-700 disabled:cursor-not-allowed text-white rounded-xl font-medium transition-all duration-200 shadow-lg min-w-[100px]'
 								>
 									{inviting ? 'Inviting...' : 'Invite'}
 								</button>
@@ -145,39 +171,54 @@ export default function ProjectUsersModal({
 						</form>
 					</div>
 
-					{/* Users List */}
+					{/* Users List Section */}
 					<div>
-						<h3 className='text-lg font-medium mb-3'>Project Members</h3>
+						<h3 className='text-lg font-semibold mb-4 flex items-center gap-3'>
+							<div className='p-2 bg-[rgba(255,152,0,0.15)] rounded-lg'>
+								<FiUsers className='text-orange-400' size={18} />
+							</div>
+							<span className='text-white'>Project Members</span>
+							<span className='text-sm text-[rgba(255,255,255,0.5)] bg-[rgba(255,255,255,0.1)] px-2 py-1 rounded-full'>
+								{users.length}
+							</span>
+						</h3>
+
 						{loading ? (
-							<div className='text-center py-4'>Loading users...</div>
+							<div className='text-center py-12'>
+								<div className='inline-flex items-center gap-3 text-[rgba(255,255,255,0.7)]'>
+									<div className='w-5 h-5 border-2 border-purple-400 border-t-transparent rounded-full animate-spin'></div>
+									Loading users...
+								</div>
+							</div>
 						) : (
-							<div className='space-y-2'>
+							<div className='space-y-3'>
 								{users.map(user => (
 									<div
 										key={user.userId}
-										className='flex items-center justify-between bg-[#3c3c3e] p-3 rounded-md'
+										className='flex items-center justify-between bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.1)] p-4 rounded-xl hover:bg-[rgba(255,255,255,0.05)] hover:border-[rgba(255,255,255,0.2)] transition-all duration-200'
 									>
-										<div className='flex items-center gap-3'>
-											<div className='w-10 h-10 bg-[#4c4c4e] rounded-full flex items-center justify-center text-lg font-semibold'>
+										<div className='flex items-center gap-4'>
+											<div className='w-12 h-12 bg-gradient-to-br from-purple-500 to-blue-600 rounded-full flex items-center justify-center text-lg font-bold text-white shadow-lg'>
 												{user.user.username
 													? user.user.username.charAt(0).toUpperCase()
 													: user.user.email.charAt(0).toUpperCase()}
 											</div>
 											<div>
-												<div className='font-medium'>
+												<div className='font-semibold text-white'>
 													{user.user.username || user.user.email}
 												</div>
-												<div className='text-sm text-gray-400'>
+												<div className='text-sm text-[rgba(255,255,255,0.6)]'>
 													{user.user.email}
 												</div>
 											</div>
 										</div>
+
 										<div className='flex items-center gap-3'>
 											<span
-												className={`text-sm px-2 py-1 rounded ${
+												className={`text-sm px-3 py-1.5 rounded-full font-medium ${
 													user.role === 'admin'
-														? 'bg-[#ff9800] text-white'
-														: 'bg-[#60a5fa] text-white'
+														? 'bg-gradient-to-r from-orange-500 to-red-500 text-white'
+														: 'bg-gradient-to-r from-blue-500 to-purple-500 text-white'
 												}`}
 											>
 												{user.role.charAt(0).toUpperCase() + user.role.slice(1)}
@@ -185,8 +226,8 @@ export default function ProjectUsersModal({
 											{user.role !== 'admin' && (
 												<button
 													onClick={() => handleRemoveUser(user.userId)}
-													className='text-gray-400 hover:text-red-500'
-													title='Remove user'
+													className='text-[rgba(255,255,255,0.5)] hover:text-red-400 hover:bg-[rgba(239,68,68,0.1)] p-2 rounded-lg transition-all duration-200'
+													title='Remove user from project'
 												>
 													<FiXCircle size={18} />
 												</button>
@@ -194,9 +235,21 @@ export default function ProjectUsersModal({
 										</div>
 									</div>
 								))}
+
 								{users.length === 0 && !loading && (
-									<div className='text-center py-4 text-gray-400'>
-										No users in this project yet
+									<div className='text-center py-12'>
+										<div className='w-16 h-16 bg-[rgba(255,255,255,0.05)] rounded-2xl flex items-center justify-center mx-auto mb-4'>
+											<FiUsers
+												className='text-[rgba(255,255,255,0.3)]'
+												size={32}
+											/>
+										</div>
+										<p className='text-[rgba(255,255,255,0.6)] mb-2'>
+											No team members yet
+										</p>
+										<p className='text-sm text-[rgba(255,255,255,0.4)]'>
+											Invite users to start collaborating
+										</p>
 									</div>
 								)}
 							</div>
@@ -204,15 +257,34 @@ export default function ProjectUsersModal({
 					</div>
 				</div>
 
-				<div className='flex justify-end p-4 border-t border-[#3c3c3e]'>
+				{/* Footer */}
+				<div className='flex justify-end p-6 pt-4 border-t border-[rgba(255,255,255,0.1)]'>
 					<button
 						onClick={onClose}
-						className='px-4 py-2 bg-[#3c3c3e] hover:bg-[#4c4c4e] rounded-md'
+						className='px-6 py-2.5 bg-[rgba(255,255,255,0.05)] hover:bg-[rgba(255,255,255,0.1)] border border-[rgba(255,255,255,0.1)] text-[rgba(255,255,255,0.8)] hover:text-white rounded-xl transition-all duration-200'
 					>
 						Close
 					</button>
 				</div>
 			</div>
+
+			{/* Custom scrollbar styles */}
+			<style jsx>{`
+				.custom-scrollbar::-webkit-scrollbar {
+					width: 6px;
+				}
+				.custom-scrollbar::-webkit-scrollbar-track {
+					background: rgba(255, 255, 255, 0.05);
+					border-radius: 3px;
+				}
+				.custom-scrollbar::-webkit-scrollbar-thumb {
+					background: rgba(255, 255, 255, 0.2);
+					border-radius: 3px;
+				}
+				.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+					background: rgba(255, 255, 255, 0.3);
+				}
+			`}</style>
 		</div>
 	);
 }

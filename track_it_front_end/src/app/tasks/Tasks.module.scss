@@ -21,13 +21,27 @@ $text_muted: rgba(255, 255, 255, 0.5);
 	gap: 24px;
 	background: $dark_bg;
 	position: relative;
-
-	// Скрываем скроллбар, но оставляем возможность прокрутки
-	scrollbar-width: none; /* Firefox */
-	-ms-overflow-style: none; /* Internet Explorer 10+ */
+	// Custom horizontal scrollbar
+	scrollbar-width: thin; /* Firefox */
+	scrollbar-color: rgba(255, 255, 255, 0.2) transparent; /* Firefox */
 
 	&::-webkit-scrollbar {
-		display: none; /* Chrome, Safari, Opera */
+		height: 8px; /* Height for horizontal scrollbar */
+	}
+
+	&::-webkit-scrollbar-track {
+		background: rgba(255, 255, 255, 0.05);
+		border-radius: 4px;
+		margin: 0 24px; /* Add margins to match container padding */
+	}
+
+	&::-webkit-scrollbar-thumb {
+		background: rgba(255, 255, 255, 0.2);
+		border-radius: 4px;
+
+		&:hover {
+			background: rgba(255, 255, 255, 0.3);
+		}
 	}
 
 	// Floating orbs for visual appeal

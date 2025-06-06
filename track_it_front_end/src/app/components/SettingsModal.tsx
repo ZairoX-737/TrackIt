@@ -18,50 +18,99 @@ export default function SettingsModal({
 	onOpenDeleteProject: () => void;
 }) {
 	if (!isOpen || !selectedProject) return null;
-
 	return (
 		<div
-			className='absolute top-11 right-0 bg-[#2c2c2e] w-56 rounded-md shadow-lg border border-[#3c3c3e] z-[2000]'
+			className='absolute top-11 right-0 bg-[rgba(10,10,10,0.95)] w-72 rounded-2xl border border-[rgba(255,255,255,0.15)] backdrop-blur-xl shadow-2xl z-[2000] overflow-hidden'
 			onClick={e => e.stopPropagation()}
 		>
-			<div className='flex justify-between items-center p-3 border-b border-[#3c3c3e]'>
-				<h3 className='text-lg font-semibold'>Settings</h3>
-				<button onClick={onClose} className='text-gray-400 hover:text-white'>
-					<IoClose size={20} />
-				</button>
-			</div>{' '}
-			<div className='p-2'>
+			{/* Header */}
+			<div className='flex justify-between items-center p-4 pb-3'>
+				<h3 className='text-lg font-bold bg-gradient-to-r from-white to-[rgba(255,255,255,0.8)] bg-clip-text text-transparent'>
+					Settings
+				</h3>
 				<button
-					className='w-full text-left p-2 flex items-center gap-2 hover:bg-[#3c3c3e] rounded transition-colors'
+					onClick={onClose}
+					className='text-[rgba(255,255,255,0.5)] hover:text-white transition-all duration-200 p-1.5 rounded-lg hover:bg-[rgba(255,255,255,0.1)] hover:scale-105'
+				>
+					<IoClose size={16} />
+				</button>
+			</div>
+
+			{/* Menu items */}
+			<div className='px-3 pb-3'>
+				{/* Project Settings */}
+				<button
+					className='w-full text-left p-3 flex items-center gap-3 hover:bg-[rgba(255,255,255,0.08)] rounded-xl transition-all duration-200 group border border-transparent hover:border-[rgba(255,152,0,0.2)] mb-1'
 					onClick={() => {
 						onOpenProjectSettings();
-						onClose(); // Close the settings dropdown
+						onClose();
 					}}
 				>
-					<FiSettings className='text-white' />
-					<span>Project Settings</span>
+					<div className='p-2.5 bg-[rgba(255,152,0,0.12)] rounded-xl group-hover:bg-[rgba(255,152,0,0.2)] transition-all duration-200 group-hover:scale-105'>
+						<FiSettings
+							className='text-orange-400 group-hover:text-orange-300'
+							size={16}
+						/>
+					</div>
+					<div className='flex flex-col'>
+						<span className='text-[rgba(255,255,255,0.9)] group-hover:text-white font-medium text-sm'>
+							Project Settings
+						</span>
+						<span className='text-[rgba(255,255,255,0.5)] text-xs'>
+							Configure project details
+						</span>
+					</div>
 				</button>
 
+				{/* Project Users */}
 				<button
-					className='w-full text-left p-2 flex items-center gap-2 hover:bg-[#3c3c3e] rounded transition-colors'
+					className='w-full text-left p-3 flex items-center gap-3 hover:bg-[rgba(255,255,255,0.08)] rounded-xl transition-all duration-200 group border border-transparent hover:border-[rgba(139,92,246,0.2)] mb-1'
 					onClick={() => {
 						onOpenProjectUsers();
-						onClose(); // Close the settings dropdown
+						onClose();
 					}}
 				>
-					<FiUsers className='text-white' />
-					<span>Project Users</span>
+					<div className='p-2.5 bg-[rgba(139,92,246,0.12)] rounded-xl group-hover:bg-[rgba(139,92,246,0.2)] transition-all duration-200 group-hover:scale-105'>
+						<FiUsers
+							className='text-purple-400 group-hover:text-purple-300'
+							size={16}
+						/>
+					</div>
+					<div className='flex flex-col'>
+						<span className='text-[rgba(255,255,255,0.9)] group-hover:text-white font-medium text-sm'>
+							Project Users
+						</span>
+						<span className='text-[rgba(255,255,255,0.5)] text-xs'>
+							Manage team members
+						</span>
+					</div>
 				</button>
 
+				{/* Divider */}
+				<div className='h-px bg-[rgba(255,255,255,0.1)] my-2'></div>
+
+				{/* Delete Project */}
 				<button
-					className='w-full text-left p-2 flex items-center gap-2 hover:bg-[#ef4444] text-white rounded transition-colors'
+					className='w-full text-left p-3 flex items-center gap-3 hover:bg-[rgba(239,68,68,0.1)] rounded-xl transition-all duration-200 group border border-transparent hover:border-[rgba(239,68,68,0.3)]'
 					onClick={() => {
 						onOpenDeleteProject();
-						onClose(); // Close the settings dropdown
+						onClose();
 					}}
 				>
-					<FiTrash2 className='text-white' />
-					<span>Delete Project</span>
+					<div className='p-2.5 bg-[rgba(239,68,68,0.12)] rounded-xl group-hover:bg-[rgba(239,68,68,0.2)] transition-all duration-200 group-hover:scale-105'>
+						<FiTrash2
+							className='text-red-400 group-hover:text-red-300'
+							size={16}
+						/>
+					</div>
+					<div className='flex flex-col'>
+						<span className='text-[rgba(255,255,255,0.9)] group-hover:text-red-300 font-medium text-sm'>
+							Delete Project
+						</span>
+						<span className='text-[rgba(255,255,255,0.5)] group-hover:text-red-400 text-xs'>
+							Permanently remove project
+						</span>
+					</div>
 				</button>
 			</div>
 		</div>
