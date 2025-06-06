@@ -2,6 +2,7 @@
 import Image from 'next/image';
 import { useRef, useEffect, memo, useState } from 'react';
 import { useTaskStore } from '../store/taskStore';
+import { Project, Board } from '../api/types';
 
 // Fix image paths
 import ArrowR from '../../public/right-arrow-white.png';
@@ -57,22 +58,10 @@ export default function TaskLayout({
 		updateTask,
 		deleteTask,
 	} = useTaskStore();
-
 	useEffect(() => {
 		loadUserProfile();
 		loadProjects();
 	}, [loadUserProfile, loadProjects]);
-	// Form projectsAndBoards: { [projectName]: string[] }
-	const projectsAndBoards: Record<string, string[]> = projects.reduce(
-		(acc, project) => {
-			// Use boards from detailed project, not from general boards array
-			acc[project.name] = project.boards
-				? project.boards.map(board => board.name)
-				: [];
-			return acc;
-		},
-		{} as Record<string, string[]>
-	);
 
 	const projectRef = useRef<HTMLDivElement>(null);
 	const boardRef = useRef<HTMLDivElement>(null);
@@ -117,19 +106,10 @@ export default function TaskLayout({
 		document.addEventListener('mousedown', handleClickOutside);
 		return () => document.removeEventListener('mousedown', handleClickOutside);
 	}, [projectVisible, boardVisible, notifOpen, settingsOpen]);
-
 	const openModal = () => {
 		setProjectVisible(false);
 		setBoardVisible(false);
 		setModalVisible(true);
-	};
-	// Get Project by name
-	const getProjectByName = (name: string) =>
-		projects.find(p => p.name === name); // Get Board by name
-	const getBoardByName = (name: string) => {
-		if (!selectedProject) return undefined;
-		// Search for board in selected project's boards
-		return selectedProject.boards?.find(b => b.name === name);
 	};
 
 	// State for create modal
@@ -157,24 +137,21 @@ export default function TaskLayout({
 								width={24}
 								height={24}
 							/>
-						</button>
+						</button>{' '}
 						{projectVisible && (
 							<div className={styles.headerList}>
 								<ul className='flex flex-col'>
-									{Object.keys(projectsAndBoards)
-										.slice(0, 5)
-										.map(projectName => (
-											<li
-												key={projectName}
-												className={styles.headerListItem}
-												onClick={() => {
-													const project = getProjectByName(projectName);
-													if (project) selectProject(project);
-												}}
-											>
-												{projectName}
-											</li>
-										))}{' '}
+									{projects.slice(0, 5).map(project => (
+										<li
+											key={project.id}
+											className={styles.headerListItem}
+											onClick={() => {
+												selectProject(project);
+											}}
+										>
+											{project.name}
+										</li>
+									))}{' '}
 									<li
 										className={`${styles.headerListItem}`}
 										onClick={openModal}
@@ -228,27 +205,19 @@ export default function TaskLayout({
 						</button>{' '}
 						{boardVisible && selectedProject && (
 							<div className={styles.headerList}>
+								{' '}
 								<ul>
-									{projectsAndBoards[selectedProject.name]
-										?.slice(0, 5)
-										.map(boardName => (
-											<li
-												key={boardName}
-												className={styles.headerListItem}
-												onClick={() => {
-													// Find board in the projects array (most up-to-date)
-													const project = projects.find(
-														p => p.name === selectedProject.name
-													);
-													const board = project?.boards?.find(
-														b => b.name === boardName
-													);
-													if (board) selectBoard(board);
-												}}
-											>
-												{boardName}
-											</li>
-										))}{' '}
+									{selectedProject.boards?.slice(0, 5).map(board => (
+										<li
+											key={board.id}
+											className={styles.headerListItem}
+											onClick={() => {
+												selectBoard(board);
+											}}
+										>
+											{board.name}
+										</li>
+									))}{' '}
 									<li
 										className={`${styles.headerListItem}`}
 										onClick={openModal}
@@ -341,12 +310,9 @@ export default function TaskLayout({
 			<ProjectBoardModal
 				isOpen={modalVisible}
 				onClose={() => setModalVisible(false)}
-				projectsAndBoards={projectsAndBoards}
-				selectedProject={selectedProject ? selectedProject.name : ''}
-				onSelect={(projectName, boardName) => {
-					const project = getProjectByName(projectName);
-					// Find board in the selected project, not the current selectedProject
-					const board = project?.boards?.find(b => b.name === boardName);
+				projects={projects}
+				selectedProject={selectedProject}
+				onSelect={(project: Project, board: Board) => {
 					if (project && board) handleModalSelection(project, board);
 				}}
 				onCreateProject={() => {
@@ -358,15 +324,14 @@ export default function TaskLayout({
 					setCreateModalOpen(true);
 				}}
 			/>{' '}
-			{/* Create project/board modal */}
+			{/* Create project/board modal */}{' '}
 			<CreateModal
 				isOpen={createModalOpen}
 				onClose={() => setCreateModalOpen(false)}
 				type={createModalType}
 				selectedProjectId={selectedProject?.id}
 				onSuccess={() => {
-					// Перезагружаем проекты после успешного создания
-					loadProjects();
+					// Store methods already update state, no need to reload
 				}}
 			/>
 			{/* Task detail modal */}

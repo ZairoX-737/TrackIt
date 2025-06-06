@@ -138,11 +138,17 @@ export class TaskService {
 				})),
 			});
 		}
-
-		// Возвращаем задачу с лейблами
+		// Возвращаем задачу с лейблами и информацией о пользователе
 		return this.prisma.task.findUnique({
 			where: { id: task.id },
 			include: {
+				user: {
+					select: {
+						id: true,
+						username: true,
+						email: true,
+					},
+				},
 				labels: {
 					include: {
 						label: true,
@@ -249,11 +255,17 @@ export class TaskService {
 				});
 			}
 		}
-
-		// Возвращаем обновленную задачу с метками
+		// Возвращаем обновленную задачу с метками и информацией о пользователе
 		return this.prisma.task.findUnique({
 			where: { id: taskId },
 			include: {
+				user: {
+					select: {
+						id: true,
+						username: true,
+						email: true,
+					},
+				},
 				labels: {
 					include: {
 						label: true,

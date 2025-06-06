@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import styles from './Components.module.scss';
-import { ProjectService } from '../api/project.service';
-import { BoardService } from '../api/board.service';
+import { useTaskStore } from '../store/taskStore';
 
 interface CreateModalProps {
 	isOpen: boolean;
@@ -22,6 +21,8 @@ export default function CreateModal({
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState('');
 
+	const { createProject, createBoard } = useTaskStore();
+
 	if (!isOpen) return null;
 
 	const handleSubmit = async (e: React.FormEvent) => {
@@ -33,12 +34,11 @@ export default function CreateModal({
 
 		setLoading(true);
 		setError('');
-
 		try {
 			if (type === 'project') {
-				await ProjectService.create({ name: name.trim() });
+				await createProject(name.trim());
 			} else if (type === 'board' && selectedProjectId) {
-				await BoardService.create(selectedProjectId, { name: name.trim() });
+				await createBoard(selectedProjectId, name.trim());
 			}
 
 			setName('');

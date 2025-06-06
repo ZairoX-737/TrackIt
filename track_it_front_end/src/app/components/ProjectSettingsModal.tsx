@@ -37,7 +37,6 @@ export default function ProjectSettingsModal({
 		deleteBoard,
 		updateColumn,
 		deleteColumn,
-		loadProjects,
 		loading,
 	} = useTaskStore();
 
@@ -53,41 +52,18 @@ export default function ProjectSettingsModal({
 	const [editingBoardId, setEditingBoardId] = useState<string | null>(null);
 	const [editingColumnId, setEditingColumnId] = useState<string | null>(null);
 	const [showLabelsModal, setShowLabelsModal] = useState(false);
-
 	// Инициализация состояний при открытии модалки или изменении проекта
 	useEffect(() => {
-		const initializeModal = async () => {
-			if (project && isOpen) {
-				try {
-					// Загружаем актуальные данные проектов при открытии модалки
-					await loadProjects();
-
-					// Получаем обновленные данные проекта после загрузки
-					const { projects } = useTaskStore.getState();
-					const updatedProject =
-						projects.find(p => p.id === project.id) || project;
-
-					console.log('ProjectSettingsModal: Loaded fresh data', {
-						updatedProject,
-						boards: updatedProject.boards,
-						columns: updatedProject.boards?.flatMap(b => b.columns || []),
-					});
-
-					setEditedProjectName(updatedProject.name);
-					// Сбрасываем изменения досок и колонок
-					setBoardChanges({});
-					setColumnChanges({});
-					setEditingProjectName(false);
-					setEditingBoardId(null);
-					setEditingColumnId(null);
-				} catch (error) {
-					console.error('Error initializing project settings modal:', error);
-				}
-			}
-		};
-
-		initializeModal();
-	}, [project, isOpen, loadProjects]);
+		if (project && isOpen) {
+			setEditedProjectName(project.name);
+			// Сбрасываем изменения досок и колонок
+			setBoardChanges({});
+			setColumnChanges({});
+			setEditingProjectName(false);
+			setEditingBoardId(null);
+			setEditingColumnId(null);
+		}
+	}, [project, isOpen]);
 
 	if (!isOpen || !project) return null;
 
@@ -276,9 +252,7 @@ export default function ProjectSettingsModal({
 			}
 			return newChanges;
 		});
-	};
-
-	// Применение всех изменений
+	}; // Применение всех изменений
 	const handleSaveChanges = async () => {
 		try {
 			// Обновляем название проекта
@@ -307,9 +281,6 @@ export default function ProjectSettingsModal({
 					await updateColumn(change.id, change.newName.trim());
 				}
 			}
-
-			// Перезагружаем проекты для обновления UI
-			await loadProjects();
 
 			console.log('Changes saved successfully');
 

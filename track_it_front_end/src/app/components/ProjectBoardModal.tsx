@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import styles from './Components.module.scss';
+import { Project, Board } from '../api/types';
 
 interface ProjectBoardModalProps {
 	isOpen: boolean;
 	onClose: () => void;
-	projectsAndBoards: Record<string, string[]>;
-	selectedProject: string;
-	onSelect: (project: string, board: string) => void;
+	projects: Project[];
+	selectedProject: Project | null;
+	onSelect: (project: Project, board: Board) => void;
 	onCreateProject?: () => void;
 	onCreateBoard?: () => void;
 }
@@ -14,22 +15,21 @@ interface ProjectBoardModalProps {
 export default function ProjectBoardModal({
 	isOpen,
 	onClose,
-	projectsAndBoards,
+	projects,
 	selectedProject,
 	onSelect,
 	onCreateProject,
 	onCreateBoard,
 }: ProjectBoardModalProps) {
-	const [selectedProjectInModal, setSelectedProjectInModal] = useState<string>(
-		selectedProject ||
-			(projectsAndBoards ? Object.keys(projectsAndBoards)[0] : '') ||
-			''
-	);
+	const [selectedProjectInModal, setSelectedProjectInModal] =
+		useState<Project | null>(
+			selectedProject || (projects.length > 0 ? projects[0] : null)
+		);
 
 	if (!isOpen) return null;
 
 	// Если нет проектов, не показываем модалку
-	if (!projectsAndBoards || Object.keys(projectsAndBoards).length === 0) {
+	if (!projects || projects.length === 0) {
 		return (
 			<div className={styles.modalOverlay} onClick={onClose}>
 				{' '}
@@ -49,15 +49,17 @@ export default function ProjectBoardModal({
 					<div className={styles.projectColumn}>
 						<h3 className='select-none'>Projects</h3>
 						<ul>
-							{Object.keys(projectsAndBoards).map(project => (
+							{projects.map(project => (
 								<li
-									key={project}
+									key={project.id}
 									className={
-										selectedProjectInModal === project ? styles.selected : ''
+										selectedProjectInModal?.id === project.id
+											? styles.selected
+											: ''
 									}
 									onClick={() => setSelectedProjectInModal(project)}
 								>
-									{project}
+									{project.name}
 								</li>
 							))}
 						</ul>
@@ -82,16 +84,18 @@ export default function ProjectBoardModal({
 					</div>
 					{/* Right column: boards */}
 					<div className={styles.boardColumn}>
-						<h3 className='select-none'>Boards for {selectedProjectInModal}</h3>
+						<h3 className='select-none'>
+							Boards for {selectedProjectInModal?.name || 'Select Project'}
+						</h3>
 						<ul>
-							{selectedProjectInModal &&
-							projectsAndBoards[selectedProjectInModal] ? (
-								projectsAndBoards[selectedProjectInModal].map(board => (
+							{selectedProjectInModal?.boards &&
+							selectedProjectInModal.boards.length > 0 ? (
+								selectedProjectInModal.boards.map(board => (
 									<li
-										key={board}
+										key={board.id}
 										onClick={() => onSelect(selectedProjectInModal, board)}
 									>
-										{board}
+										{board.name}
 									</li>
 								))
 							) : (

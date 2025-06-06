@@ -3,13 +3,48 @@
 	height: 100vh;
 	background: #232324;
 	display: flex;
+	flex-direction: column;
+}
+
+.header {
+	background-color: #252528;
+	width: 100%;
+	height: 55px;
+	padding: 0 20px;
+	display: flex;
+	justify-content: space-between;
 	align-items: center;
-	justify-content: center;
+	position: relative;
+}
+
+.leftSection {
+	flex: 1;
+}
+
+.rightSection {
+	flex: 1;
+	display: flex;
+	justify-content: flex-end;
+}
+
+.logoutButton {
+	background: none;
+	border: 1px solid #ff9800;
+	color: #ff9800;
+	padding: 8px 16px;
+	border-radius: 4px;
+	cursor: pointer;
+	font-size: 14px;
+	transition: all 0.2s ease;
+
+	&:hover {
+		background: #ff9800;
+		color: #232324;
+	}
 }
 
 .main {
-	width: 100%;
-	height: 100%;
+	flex: 1;
 	display: flex;
 	justify-content: center;
 	align-items: center;

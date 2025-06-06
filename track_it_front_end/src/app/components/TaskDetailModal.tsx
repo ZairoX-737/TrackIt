@@ -206,53 +206,53 @@ export default function TaskDetailModal({
 				className='bg-[#2c2c2e] w-[800px] max-h-[90vh] rounded-lg shadow-lg overflow-hidden flex flex-col'
 				onClick={e => e.stopPropagation()}
 			>
+				{' '}
 				{/* Header */}
-				<div className='flex justify-between items-center p-4 border-b border-[#3c3c3e]'>
-					<div className='flex items-center gap-3'>
+				<div className='flex justify-between items-center px-4 py-3 border-b border-[#3c3c3e] gap-4'>
+					<div className='flex-1 min-w-0'>
 						{isEditing ? (
-							<input
-								type='text'
-								value={editedTitle}
-								onChange={e => setEditedTitle(e.target.value)}
-								className='bg-[#3c3c3e] text-white px-2 py-1 rounded text-xl font-semibold focus:outline-none focus:ring-2 focus:ring-[#ff9800] break-words overflow-wrap-anywhere'
-								autoFocus
-							/>
+							<div className='space-y-2'>
+								<input
+									type='text'
+									value={editedTitle}
+									onChange={e => setEditedTitle(e.target.value)}
+									className='w-full bg-[#3c3c3e] text-white px-2 py-1 rounded text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-[#ff9800]'
+									autoFocus
+								/>
+								<div className='flex items-center gap-2'>
+									{/* Селектор колонки */}
+									<select
+										value={editedColumnId}
+										onChange={e => setEditedColumnId(e.target.value)}
+										className='bg-[#3c3c3e] text-white px-2 py-1 rounded text-sm focus:outline-none focus:ring-2 focus:ring-[#ff9800]'
+									>
+										{columns.map(col => (
+											<option key={col.id} value={col.id}>
+												{col.name}
+											</option>
+										))}
+									</select>
+								</div>
+							</div>
 						) : (
-							<div className='flex items-center gap-3'>
-								<h2 className='text-xl font-semibold break-words overflow-wrap-anywhere'>
+							<div className='flex items-center gap-2'>
+								<h2 className='text-lg font-semibold leading-snug flex-1 min-w-0 truncate'>
 									{task.title}
 								</h2>
 								{/* Column indicator */}
-								<div className='bg-[#3c3c3e] px-3 py-1 rounded-full text-sm text-gray-300 border border-[#4c4c4e]'>
+								<div className='inline-block bg-[#3c3c3e] px-1.5 py-0.5 rounded-full text-xs text-gray-300 border border-[#4c4c4e] flex-shrink-0'>
 									{columns.find(col => col.id === task.columnId)?.name ||
 										'Unknown Column'}
 								</div>
 							</div>
 						)}
-
-						{isEditing && (
-							<div className='flex gap-2'>
-								{/* Селектор колонки */}
-								<select
-									value={editedColumnId}
-									onChange={e => setEditedColumnId(e.target.value)}
-									className='bg-[#3c3c3e] text-white px-2 py-1 rounded text-base font-normal focus:outline-none focus:ring-2 focus:ring-[#ff9800]'
-								>
-									{columns.map(col => (
-										<option key={col.id} value={col.id}>
-											{col.name}
-										</option>
-									))}
-								</select>
-							</div>
-						)}
 					</div>
 
-					<div className='flex items-center gap-2'>
+					<div className='flex items-center gap-2 flex-shrink-0'>
 						{!isEditing && (
 							<button
 								onClick={handleStartEdit}
-								className='bg-[#ff9800] hover:bg-[#f57c00] text-white px-3 py-1 rounded text-sm'
+								className='bg-[#ff9800] hover:bg-[#f57c00] text-white px-3 py-1 rounded text-sm whitespace-nowrap'
 								title='Edit task'
 							>
 								Edit
@@ -260,17 +260,16 @@ export default function TaskDetailModal({
 						)}
 						<button
 							onClick={handleDeleteTask}
-							className='text-red-500 hover:text-red-400'
+							className='text-red-500 hover:text-red-400 flex-shrink-0'
 							title='Delete task'
 						>
 							<IoTrash size={20} />
 						</button>
-						<button onClick={onClose}>
+						<button onClick={onClose} className='flex-shrink-0'>
 							<IoClose size={24} className='text-gray-400 hover:text-white' />
 						</button>
 					</div>
 				</div>
-
 				{/* Content */}
 				<div className='flex-1 overflow-hidden flex'>
 					{' '}

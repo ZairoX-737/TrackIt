@@ -436,15 +436,14 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 			throw error;
 		}
 	},
-
 	updateBoard: async (projectId: string, boardId: string, name: string) => {
 		try {
 			set({ loading: true, error: null });
 			const updatedBoard = await BoardService.update(projectId, boardId, {
 				name,
 			});
-			set(state => ({
-				projects: state.projects.map(project =>
+			set(state => {
+				const updatedProjects = state.projects.map(project =>
 					project.id === projectId
 						? {
 								...project,
@@ -453,13 +452,24 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 								),
 						  }
 						: project
-				),
-				selectedBoard:
-					state.selectedBoard?.id === boardId
-						? { ...state.selectedBoard, name }
-						: state.selectedBoard,
-				loading: false,
-			}));
+				);
+
+				// Update selectedProject to point to the updated project
+				const updatedSelectedProject =
+					state.selectedProject?.id === projectId
+						? updatedProjects.find(p => p.id === projectId)
+						: state.selectedProject;
+
+				return {
+					projects: updatedProjects,
+					selectedProject: updatedSelectedProject,
+					selectedBoard:
+						state.selectedBoard?.id === boardId
+							? { ...state.selectedBoard, name }
+							: state.selectedBoard,
+					loading: false,
+				};
+			});
 		} catch (error) {
 			set({ error: 'Ошибка обновления доски', loading: false });
 			console.error('Error updating board:', error);
