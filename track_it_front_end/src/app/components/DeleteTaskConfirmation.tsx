@@ -20,10 +20,9 @@ export default function DeleteTaskConfirmation({
 		onConfirm(task.id);
 		onClose();
 	};
-
 	return (
 		<div
-			className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50'
+			className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[2000]'
 			onClick={onClose}
 		>
 			<div

@@ -23,23 +23,18 @@ const TasksList = ({ tasks, TaskListHeader, columnId }: IProps) => {
 		}
 		setCreateTaskOpen(!createTaskOpen);
 	};
-
 	if (tasks.length !== 0) {
 		return (
 			<div className={styles.taskColumn}>
 				<h1 className={styles.tasklistHeader}>{TaskListHeader}</h1>
-				<hr className='bg-[#969697] w-[97%] self-start' />
 				<ol className={styles.taskList}>
 					{tasks.map((task: any) => (
 						<Task key={nanoid()} task={task} />
 					))}
 				</ol>
-				<button
-					className={`${styles.addTask} font-rubik`}
-					onClick={handleChangeState}
-				>
+				<button className={styles.addTask} onClick={handleChangeState}>
 					Add Task
-					<BsPlus size='1.5em' />
+					<BsPlus size='1.2em' />
 				</button>
 			</div>
 		);
@@ -47,14 +42,15 @@ const TasksList = ({ tasks, TaskListHeader, columnId }: IProps) => {
 		return (
 			<div className={styles.taskColumn}>
 				<h1 className={styles.tasklistHeader}>{TaskListHeader}</h1>
-				<hr className='bg-white w-full' />
-				<span className='opacity-55 select-none'>Empty column...</span>
-				<button
-					className={`${styles.addTask} font-rubik`}
-					onClick={handleChangeState}
-				>
+				<div className={styles.emptyColumn}>
+					<span className={styles.emptyText}>No tasks yet</span>
+					<p className={styles.emptyDescription}>
+						Create your first task to get started
+					</p>
+				</div>
+				<button className={styles.addTask} onClick={handleChangeState}>
 					Add Task
-					<BsPlus size='1.5em' />
+					<BsPlus size='1.2em' />
 				</button>
 			</div>
 		);

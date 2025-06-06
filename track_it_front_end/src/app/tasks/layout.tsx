@@ -18,6 +18,9 @@ import SettingsModal from '../components/SettingsModal';
 import ProjectBoardModal from '../components/ProjectBoardModal';
 import CreateModal from '../components/CreateModal';
 import TaskDetailModal from '../components/TaskDetailModal';
+import ProjectSettingsModal from '../components/ProjectSettingsModal';
+import ProjectUsersModal from '../components/ProjectUsersModal';
+import DeleteProjectModal from '../components/DeleteModal';
 import Link from 'next/link';
 
 const MemoizedChildren = memo(({ children }: { children: React.ReactNode }) => (
@@ -111,12 +114,16 @@ export default function TaskLayout({
 		setBoardVisible(false);
 		setModalVisible(true);
 	};
-
 	// State for create modal
 	const [createModalOpen, setCreateModalOpen] = useState(false);
 	const [createModalType, setCreateModalType] = useState<'project' | 'board'>(
 		'project'
 	);
+
+	// State for project settings modals (moved from SettingsModal to fix positioning)
+	const [projectSettingsOpen, setProjectSettingsOpen] = useState(false);
+	const [projectUsersOpen, setProjectUsersOpen] = useState(false);
+	const [deleteProjectOpen, setDeleteProjectOpen] = useState(false);
 
 	return (
 		<section lang='en'>
@@ -159,8 +166,8 @@ export default function TaskLayout({
 										<Image
 											src={Dots}
 											alt='More projects'
-											width={32}
-											height={32}
+											width={16}
+											height={16}
 										/>
 									</li>
 								</ul>
@@ -225,8 +232,8 @@ export default function TaskLayout({
 										<Image
 											src={Dots}
 											alt='More boards'
-											width={32}
-											height={32}
+											width={16}
+											height={16}
 										/>
 									</li>
 								</ul>
@@ -301,6 +308,9 @@ export default function TaskLayout({
 							isOpen={settingsOpen}
 							onClose={() => setSettingsOpen(false)}
 							selectedProject={selectedProject}
+							onOpenProjectSettings={() => setProjectSettingsOpen(true)}
+							onOpenProjectUsers={() => setProjectUsersOpen(true)}
+							onOpenDeleteProject={() => setDeleteProjectOpen(true)}
 						/>
 					</div>
 				</div>
@@ -353,6 +363,33 @@ export default function TaskLayout({
 					setSelectedTaskForDetail(null);
 				}}
 			/>
+			{/* Project settings modals (moved here to fix positioning issues) */}
+			{projectSettingsOpen && selectedProject && (
+				<ProjectSettingsModal
+					project={selectedProject}
+					isOpen={projectSettingsOpen}
+					onClose={() => setProjectSettingsOpen(false)}
+				/>
+			)}
+			{projectUsersOpen && selectedProject && (
+				<ProjectUsersModal
+					projectId={selectedProject.id}
+					projectName={selectedProject.name}
+					isOpen={projectUsersOpen}
+					onClose={() => setProjectUsersOpen(false)}
+				/>
+			)}
+			{deleteProjectOpen && selectedProject && (
+				<DeleteProjectModal
+					isOpen={deleteProjectOpen}
+					onClose={() => setDeleteProjectOpen(false)}
+					project={selectedProject}
+					onProjectDeleted={() => {
+						setDeleteProjectOpen(false);
+						setSettingsOpen(false); // Also close settings dropdown
+					}}
+				/>
+			)}
 		</section>
 	);
 }

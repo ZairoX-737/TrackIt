@@ -29,8 +29,9 @@ const Task = ({ task }: IProps) => {
 			className={styles.task}
 			onClick={handleTaskClick}
 		>
-			<div className='flex justify-between items-center'>
-				<div className='flex justify-start items-center mb-[7px] gap-1'>
+			{/* Labels section */}
+			{(task.labels ?? []).length > 0 && (
+				<div className={styles.taskLabels}>
 					{(task.labels ?? []).map((labelData: any, index: number) => {
 						// Определяем цвет лейбла из разных возможных структур данных
 						let labelColor = '';
@@ -49,7 +50,7 @@ const Task = ({ task }: IProps) => {
 						return (
 							<div
 								key={`${task.id}-label-${index}`}
-								className={styles.label}
+								className={styles.taskLabel}
 								style={{
 									backgroundColor: labelColor,
 								}}
@@ -57,17 +58,15 @@ const Task = ({ task }: IProps) => {
 						);
 					})}
 				</div>
-			</div>
-			<div
-				className={`font-medium text-[16px] select-none ${styles.taskTitle}`}
-			>
-				{task.title}
-			</div>
-			<div className={`${styles.taskDescription} font-rubik`}>
-				{task.description && (
-					<span className='text-gray-400 text-sm'>{task.description}</span>
-				)}
-			</div>
+			)}
+
+			{/* Task title */}
+			<div className={styles.taskTitle}>{task.title}</div>
+
+			{/* Task description */}
+			{task.description && (
+				<div className={styles.taskDescription}>{task.description}</div>
+			)}
 		</li>
 	);
 };

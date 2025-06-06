@@ -1,11 +1,9 @@
+import styles from './auth.module.scss';
+
 export default function AuthLayout({
 	children,
 }: Readonly<{
 	children: React.ReactNode;
 }>) {
-	return (
-		<section className='w-screen h-screen flex justify-center items-center'>
-			{children}
-		</section>
-	);
+	return <div className={styles.authContainer}>{children}</div>;
 }

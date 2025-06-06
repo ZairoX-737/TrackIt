@@ -50,7 +50,7 @@ export default function DeleteProjectModal({
 
 	return (
 		<div
-			className='absolute top-11 right-0 bg-[#2c2c2e] w-72 rounded-md shadow-lg border border-[#3c3c3e] z-50'
+			className='absolute top-11 right-0 bg-[#2c2c2e] w-72 rounded-md shadow-lg border border-[#3c3c3e] z-[2000]'
 			onClick={e => e.stopPropagation()}
 		>
 			<div className='flex justify-between items-center p-3 border-b border-[#3c3c3e]'>

@@ -32,11 +32,10 @@ export default function TaskMenuPopup({
 			document.removeEventListener('mousedown', handleClickOutside);
 		};
 	}, [onClose]);
-
 	return (
 		<div
 			ref={menuRef}
-			className='absolute bg-[#2c2c2e] border border-[#3c3c3e] rounded-md shadow-lg z-50 w-40'
+			className='absolute bg-[#2c2c2e] border border-[#3c3c3e] rounded-md shadow-lg z-[1500] w-40'
 			style={{
 				top: position.y,
 				left: position.x,
