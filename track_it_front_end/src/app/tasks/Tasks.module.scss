@@ -16,7 +16,7 @@ $text_muted: rgba(255, 255, 255, 0.5);
 	display: flex;
 	overflow-x: auto;
 	overflow-y: hidden;
-	height: calc(100vh - 80px);
+	min-height: calc(100vh - 80px); // Изменено на min-height для гибкости
 	padding: 24px;
 	gap: 24px;
 	background: $dark_bg;
@@ -86,7 +86,7 @@ $text_muted: rgba(255, 255, 255, 0.5);
 	min-width: 320px;
 	max-width: 360px;
 	height: fit-content;
-	max-height: calc(100vh - 160px);
+	min-height: 120px; // Уменьшенная минимальная высота
 	padding: 20px;
 	background: $column_bg;
 	backdrop-filter: blur(20px);
@@ -111,12 +111,13 @@ $text_muted: rgba(255, 255, 255, 0.5);
 .taskList {
 	overflow-y: auto;
 	width: 100%;
-	max-height: calc(100vh - 280px);
+	max-height: 60vh; // Более гибкая максимальная высота
 	padding-right: 8px;
 	display: flex;
 	flex-direction: column;
 	gap: 12px;
 	margin: 16px 0;
+	flex: 1; // Позволяет списку растягиваться
 
 	// Custom scrollbar
 	&::-webkit-scrollbar {
@@ -313,13 +314,13 @@ $text_muted: rgba(255, 255, 255, 0.5);
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
-	padding: 20px 20px;
+	padding: 16px 20px; // Уменьшен padding
 	text-align: center;
 	background: rgba(255, 255, 255, 0.02);
 	border: 1px dashed rgba(255, 255, 255, 0.1);
 	border-radius: 16px;
 	margin: 16px 0;
-	min-height: 100px;
+	min-height: 60px; // Уменьшена минимальная высота
 }
 
 .emptyText {

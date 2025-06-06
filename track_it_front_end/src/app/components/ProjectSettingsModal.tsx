@@ -1,6 +1,15 @@
 import { useState, useEffect } from 'react';
-import { IoClose, IoTrash } from 'react-icons/io5';
-import { FiSave } from 'react-icons/fi';
+import {
+	IoClose,
+	IoTrash,
+	IoSettingsOutline,
+	IoColorPaletteOutline,
+	IoBusiness,
+	IoGrid,
+	IoListOutline,
+	IoRefreshOutline,
+	IoSaveOutline,
+} from 'react-icons/io5';
 import { useTaskStore } from '../store/taskStore';
 import { Project, Board, Column } from '../api/types';
 import LabelsModal from './LabelsModal';
@@ -303,35 +312,55 @@ export default function ProjectSettingsModal({
 	};
 	return (
 		<div
-			className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[2100]'
+			className='fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-[2100]'
 			onClick={handleCancel}
 		>
 			<div
-				className='bg-[#2c2c2e] w-[700px] max-h-[80vh] rounded-lg shadow-lg overflow-hidden'
+				className='bg-[rgba(10,10,10,0.95)] w-[800px] max-h-[85vh] rounded-2xl border border-[rgba(255,255,255,0.15)] backdrop-blur-xl shadow-2xl overflow-hidden'
 				onClick={e => e.stopPropagation()}
 			>
-				{' '}
-				<div className='flex justify-between items-center p-4 border-b border-[#3c3c3e]'>
-					<h2 className='text-xl font-semibold'>Project Settings</h2>
-					<div className='flex items-center gap-4'>
+				{/* Header */}
+				<div className='flex justify-between items-center p-6 pb-4'>
+					<div className='flex items-center gap-3'>
+						<div className='p-2.5 rounded-xl bg-[rgba(255,152,0,0.15)]'>
+							<IoSettingsOutline className='text-orange-400' size={20} />
+						</div>
+						<div>
+							<h2 className='text-xl font-bold bg-gradient-to-r from-white to-[rgba(255,255,255,0.8)] bg-clip-text text-transparent'>
+								Project Settings
+							</h2>
+							<p className='text-sm text-[rgba(255,255,255,0.6)]'>
+								Manage your project, boards and columns
+							</p>
+						</div>
+					</div>
+					<div className='flex items-center gap-3'>
 						<button
 							onClick={() => setShowLabelsModal(true)}
-							className='px-3 py-1 bg-[#ff9800] hover:bg-[#f57c00] text-white rounded-md text-sm'
+							className='flex items-center gap-2 px-4 py-2 bg-[rgba(255,152,0,0.15)] hover:bg-[rgba(255,152,0,0.25)] text-orange-400 hover:text-orange-300 rounded-xl transition-all duration-200 border border-[rgba(255,152,0,0.3)]'
 						>
-							Manage Labels
+							<IoColorPaletteOutline size={16} />
+							<span className='text-sm font-medium'>Labels</span>
 						</button>
-						<button onClick={handleCancel} disabled={loading}>
-							<IoClose size={24} className='text-gray-400 hover:text-white' />
+						<button
+							onClick={handleCancel}
+							disabled={loading}
+							className='text-[rgba(255,255,255,0.5)] hover:text-white transition-all duration-200 p-2 rounded-xl hover:bg-[rgba(255,255,255,0.1)] hover:scale-105 disabled:opacity-50'
+						>
+							<IoClose size={20} />
 						</button>
 					</div>
 				</div>
-				<div className='p-6 overflow-y-auto max-h-[calc(80vh-120px)]'>
-					{/* Project Name */}
-					<div className='mb-8'>
-						<h3 className='text-xl font-medium mb-3 text-[#ff9800]'>
-							Project name
-						</h3>
-						<div className='flex items-center bg-[#333] p-4 rounded-md'>
+
+				{/* Content */}
+				<div className='px-6 pb-6 overflow-y-auto max-h-[calc(85vh-160px)] space-y-6'>
+					{/* Project Name Section */}
+					<div className='bg-[rgba(255,255,255,0.03)] rounded-xl p-5 border border-[rgba(255,255,255,0.08)]'>
+						<div className='flex items-center gap-2 mb-4'>
+							<IoBusiness className='text-orange-400' size={18} />
+							<h3 className='text-lg font-semibold text-white'>Project Name</h3>
+						</div>
+						<div className='relative'>
 							{editingProjectName ? (
 								<input
 									type='text'
@@ -340,41 +369,48 @@ export default function ProjectSettingsModal({
 									onBlur={() => setEditingProjectName(false)}
 									onKeyDown={handleProjectNameKeyDown}
 									autoFocus
-									className='bg-[#3c3c3e] text-white px-3 py-2 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-[#ff9800] text-lg'
+									className='w-full bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] text-white px-4 py-3 rounded-xl focus:outline-none focus:border-orange-400 focus:bg-[rgba(255,255,255,0.08)] transition-all duration-200 text-lg'
+									placeholder='Enter project name'
 								/>
 							) : (
 								<div
 									onClick={handleProjectNameClick}
-									className='bg-[#3c3c3e] text-white px-4 py-3 rounded-md w-full cursor-pointer hover:bg-[#4c4c4e] transition-colors text-lg'
+									className='w-full bg-[rgba(255,255,255,0.05)] hover:bg-[rgba(255,255,255,0.08)] border border-[rgba(255,255,255,0.1)] text-white px-4 py-3 rounded-xl cursor-pointer transition-all duration-200 text-lg'
 								>
 									{editedProjectName}
 								</div>
 							)}
 						</div>
-						<p className='text-xs text-gray-400 mt-2 ml-1'>Click to edit</p>
+						<p className='text-xs text-[rgba(255,255,255,0.5)] mt-2'>
+							Click to edit project name
+						</p>
 					</div>
 
-					{/* Boards */}
-					<div className='mb-6'>
-						<div className='flex justify-between items-center mb-2'>
-							<h3 className='text-lg font-medium'>Boards</h3>
+					{/* Boards Section */}
+					<div className='bg-[rgba(255,255,255,0.03)] rounded-xl p-5 border border-[rgba(255,255,255,0.08)]'>
+						<div className='flex items-center gap-2 mb-4'>
+							<IoGrid className='text-purple-400' size={18} />
+							<h3 className='text-lg font-semibold text-white'>Boards</h3>
+							<span className='bg-[rgba(147,51,234,0.2)] text-purple-300 px-2 py-1 rounded-full text-xs font-medium'>
+								{boards.filter(board => !isBoardDeleted(board)).length}
+							</span>
 						</div>
-						<div className='bg-[#333] rounded-md p-3'>
-							{boards.length > 0 ? (
-								<ul className='space-y-2'>
-									{boards.map(board => {
-										const isDeleted = isBoardDeleted(board);
-										const displayName = getBoardDisplayName(board);
+						{boards.length > 0 ? (
+							<div className='space-y-3'>
+								{boards.map(board => {
+									const isDeleted = isBoardDeleted(board);
+									const displayName = getBoardDisplayName(board);
 
-										return (
-											<li
-												key={board.id}
-												className={`flex items-center justify-between p-3 rounded-md ${
-													isDeleted
-														? 'bg-red-900/20 border border-red-500/30'
-														: 'bg-[#3c3c3e]'
-												}`}
-											>
+									return (
+										<div
+											key={board.id}
+											className={`p-4 rounded-xl border transition-all duration-200 ${
+												isDeleted
+													? 'bg-[rgba(239,68,68,0.1)] border-[rgba(239,68,68,0.3)] opacity-75'
+													: 'bg-[rgba(255,255,255,0.05)] border-[rgba(255,255,255,0.1)] hover:border-[rgba(255,255,255,0.2)]'
+											}`}
+										>
+											<div className='flex items-center justify-between'>
 												{editingBoardId === board.id ? (
 													<input
 														type='text'
@@ -385,105 +421,132 @@ export default function ProjectSettingsModal({
 														onBlur={() => setEditingBoardId(null)}
 														onKeyDown={e => handleBoardNameKeyDown(e, board.id)}
 														autoFocus
-														className='bg-[#4c4c4e] text-white px-2 py-1 rounded-md w-full focus:outline-none focus:ring-1 focus:ring-[#ff9800]'
+														className='flex-1 bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] text-white px-3 py-2 rounded-lg focus:outline-none focus:border-orange-400 transition-all duration-200'
 													/>
 												) : (
 													<div
 														onClick={() =>
 															!isDeleted && handleBoardNameClick(board.id)
 														}
-														className={`px-2 py-1 rounded flex-1 transition-colors ${
+														className={`flex-1 px-3 py-2 rounded-lg transition-all duration-200 ${
 															isDeleted
 																? 'text-red-400 line-through cursor-not-allowed'
-																: 'cursor-pointer hover:bg-[#4c4c4e]'
+																: 'text-white cursor-pointer hover:bg-[rgba(255,255,255,0.05)]'
 														}`}
 													>
-														{displayName}{' '}
-														{isDeleted && (
-															<span className='ml-2 text-xs'>
-																(will be deleted)
-															</span>
-														)}
+														<div className='flex items-center gap-2'>
+															<IoGrid
+																size={16}
+																className={
+																	isDeleted ? 'text-red-400' : 'text-purple-400'
+																}
+															/>
+															<span className='font-medium'>{displayName}</span>
+															{isDeleted && (
+																<span className='text-xs bg-red-500/20 text-red-400 px-2 py-1 rounded-full'>
+																	Will be deleted
+																</span>
+															)}
+														</div>
 													</div>
 												)}
-												<div className='flex items-center gap-1 ml-2'>
+												<div className='flex items-center gap-2 ml-3'>
 													{isDeleted ? (
 														<button
 															onClick={() => handleRestoreBoard(board.id)}
-															className='text-green-400 hover:text-green-300 p-1'
+															className='p-2 text-green-400 hover:text-green-300 hover:bg-[rgba(34,197,94,0.1)] rounded-lg transition-all duration-200'
 															title='Restore board'
 														>
-															<IoClose size={18} className='rotate-45' />
+															<IoRefreshOutline size={16} />
 														</button>
 													) : (
 														<button
 															onClick={() => handleDeleteBoard(board.id)}
-															className='text-gray-400 hover:text-red-500 p-1'
+															className='p-2 text-[rgba(255,255,255,0.5)] hover:text-red-400 hover:bg-[rgba(239,68,68,0.1)] rounded-lg transition-all duration-200'
 															title='Delete board'
 														>
 															<IoTrash size={16} />
 														</button>
 													)}
 												</div>
-											</li>
-										);
-									})}
-								</ul>
-							) : (
-								<div className='text-gray-400 text-center py-4'>
-									No boards in this project
-								</div>
-							)}{' '}
-							<p className='text-xs text-gray-400 mt-2'>
-								Click on board name to edit
-							</p>
-						</div>
+											</div>
+										</div>
+									);
+								})}
+							</div>
+						) : (
+							<div className='text-center py-8 text-[rgba(255,255,255,0.5)]'>
+								<IoGrid size={32} className='mx-auto mb-2 opacity-50' />
+								<p>No boards in this project</p>
+							</div>
+						)}
+						<p className='text-xs text-[rgba(255,255,255,0.5)] mt-3'>
+							Click on board name to edit
+						</p>
 					</div>
 
-					{/* Columns */}
-					<div className='mb-6'>
-						<div className='flex justify-between items-center mb-2'>
-							<h3 className='text-lg font-medium'>Columns</h3>
+					{/* Columns Section */}
+					<div className='bg-[rgba(255,255,255,0.03)] rounded-xl p-5 border border-[rgba(255,255,255,0.08)]'>
+						<div className='flex items-center gap-2 mb-4'>
+							<IoListOutline className='text-blue-400' size={18} />
+							<h3 className='text-lg font-semibold text-white'>Columns</h3>
+							<span className='bg-[rgba(59,130,246,0.2)] text-blue-300 px-2 py-1 rounded-full text-xs font-medium'>
+								{boards.reduce(
+									(total, board) =>
+										total +
+										(board.columns?.filter(col => !isColumnDeleted(col))
+											.length || 0),
+									0
+								)}
+							</span>
 						</div>
-						<div className='bg-[#333] rounded-md p-3'>
-							{boards.length > 0 ? (
-								<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-									{boards.map(board => {
-										const boardColumns = board.columns || [];
-										const boardDeleted = isBoardDeleted(board);
+						{boards.length > 0 ? (
+							<div className='grid grid-cols-1 lg:grid-cols-2 gap-4'>
+								{boards.map(board => {
+									const boardColumns = board.columns || [];
+									const boardDeleted = isBoardDeleted(board);
 
-										return (
-											<div
-												key={board.id}
-												className={`p-3 rounded-md ${
-													boardDeleted ? 'opacity-50' : 'bg-[#3a3a3c]'
-												}`}
-											>
-												<h4 className='text-md font-medium mb-2 text-[#ff9800] flex items-center justify-between'>
-													<span>
-														{getBoardDisplayName(board)}
-														{boardDeleted && (
-															<span className='ml-2 text-xs text-red-400'>
-																(board will be deleted)
-															</span>
-														)}
-													</span>
+									return (
+										<div
+											key={board.id}
+											className={`p-4 rounded-xl border transition-all duration-200 ${
+												boardDeleted
+													? 'bg-[rgba(239,68,68,0.05)] border-[rgba(239,68,68,0.2)] opacity-50'
+													: 'bg-[rgba(255,255,255,0.02)] border-[rgba(255,255,255,0.08)]'
+											}`}
+										>
+											<div className='flex items-center gap-2 mb-3'>
+												<IoGrid
+													size={16}
+													className={
+														boardDeleted ? 'text-red-400' : 'text-purple-400'
+													}
+												/>
+												<h4 className='font-medium text-white truncate'>
+													{getBoardDisplayName(board)}
 												</h4>
-												{boardColumns.length > 0 && !boardDeleted ? (
-													<ul className='space-y-2'>
-														{boardColumns.map(column => {
-															const isDeleted = isColumnDeleted(column);
-															const displayName = getColumnDisplayName(column);
+												{boardDeleted && (
+													<span className='text-xs bg-red-500/20 text-red-400 px-2 py-1 rounded-full'>
+														Deleting
+													</span>
+												)}
+											</div>
+											{boardColumns.length > 0 && !boardDeleted ? (
+												<div className='space-y-2'>
+													{boardColumns.map(column => {
+														const isDeleted = isColumnDeleted(column);
+														const displayName = getColumnDisplayName(column);
 
-															return (
-																<li
-																	key={column.id}
-																	className={`flex items-center justify-between p-2 rounded-md ${
-																		isDeleted
-																			? 'bg-red-900/20 border border-red-500/30'
-																			: 'bg-[#4c4c4e]'
-																	}`}
-																>
+														return (
+															<div
+																key={column.id}
+																className={`p-3 rounded-lg border transition-all duration-200 ${
+																	isDeleted
+																		? 'bg-[rgba(239,68,68,0.1)] border-[rgba(239,68,68,0.3)]'
+																		: 'bg-[rgba(255,255,255,0.05)] border-[rgba(255,255,255,0.1)] hover:border-[rgba(255,255,255,0.2)]'
+																}`}
+															>
+																<div className='flex items-center justify-between'>
 																	{editingColumnId === column.id ? (
 																		<input
 																			type='text'
@@ -499,7 +562,7 @@ export default function ProjectSettingsModal({
 																				handleColumnNameKeyDown(e, column.id)
 																			}
 																			autoFocus
-																			className='bg-[#5c5c5e] text-white px-2 py-1 rounded-md w-full focus:outline-none focus:ring-1 focus:ring-[#ff9800]'
+																			className='flex-1 bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] text-white px-2 py-1 rounded focus:outline-none focus:border-orange-400 transition-all duration-200 text-sm'
 																		/>
 																	) : (
 																		<div
@@ -507,18 +570,30 @@ export default function ProjectSettingsModal({
 																				!isDeleted &&
 																				handleColumnNameClick(column.id)
 																			}
-																			className={`px-2 py-1 rounded flex-1 transition-colors ${
+																			className={`flex-1 px-2 py-1 rounded transition-all duration-200 ${
 																				isDeleted
 																					? 'text-red-400 line-through cursor-not-allowed'
-																					: 'cursor-pointer hover:bg-[#5c5c5e]'
+																					: 'text-white cursor-pointer hover:bg-[rgba(255,255,255,0.05)]'
 																			}`}
 																		>
-																			{displayName}
-																			{isDeleted && (
-																				<span className='ml-2 text-xs'>
-																					(will be deleted)
+																			<div className='flex items-center gap-2'>
+																				<IoListOutline
+																					size={14}
+																					className={
+																						isDeleted
+																							? 'text-red-400'
+																							: 'text-blue-400'
+																					}
+																				/>
+																				<span className='text-sm'>
+																					{displayName}
 																				</span>
-																			)}
+																				{isDeleted && (
+																					<span className='text-xs bg-red-500/20 text-red-400 px-1.5 py-0.5 rounded-full'>
+																						Delete
+																					</span>
+																				)}
+																			</div>
 																		</div>
 																	)}
 																	<div className='flex items-center gap-1 ml-2'>
@@ -527,72 +602,97 @@ export default function ProjectSettingsModal({
 																				onClick={() =>
 																					handleRestoreColumn(column.id)
 																				}
-																				className='text-green-400 hover:text-green-300 p-1'
+																				className='p-1 text-green-400 hover:text-green-300 hover:bg-[rgba(34,197,94,0.1)] rounded transition-all duration-200'
 																				title='Restore column'
 																			>
-																				<IoClose
-																					size={18}
-																					className='rotate-45'
-																				/>
+																				<IoRefreshOutline size={14} />
 																			</button>
 																		) : (
 																			<button
 																				onClick={() =>
 																					handleDeleteColumn(column.id)
 																				}
-																				className='text-gray-400 hover:text-red-500 p-1'
+																				className='p-1 text-[rgba(255,255,255,0.5)] hover:text-red-400 hover:bg-[rgba(239,68,68,0.1)] rounded transition-all duration-200'
 																				title='Delete column'
 																			>
-																				<IoTrash size={14} />
+																				<IoTrash size={12} />
 																			</button>
 																		)}
 																	</div>
-																</li>
-															);
-														})}
-													</ul>
-												) : (
-													<div className='text-gray-400 text-sm py-2'>
+																</div>
+															</div>
+														);
+													})}
+												</div>
+											) : (
+												<div className='text-center py-4 text-[rgba(255,255,255,0.4)]'>
+													<IoListOutline
+														size={24}
+														className='mx-auto mb-1 opacity-50'
+													/>
+													<p className='text-xs'>
 														{boardDeleted
 															? 'Board will be deleted'
 															: 'No columns in this board'}
-													</div>
-												)}
-											</div>
-										);
-									})}
-								</div>
-							) : (
-								<div className='text-gray-400 text-center py-4'>
-									No boards in this project
-								</div>
-							)}
-							<p className='text-xs text-gray-400 mt-2'>
-								Click on column name to edit
-							</p>
-						</div>
+													</p>
+												</div>
+											)}
+										</div>
+									);
+								})}
+							</div>
+						) : (
+							<div className='text-center py-8 text-[rgba(255,255,255,0.5)]'>
+								<IoListOutline size={32} className='mx-auto mb-2 opacity-50' />
+								<p>No boards in this project</p>
+							</div>
+						)}
+						<p className='text-xs text-[rgba(255,255,255,0.5)] mt-3'>
+							Click on column name to edit
+						</p>
 					</div>
 				</div>
-				<div className='flex justify-end gap-4 py-3 px-4 border-t border-[#3c3c3e] bg-[#333] items-center'>
-					<button
-						onClick={handleCancel}
-						disabled={loading}
-						className='px-5 py-1.5 bg-[#3c3c3e] hover:bg-[#4c4c4e] rounded-md disabled:opacity-50 transition-colors'
-					>
-						Cancel
-					</button>
-					<button
-						onClick={handleSaveChanges}
-						disabled={loading || !hasChanges()}
-						className={`px-5 py-1.5 rounded-md flex items-center gap-2 disabled:opacity-50 transition-colors ${
-							hasChanges()
-								? 'bg-[#ff9800] hover:bg-[#f57c00] text-white'
-								: 'bg-[#3c3c3e] text-gray-400'
-						}`}
-					>
-						<FiSave size={18} />
-						{loading ? 'Saving...' : 'Save Changes'}
-					</button>
+
+				{/* Footer */}
+				<div className='flex justify-between items-center px-6 py-4 border-t border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.02)]'>
+					<div className='text-sm text-[rgba(255,255,255,0.6)]'>
+						{hasChanges() && (
+							<span className='flex items-center gap-2'>
+								<div className='w-2 h-2 bg-orange-400 rounded-full animate-pulse'></div>
+								Unsaved changes
+							</span>
+						)}
+					</div>
+					<div className='flex items-center gap-3'>
+						<button
+							onClick={handleCancel}
+							disabled={loading}
+							className='px-6 py-2.5 bg-[rgba(255,255,255,0.05)] hover:bg-[rgba(255,255,255,0.1)] border border-[rgba(255,255,255,0.1)] text-[rgba(255,255,255,0.8)] hover:text-white rounded-xl transition-all duration-200 disabled:opacity-50'
+						>
+							Cancel
+						</button>
+						<button
+							onClick={handleSaveChanges}
+							disabled={loading || !hasChanges()}
+							className={`px-6 py-2.5 rounded-xl font-medium flex items-center gap-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
+								hasChanges()
+									? 'bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white shadow-lg'
+									: 'bg-[rgba(255,255,255,0.05)] text-[rgba(255,255,255,0.5)] border border-[rgba(255,255,255,0.1)]'
+							}`}
+						>
+							{loading ? (
+								<>
+									<div className='w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin'></div>
+									Saving...
+								</>
+							) : (
+								<>
+									<IoSaveOutline size={16} />
+									Save Changes
+								</>
+							)}
+						</button>
+					</div>
 				</div>
 			</div>
 

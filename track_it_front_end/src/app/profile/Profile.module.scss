@@ -1,53 +1,94 @@
-.profilePage {
-	width: 100vw;
-	height: 100vh;
-	background: #232324;
-	display: flex;
-	flex-direction: column;
-}
+// Profile page styles
+$dark_bg: #0a0a0a;
+$border_color: rgba(255, 255, 255, 0.1);
+$text_secondary: rgba(255, 255, 255, 0.7);
 
-.header {
-	background-color: #252528;
-	width: 100%;
-	height: 55px;
-	padding: 0 20px;
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
+.container {
+	min-height: 100vh;
 	position: relative;
+	overflow-x: hidden;
+	background: $dark_bg;
 }
 
-.leftSection {
-	flex: 1;
+// Background Elements
+.backgroundElements {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 1;
+	pointer-events: none;
 }
 
-.rightSection {
-	flex: 1;
-	display: flex;
-	justify-content: flex-end;
+.gridPattern {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-image: linear-gradient(
+			rgba(255, 255, 255, 0.02) 1px,
+			transparent 1px
+		),
+		linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+	background-size: 50px 50px;
 }
 
-.logoutButton {
-	background: none;
-	border: 1px solid #ff9800;
-	color: #ff9800;
-	padding: 8px 16px;
-	border-radius: 4px;
-	cursor: pointer;
-	font-size: 14px;
-	transition: all 0.2s ease;
-
-	&:hover {
-		background: #ff9800;
-		color: #232324;
+// Custom scrollbar
+.customScrollbar {
+	&::-webkit-scrollbar {
+		width: 6px;
+	}
+	&::-webkit-scrollbar-track {
+		background: rgba(255, 255, 255, 0.05);
+		border-radius: 10px;
+	}
+	&::-webkit-scrollbar-thumb {
+		background: rgba(255, 153, 0, 0.4);
+		border-radius: 10px;
+	}
+	&::-webkit-scrollbar-thumb:hover {
+		background: rgba(255, 153, 0, 0.6);
 	}
 }
 
-.main {
-	flex: 1;
+// Loading screen
+.loadingScreen {
+	min-height: 100vh;
+	background: $dark_bg;
+	position: relative;
+	overflow: hidden;
 	display: flex;
-	justify-content: center;
 	align-items: center;
+	justify-content: center;
+}
+
+.loadingContent {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+	color: white;
+}
+
+.loadingSpinner {
+	width: 32px;
+	height: 32px;
+	border: 2px solid rgba(255, 152, 0, 0.3);
+	border-top-color: #ff9800;
+	border-radius: 50%;
+	animation: spin 1s linear infinite;
+}
+
+.loadingText {
+	font-size: 18px;
+	font-weight: 500;
+}
+
+@keyframes spin {
+	to {
+		transform: rotate(360deg);
+	}
 }
 
 .cardSection {
