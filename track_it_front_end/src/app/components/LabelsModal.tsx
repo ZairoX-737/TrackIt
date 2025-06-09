@@ -8,7 +8,6 @@ import {
 	IoRefreshOutline,
 } from 'react-icons/io5';
 import { Label } from '../api/types';
-import { LabelService } from '../api';
 import { useTaskStore } from '../store/taskStore';
 
 interface LabelsModalProps {

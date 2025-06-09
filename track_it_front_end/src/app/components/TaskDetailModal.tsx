@@ -202,8 +202,9 @@ export default function TaskDetailModal({
 			className='fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-[2000]'
 			onClick={onClose}
 		>
+			{' '}
 			<div
-				className='bg-[rgba(10,10,10,0.95)] w-[900px] max-h-[90vh] rounded-2xl border border-[rgba(255,255,255,0.15)] backdrop-blur-xl shadow-2xl overflow-hidden flex flex-col'
+				className='bg-[rgba(10,10,10,0.95)] w-[900px] max-h-[90vh] rounded-2xl border border-[rgba(255,255,255,0.15)] backdrop-blur-xl shadow-2xl overflow-hidden flex flex-col relative'
 				onClick={e => e.stopPropagation()}
 			>
 				{/* Header */}
@@ -235,6 +236,24 @@ export default function TaskDetailModal({
 											</option>
 										))}
 									</select>
+									<div className='flex items-center gap-2 ml-2'>
+										<button
+											onClick={handleCancelEdit}
+											className='px-3 py-1.5 bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white rounded-lg text-sm font-medium flex items-center gap-1.5 transition-all duration-200 shadow-lg'
+											title='Cancel editing'
+										>
+											<IoCancel size={14} />
+											Cancel
+										</button>
+										<button
+											onClick={handleSaveEdit}
+											className='px-3 py-1.5 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-lg text-sm font-medium flex items-center gap-1.5 transition-all duration-200 shadow-lg'
+											title='Save changes'
+										>
+											<IoSaveOutline size={14} />
+											Save
+										</button>
+									</div>
 								</div>
 							</div>
 						) : (
@@ -249,10 +268,9 @@ export default function TaskDetailModal({
 								</div>
 							</div>
 						)}
-					</div>
-
+					</div>{' '}
 					<div className='flex items-center gap-3 flex-shrink-0 ml-4'>
-						{!isEditing && (
+						{!isEditing ? (
 							<button
 								onClick={handleStartEdit}
 								className='px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white rounded-xl text-sm font-medium flex items-center gap-2 transition-all duration-200 shadow-lg'
@@ -261,6 +279,8 @@ export default function TaskDetailModal({
 								<IoCreateOutline size={16} />
 								Edit
 							</button>
+						) : (
+							<></>
 						)}
 						<button
 							onClick={handleDeleteTask}
@@ -279,14 +299,14 @@ export default function TaskDetailModal({
 				</div>{' '}
 				{/* Content */}
 				<div className='flex-1 overflow-hidden flex'>
+					{' '}
 					{/* Left side - Task details */}
-					<div className='flex-1 p-6 overflow-y-auto custom-scrollbar'>
+					<div className='flex-1 p-6 pb-8 overflow-y-auto custom-scrollbar'>
 						{error && (
 							<div className='mb-4 p-4 bg-gradient-to-r from-red-500/20 to-red-600/20 border border-red-500/30 text-red-300 rounded-xl backdrop-blur-sm'>
 								{error}
 							</div>
 						)}
-
 						{/* Description Section */}
 						<div className='mb-8'>
 							<div className='flex items-center gap-3 mb-4'>
@@ -321,7 +341,6 @@ export default function TaskDetailModal({
 								</div>
 							)}
 						</div>
-
 						{/* Task Metadata */}
 						<div className='grid grid-cols-1 md:grid-cols-2 gap-6 mb-8'>
 							<div className='bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.08)] p-4 rounded-xl backdrop-blur-sm'>
@@ -355,7 +374,6 @@ export default function TaskDetailModal({
 								</p>
 							</div>
 						</div>
-
 						{/* Labels Section */}
 						<div className='mb-8'>
 							<div className='flex items-center gap-3 mb-4'>
@@ -402,8 +420,8 @@ export default function TaskDetailModal({
 								</div>
 							)}
 
-							<div className='bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.08)] p-4 rounded-xl backdrop-blur-sm'>
-								{!isEditing && (
+							{!isEditing && (
+								<div className='bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.08)] p-4 rounded-xl backdrop-blur-sm'>
 									<div className='flex flex-wrap gap-2'>
 										{task.labels && task.labels.length > 0 ? (
 											task.labels.map((labelData: any) => {
@@ -445,29 +463,9 @@ export default function TaskDetailModal({
 											</span>
 										)}
 									</div>
-								)}
-							</div>
+								</div>
+							)}
 						</div>
-
-						{/* Edit Action Buttons */}
-						{isEditing && (
-							<div className='flex gap-3 pt-6 border-t border-[rgba(255,255,255,0.1)]'>
-								<button
-									onClick={handleSaveEdit}
-									className='px-6 py-3 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white rounded-xl text-sm font-medium flex items-center gap-2 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105'
-								>
-									<IoSaveOutline size={16} />
-									Save Changes
-								</button>
-								<button
-									onClick={handleCancelEdit}
-									className='px-6 py-3 bg-[rgba(255,255,255,0.1)] hover:bg-[rgba(255,255,255,0.15)] text-white rounded-xl text-sm font-medium flex items-center gap-2 transition-all duration-200 border border-[rgba(255,255,255,0.2)]'
-								>
-									<IoCancel size={16} />
-									Cancel
-								</button>
-							</div>
-						)}
 					</div>{' '}
 					{/* Right side - Comments */}
 					<div className='w-80 border-l border-[rgba(255,255,255,0.1)] flex flex-col bg-[rgba(255,255,255,0.02)]'>
@@ -567,8 +565,8 @@ export default function TaskDetailModal({
 									className='w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 disabled:from-gray-600 disabled:to-gray-700 disabled:cursor-not-allowed text-white py-2.5 rounded-xl text-sm font-medium transition-all duration-200 shadow-lg disabled:shadow-none transform hover:scale-[1.02] disabled:transform-none'
 								>
 									Add Comment
-								</button>
-							</form>
+								</button>{' '}
+							</form>{' '}
 						</div>{' '}
 					</div>
 				</div>
