@@ -2,6 +2,7 @@ import {
 	BadRequestException,
 	Injectable,
 	ForbiddenException,
+	NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { ProjectDto } from './dto/project.dto';
@@ -159,13 +160,33 @@ export class ProjectService {
 	}
 	async delete(projectId: string, userId: string) {
 		try {
-			const admin = await this.userOnProject.getAdmin(userId, projectId);
+			// Проверяем, что пользователь - создатель проекта или админ
+			const project = await this.prisma.project.findUnique({
+				where: { id: projectId },
+				select: { createdBy: true },
+			});
 
-			if (!admin) {
-				throw new ForbiddenException(
-					'У вас нет прав администратора для удаления проекта'
-				);
+			if (!project) {
+				throw new NotFoundException('Проект не найден');
 			}
+
+			const isCreator = project.createdBy === userId;
+
+			if (!isCreator) {
+				const admin = await this.userOnProject.getAdmin(userId, projectId);
+				if (!admin) {
+					throw new ForbiddenException(
+						'У вас нет прав администратора для удаления проекта'
+					);
+				}
+			}
+
+			// Удаляем все уведомления, связанные с проектом, перед удалением проекта
+			await this.prisma.notification.deleteMany({
+				where: {
+					projectId: projectId,
+				},
+			});
 
 			return this.prisma.project.delete({
 				where: {
@@ -173,7 +194,10 @@ export class ProjectService {
 				},
 			});
 		} catch (error) {
-			if (error instanceof ForbiddenException) {
+			if (
+				error instanceof ForbiddenException ||
+				error instanceof NotFoundException
+			) {
 				throw error;
 			}
 			throw new BadRequestException(

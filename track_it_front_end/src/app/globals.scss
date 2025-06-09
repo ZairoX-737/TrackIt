@@ -25,7 +25,8 @@ body {
 	line-height: 1.6;
 	font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
 	overflow-x: hidden;
-	min-height: 100vh;
+	height: 100vh;
+	overflow-y: hidden;
 }
 
 // Improved scrollbar
@@ -83,6 +84,17 @@ body {
 	}
 	100% {
 		transform: translateX(100%);
+	}
+}
+
+@keyframes slideDown {
+	0% {
+		opacity: 0;
+		transform: translateY(-10px) scale(0.95);
+	}
+	100% {
+		opacity: 1;
+		transform: translateY(0) scale(1);
 	}
 }
 

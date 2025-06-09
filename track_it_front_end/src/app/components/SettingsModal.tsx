@@ -20,8 +20,12 @@ export default function SettingsModal({
 	if (!isOpen || !selectedProject) return null;
 	return (
 		<div
-			className='absolute top-11 right-0 bg-[rgba(10,10,10,0.95)] w-72 rounded-2xl border border-[rgba(255,255,255,0.15)] backdrop-blur-xl shadow-2xl z-[2000] overflow-hidden'
+			className='absolute top-14 right-0 bg-[rgba(10,10,10,0.95)] w-72 rounded-2xl border border-[rgba(255,255,255,0.15)] backdrop-blur-xl shadow-2xl z-[2000] overflow-hidden'
 			onClick={e => e.stopPropagation()}
+			style={{
+				animation: 'slideDown 0.2s ease-out forwards',
+				transformOrigin: 'top right',
+			}}
 		>
 			{/* Header */}
 			<div className='flex justify-between items-center p-4 pb-3'>
@@ -110,7 +114,7 @@ export default function SettingsModal({
 						<span className='text-[rgba(255,255,255,0.5)] group-hover:text-red-400 text-xs'>
 							Permanently remove project
 						</span>
-					</div>
+					</div>{' '}
 				</button>
 			</div>
 		</div>

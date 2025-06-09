@@ -42,15 +42,14 @@ $text_muted: rgba(255, 255, 255, 0.5);
 		&:hover {
 			background: rgba(255, 255, 255, 0.3);
 		}
-	}
-	// Background grid pattern instead of orbs
+	} // Background grid pattern instead of orbs
 	&::before {
 		content: '';
-		position: absolute;
+		position: fixed; // Changed from absolute to fixed
 		top: 0;
 		left: 0;
-		width: 100%;
-		height: 100%;
+		width: 100vw; // Changed from 100% to 100vw
+		height: 100vh; // Changed from 100% to 100vh
 		background-image: linear-gradient(
 				rgba(255, 255, 255, 0.02) 1px,
 				transparent 1px
@@ -58,7 +57,7 @@ $text_muted: rgba(255, 255, 255, 0.5);
 			linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
 		background-size: 50px 50px;
 		pointer-events: none;
-		z-index: 0;
+		z-index: 1; // Changed to 1 to make grid visible
 	}
 }
 
@@ -465,6 +464,9 @@ $text_muted: rgba(255, 255, 255, 0.5);
 	position: sticky;
 	top: 0;
 	z-index: 100;
+	height: 80px;
+	min-height: 80px;
+	max-height: 80px;
 
 	> *:nth-child(1) {
 		justify-self: start;

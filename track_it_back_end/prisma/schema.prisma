@@ -8,31 +8,33 @@ datasource db {
 }
 
 model User {
-  id            String          @id @default(cuid())
-  createdAt     DateTime        @default(now()) @map("created_at")
-  updatedAt     DateTime        @updatedAt @map("updated_at")
-  email         String          @unique
-  username      String
-  password      String
-  comments      Comment[]
-  notifications Notification[]
-  projects      UserOnProject[]
-  tasks         Task[]
-  Project       Project[]
+  id                     String          @id @default(cuid())
+  createdAt              DateTime        @default(now()) @map("created_at")
+  updatedAt              DateTime        @updatedAt @map("updated_at")
+  email                  String          @unique
+  username               String
+  password               String
+  comments               Comment[]
+  notifications          Notification[]
+  triggeredNotifications Notification[]  @relation("TriggeredNotifications")
+  projects               UserOnProject[]
+  tasks                  Task[]
+  Project                Project[]
 
   @@map("user")
 }
 
 model Project {
-  id        String          @id @default(cuid())
-  createdAt DateTime        @default(now()) @map("created_at")
-  updatedAt DateTime        @updatedAt @map("updated_at")
-  name      String
-  createdBy String          @map("created_by")
-  user      User            @relation(fields: [createdBy], references: [id])
-  boards    Board[]
-  labels    Label[]
-  users     UserOnProject[]
+  id            String          @id @default(cuid())
+  createdAt     DateTime        @default(now()) @map("created_at")
+  updatedAt     DateTime        @updatedAt @map("updated_at")
+  name          String
+  createdBy     String          @map("created_by")
+  user          User            @relation(fields: [createdBy], references: [id])
+  boards        Board[]
+  labels        Label[]
+  users         UserOnProject[]
+  notifications Notification[]
 
   @@map("project")
 }
@@ -113,12 +115,19 @@ model LabelOnTask {
 }
 
 model Notification {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now()) @map("created_at")
-  message   String
-  isRead    Boolean  @default(false) @map("is_read")
-  userId    String   @map("user_id")
-  user      User     @relation(fields: [userId], references: [id])
+  id              String           @id @default(cuid())
+  createdAt       DateTime         @default(now()) @map("created_at")
+  message         String
+  type            NotificationType
+  isRead          Boolean          @default(false) @map("is_read")
+  userId          String           @map("user_id")
+  projectId       String           @map("project_id")
+  entityId        String?          @map("entity_id") // ID задачи, комментария и т.д.
+  entityType      String?          @map("entity_type") // task, comment, board и т.д.
+  triggeredBy     String?          @map("triggered_by") // ID пользователя, который вызвал действие
+  user            User             @relation(fields: [userId], references: [id])
+  project         Project          @relation(fields: [projectId], references: [id])
+  triggeredByUser User?            @relation("TriggeredNotifications", fields: [triggeredBy], references: [id])
 
   @@map("notification")
 }
@@ -138,4 +147,22 @@ model Comment {
 enum Role {
   admin
   editor
+}
+
+enum NotificationType {
+  TASK_CREATED
+  TASK_UPDATED
+  TASK_DELETED
+  COMMENT_CREATED
+  BOARD_CREATED
+  BOARD_UPDATED
+  BOARD_DELETED
+  COLUMN_CREATED
+  COLUMN_UPDATED
+  COLUMN_DELETED
+  USER_JOINED_PROJECT
+  USER_LEFT_PROJECT
+  LABEL_CREATED
+  LABEL_UPDATED
+  LABEL_DELETED
 }

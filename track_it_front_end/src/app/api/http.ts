@@ -24,7 +24,13 @@ $api.interceptors.response.use(
 	async error => {
 		const originalRequest = error.config;
 
-		if (error.response?.status === 401 && !originalRequest._isRetry) {
+		// Не обрабатываем 401 ошибки для эндпоинтов авторизации
+		if (
+			error.response?.status === 401 &&
+			!originalRequest._isRetry &&
+			!originalRequest.url?.includes('/auth/login') &&
+			!originalRequest.url?.includes('/auth/register')
+		) {
 			originalRequest._isRetry = true;
 			try {
 				const response = await axios.post(
@@ -41,8 +47,11 @@ $api.interceptors.response.use(
 				}
 			} catch (e) {
 				// Если обновление токена не удалось, перенаправляем на логин
+				// только если мы не на странице авторизации
 				Cookies.remove('accessToken');
-				window.location.href = '/auth/login';
+				if (!window.location.pathname.includes('/auth/')) {
+					window.location.href = '/auth/login';
+				}
 			}
 		}
 

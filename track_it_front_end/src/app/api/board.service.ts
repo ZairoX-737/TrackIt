@@ -32,7 +32,6 @@ export class BoardService {
 		try {
 			await $api.delete(`/user/project/${projectId}/board/${boardId}`);
 		} catch (error) {
-			console.error('API Error in BoardService.delete:', error);
 			throw error;
 		}
 	}

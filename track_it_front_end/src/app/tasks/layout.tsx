@@ -4,16 +4,15 @@ import { useRef, useEffect, memo, useState } from 'react';
 import { useTaskStore } from '../store/taskStore';
 import { Project, Board } from '../api/types';
 
-// Fix image paths
 import ArrowR from '../../public/right-arrow-white.png';
 import ArrowD from '../../public/down-arrow-white.png';
 import WLogo from '../../public/logo-white.png';
 import Dots from '../../public/three-dots-hor.png';
 import User from '../../public/user-profile-white.png';
-import Notif from '../../public/notification-white.png';
 
 import styles from './Tasks.module.scss';
-import NotificationsModal from '../components/NotifModal';
+import headerButtonStyles from '../components/HeaderButton.module.scss';
+import NotificationBell from '../components/NotificationBell';
 import SettingsModal from '../components/SettingsModal';
 import ProjectBoardModal from '../components/ProjectBoardModal';
 import CreateModal from '../components/CreateModal';
@@ -34,7 +33,6 @@ export default function TaskLayout({
 		projectVisible,
 		boardVisible,
 		modalVisible,
-		notifOpen,
 		settingsOpen,
 		taskDetailOpen,
 		selectedTaskForDetail,
@@ -45,14 +43,12 @@ export default function TaskLayout({
 		setProjectVisible,
 		setBoardVisible,
 		setModalVisible,
-		setNotifOpen,
 		setSettingsOpen,
 		setTaskDetailOpen,
 		setSelectedTaskForDetail,
 		selectProject,
 		selectBoard,
 		handleModalSelection,
-		toggleNotifications,
 		toggleSettings,
 		loadProjects,
 		loadUserProfile,
@@ -90,13 +86,6 @@ export default function TaskLayout({
 				setBoardVisible(false);
 			}
 			if (
-				notifOpen &&
-				notificationsRef.current &&
-				!notificationsRef.current.contains(target)
-			) {
-				setNotifOpen(false);
-			}
-			if (
 				settingsOpen &&
 				settingsRef.current &&
 				!settingsRef.current.contains(target)
@@ -108,7 +97,7 @@ export default function TaskLayout({
 
 		document.addEventListener('mousedown', handleClickOutside);
 		return () => document.removeEventListener('mousedown', handleClickOutside);
-	}, [projectVisible, boardVisible, notifOpen, settingsOpen]);
+	}, [projectVisible, boardVisible, settingsOpen]);
 	const openModal = () => {
 		setProjectVisible(false);
 		setBoardVisible(false);
@@ -260,47 +249,37 @@ export default function TaskLayout({
 						)}
 					</div>
 				</div>
-
-				<Image src={WLogo} alt='Logo' width={32} height={32} />
-
+				<Image src={WLogo} alt='Logo' width={32} height={32} />{' '}
 				<div className='flex-1 flex justify-end gap-3 items-center'>
-					{/* Notifications button and modal */}
-					<div className='relative top-1' ref={notificationsRef}>
-						<button onClick={toggleNotifications} className='self-center'>
-							<Image
-								src={Notif}
-								alt='Notifications'
-								width={32}
-								height={32}
-								className='select-none'
-							/>
-						</button>
-						<NotificationsModal
-							isOpen={notifOpen}
-							onClose={() => setNotifOpen(false)}
-						/>
-					</div>
+					{/* Notifications bell */}
+					<NotificationBell
+						projectId={selectedProject?.id}
+						className='self-center'
+					/>{' '}
 					<hr className='h-8 w-[1px] bg-white' />
 					<Link href='/profile'>
-						<button>
+						<div className={headerButtonStyles.headerButton}>
 							<Image
 								src={User}
 								alt='User profile'
-								width={32}
-								height={32}
+								width={24}
+								height={24}
 								className='select-none'
 							/>
-						</button>
+						</div>
 					</Link>
 					<hr className='h-8 w-[1px] bg-white' />
 					{/* Settings button and modal */}
-					<div className='relative top-1' ref={settingsRef}>
-						<button onClick={toggleSettings}>
+					<div className='relative' ref={settingsRef}>
+						<button
+							onClick={toggleSettings}
+							className={headerButtonStyles.headerButton}
+						>
 							<Image
 								src={Dots}
 								alt='Project settings'
-								width={32}
-								height={32}
+								width={24}
+								height={24}
 								className='select-none'
 							/>
 						</button>{' '}

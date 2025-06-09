@@ -13,6 +13,7 @@ import {
 import { LabelService } from './label.service';
 import { CreateLabelDto, UpdateLabelDto } from './dto/label.dto';
 import { Auth } from 'src/decorators/auth.decorator';
+import { CurrentUser } from 'src/decorators/user.decorator';
 
 @Controller('labels')
 export class LabelController {
@@ -32,27 +33,29 @@ export class LabelController {
 	async getById(@Param('id') id: string) {
 		return this.labelService.getById(id);
 	}
-
 	@UsePipes(new ValidationPipe())
 	@HttpCode(201)
 	@Post()
 	@Auth()
-	async create(@Body() dto: CreateLabelDto) {
-		return this.labelService.create(dto);
+	async create(@Body() dto: CreateLabelDto, @CurrentUser('id') userId: string) {
+		return this.labelService.create(dto, userId);
 	}
-
 	@UsePipes(new ValidationPipe())
 	@HttpCode(200)
 	@Put(':id')
 	@Auth()
-	async update(@Param('id') id: string, @Body() dto: UpdateLabelDto) {
-		return this.labelService.update(id, dto);
+	async update(
+		@Param('id') id: string,
+		@Body() dto: UpdateLabelDto,
+		@CurrentUser('id') userId: string
+	) {
+		return this.labelService.update(id, dto, userId);
 	}
 
 	@HttpCode(200)
 	@Delete(':id')
 	@Auth()
-	async delete(@Param('id') id: string) {
-		return this.labelService.delete(id);
+	async delete(@Param('id') id: string, @CurrentUser('id') userId: string) {
+		return this.labelService.delete(id, userId);
 	}
 }

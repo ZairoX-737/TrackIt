@@ -1,0 +1,54 @@
+// Modern design variables
+$primary_orange: #ff9800;
+$task_bg: rgba(255, 255, 255, 0.08);
+$column_bg: rgba(255, 255, 255, 0.05);
+$border_color: rgba(255, 255, 255, 0.1);
+$border_hover: rgba(255, 152, 0, 0.3);
+$text_primary: #ffffff;
+$text_secondary: rgba(255, 255, 255, 0.7);
+
+.headerButton {
+	position: relative;
+	background: $task_bg;
+	backdrop-filter: blur(20px);
+	border: 1px solid $border_color;
+	cursor: pointer;
+	padding: 12px;
+	border-radius: 12px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	color: $text_secondary;
+	box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+	min-width: 48px;
+	min-height: 48px;
+
+	&:hover {
+		background: $column_bg;
+		border-color: $border_hover;
+		color: $text_primary;
+		box-shadow: 0 8px 25px rgba(255, 152, 0, 0.15);
+		transform: translateY(-2px);
+	}
+
+	&:active {
+		transform: translateY(0);
+		box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+	}
+
+	&:focus {
+		outline: none;
+		box-shadow: 0 0 0 2px $primary_orange;
+	}
+
+	img {
+		transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+		filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.1));
+	}
+
+	&:hover img {
+		transform: scale(1.1);
+		filter: drop-shadow(0 0 8px rgba(255, 152, 0, 0.5));
+	}
+}

@@ -5,10 +5,14 @@ import {
 	BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
+import { NotificationIntegrationService } from '../notification/notification-integration.service';
 
 @Injectable()
 export class UserOnProjectService {
-	constructor(private prisma: PrismaService) {}
+	constructor(
+		private prisma: PrismaService,
+		private notificationIntegration: NotificationIntegrationService
+	) {}
 
 	async getById(userId: string, projectId: string) {
 		return this.prisma.userOnProject.findUnique({
@@ -81,10 +85,8 @@ export class UserOnProjectService {
 		const existingMember = await this.getById(user.id, projectId);
 		if (existingMember) {
 			throw new BadRequestException('User is already a member of this project');
-		}
-
-		// Add user to project
-		return this.prisma.userOnProject.create({
+		} // Add user to project
+		const userOnProject = await this.prisma.userOnProject.create({
 			data: {
 				userId: user.id,
 				projectId,
@@ -100,6 +102,15 @@ export class UserOnProjectService {
 				},
 			},
 		});
+
+		// Send notification about user joining project
+		await this.notificationIntegration.notifyUserJoinedProject(
+			projectId,
+			user.id,
+			user.username
+		);
+
+		return userOnProject;
 	}
 
 	async removeUserFromProject(

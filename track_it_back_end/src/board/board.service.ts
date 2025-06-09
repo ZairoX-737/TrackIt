@@ -8,13 +8,15 @@ import { PrismaService } from 'src/prisma.service';
 import { BoardDto } from './dto/board.dto';
 import { ProjectService } from 'src/project/project.service';
 import { UserOnProjectService } from 'src/user-on-project/user-on-project.service';
+import { NotificationIntegrationService } from '../notification/notification-integration.service';
 
 @Injectable()
 export class BoardService {
 	constructor(
 		private prisma: PrismaService,
 		private projectService: ProjectService,
-		private userOnProject: UserOnProjectService
+		private userOnProject: UserOnProjectService,
+		private notificationIntegration: NotificationIntegrationService
 	) {}
 	async getAll(projectId: string, userId: string) {
 		// Проверяем доступ к проекту
@@ -27,7 +29,6 @@ export class BoardService {
 			where: { boardId },
 		});
 	}
-
 	async create(dto: BoardDto, projectId: string, userId: string) {
 		const user = this.userOnProject.getById(userId, projectId);
 
@@ -35,7 +36,8 @@ export class BoardService {
 			throw new BadRequestException(
 				'user must be connected to this project to do this'
 			);
-		return this.prisma.board.create({
+
+		const board = await this.prisma.board.create({
 			data: {
 				...dto,
 				project: {
@@ -44,7 +46,20 @@ export class BoardService {
 					},
 				},
 			},
+			include: {
+				project: true,
+			},
 		});
+
+		// Send notification about new board
+		await this.notificationIntegration.notifyBoardCreated(
+			projectId,
+			board.id,
+			board.name,
+			userId
+		);
+
+		return board;
 	}
 
 	async update(
@@ -58,12 +73,23 @@ export class BoardService {
 			throw new BadRequestException(
 				'user must be connected to this project to do this'
 			);
-		return this.prisma.board.update({
+
+		const updatedBoard = await this.prisma.board.update({
 			where: {
 				id: boardId,
 			},
 			data: dto,
 		});
+
+		// Send notification about board update
+		await this.notificationIntegration.notifyBoardUpdated(
+			projectId,
+			boardId,
+			updatedBoard.name,
+			userId
+		);
+
+		return updatedBoard;
 	}
 	async delete(boardId: string, userId: string, projectId: string) {
 		try {
@@ -75,11 +101,28 @@ export class BoardService {
 				);
 			}
 
-			return this.prisma.board.delete({
+			// Get board info before deletion for notification
+			const board = await this.prisma.board.findUnique({
+				where: { id: boardId },
+				select: { name: true },
+			});
+
+			const deletedBoard = await this.prisma.board.delete({
 				where: {
 					id: boardId,
 				},
 			});
+
+			// Send notification about board deletion
+			if (board) {
+				await this.notificationIntegration.notifyBoardDeleted(
+					projectId,
+					board.name,
+					userId
+				);
+			}
+
+			return deletedBoard;
 		} catch (error) {
 			if (error instanceof ForbiddenException) {
 				throw error;

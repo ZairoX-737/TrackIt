@@ -6,23 +6,31 @@ import {
 import { PrismaService } from 'src/prisma.service';
 import { ColumnDto } from './dto/column.dto';
 import { BoardService } from 'src/board/board.service';
+import { NotificationIntegrationService } from '../notification/notification-integration.service';
 
 @Injectable()
 export class ColumnService {
 	constructor(
 		private prisma: PrismaService,
-		private boardServise: BoardService
+		private boardService: BoardService,
+		private notificationIntegration: NotificationIntegrationService
 	) {}
-
 	async getAll(boardId: string, userId: string) {
 		// Проверяем, что пользователь имеет доступ к доске
 		await this.checkBoardAccess(boardId, userId);
-		return this.boardServise.getColumns(boardId);
+		return this.boardService.getColumns(boardId);
 	}
-
 	async create(dto: ColumnDto, boardId: string, userId: string) {
 		// Проверяем, что пользователь имеет доступ к доске
 		await this.checkBoardAccess(boardId, userId);
+
+		// Получаем информацию о доске и проекте
+		const board = await this.prisma.board.findUnique({
+			where: { id: boardId },
+			include: {
+				project: true,
+			},
+		});
 
 		// Получаем максимальный position для этой доски
 		const lastColumn = await this.prisma.column.findFirst({
@@ -30,7 +38,8 @@ export class ColumnService {
 			orderBy: { position: 'desc' },
 		});
 		const nextPosition = lastColumn ? lastColumn.position + 1 : 1;
-		return this.prisma.column.create({
+
+		const column = await this.prisma.column.create({
 			data: {
 				...dto,
 				position: dto.position ?? nextPosition,
@@ -41,13 +50,30 @@ export class ColumnService {
 				},
 			},
 		});
-	}
 
+		// Send notification about new column
+		if (board) {
+			await this.notificationIntegration.notifyColumnCreated(
+				board.projectId,
+				column.id,
+				column.name,
+				userId
+			);
+		}
+
+		return column;
+	}
 	async update(dto: ColumnDto, columnId: string, userId: string) {
 		// Получаем колонку и проверяем доступ к её доске
 		const column = await this.prisma.column.findUnique({
 			where: { id: columnId },
-			include: { board: true },
+			include: {
+				board: {
+					include: {
+						project: true,
+					},
+				},
+			},
 		});
 
 		if (!column) {
@@ -56,19 +82,34 @@ export class ColumnService {
 
 		await this.checkBoardAccess(column.boardId, userId);
 
-		return this.prisma.column.update({
+		const updatedColumn = await this.prisma.column.update({
 			where: {
 				id: columnId,
 			},
 			data: dto,
 		});
-	}
 
+		// Send notification about column update
+		await this.notificationIntegration.notifyColumnUpdated(
+			column.board.projectId,
+			columnId,
+			updatedColumn.name,
+			userId
+		);
+
+		return updatedColumn;
+	}
 	async delete(columnId: string, userId: string) {
 		// Получаем колонку и проверяем доступ к её доске
 		const column = await this.prisma.column.findUnique({
 			where: { id: columnId },
-			include: { board: true },
+			include: {
+				board: {
+					include: {
+						project: true,
+					},
+				},
+			},
 		});
 
 		if (!column) {
@@ -77,11 +118,26 @@ export class ColumnService {
 
 		await this.checkBoardAccess(column.boardId, userId);
 
-		return this.prisma.column.delete({
+		// Store column info for notification before deletion
+		const columnInfo = {
+			name: column.name,
+			projectId: column.board.projectId,
+		};
+
+		const deletedColumn = await this.prisma.column.delete({
 			where: {
 				id: columnId,
 			},
 		});
+
+		// Send notification about column deletion
+		await this.notificationIntegration.notifyColumnDeleted(
+			columnInfo.projectId,
+			columnInfo.name,
+			userId
+		);
+
+		return deletedColumn;
 	}
 
 	private async checkBoardAccess(boardId: string, userId: string) {

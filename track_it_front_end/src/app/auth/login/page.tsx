@@ -59,7 +59,6 @@ const LoginPage = () => {
 			// Redirect to tasks page
 			router.replace('/tasks');
 		} catch (error: any) {
-			console.error('Login error:', error);
 			setError(
 				error.response?.data?.message ||
 					'Invalid email or password. Please try again.'

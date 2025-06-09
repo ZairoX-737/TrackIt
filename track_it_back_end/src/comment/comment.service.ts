@@ -4,10 +4,14 @@ import {
 	NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
+import { NotificationIntegrationService } from '../notification/notification-integration.service';
 
 @Injectable()
 export class CommentService {
-	constructor(private prisma: PrismaService) {}
+	constructor(
+		private prisma: PrismaService,
+		private notificationIntegration: NotificationIntegrationService
+	) {}
 
 	async getTaskComments(taskId: string) {
 		return this.prisma.comment.findMany({
@@ -24,18 +28,28 @@ export class CommentService {
 			orderBy: { createdAt: 'desc' },
 		});
 	}
-
 	async createComment(userId: string, taskId: string, content: string) {
-		// Check if task exists
+		// Check if task exists and get project info
 		const task = await this.prisma.task.findUnique({
 			where: { id: taskId },
+			include: {
+				column: {
+					include: {
+						board: {
+							include: {
+								project: true,
+							},
+						},
+					},
+				},
+			},
 		});
 
 		if (!task) {
 			throw new NotFoundException('Task not found');
 		}
 
-		return this.prisma.comment.create({
+		const comment = await this.prisma.comment.create({
 			data: {
 				userId,
 				taskId,
@@ -51,6 +65,16 @@ export class CommentService {
 				},
 			},
 		});
+		// Send notification about new comment
+		await this.notificationIntegration.notifyCommentCreated(
+			task.column.board.project.id,
+			task.id,
+			comment.id,
+			task.title,
+			userId
+		);
+
+		return comment;
 	}
 
 	async deleteComment(commentId: string, userId: string) {

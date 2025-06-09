@@ -180,7 +180,6 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 			set({ user, loading: false });
 		} catch (error) {
 			set({ error: 'Failed to load user profile', loading: false });
-			console.error('Error loading user profile:', error);
 		}
 	},
 
@@ -197,7 +196,6 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 			}
 		} catch (error) {
 			set({ error: 'Failed to load projects', loading: false });
-			console.error('Error loading projects:', error);
 		}
 	},
 
@@ -214,7 +212,6 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 			}
 		} catch (error) {
 			set({ error: 'Failed to load boards', loading: false });
-			console.error('Error loading boards:', error);
 		}
 	},
 
@@ -225,7 +222,6 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 			set({ tasks, loading: false });
 		} catch (error) {
 			set({ error: 'Failed to load tasks', loading: false });
-			console.error('Error loading tasks:', error);
 		}
 	},
 
@@ -236,7 +232,6 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 			set({ columns, loading: false });
 		} catch (error) {
 			set({ error: 'Failed to load columns', loading: false });
-			console.error('Error loading columns:', error);
 		}
 	},
 
@@ -249,7 +244,6 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 			set({ labels, loading: false });
 		} catch (error) {
 			set({ error: 'Failed to load labels', loading: false });
-			console.error('Error loading labels:', error);
 		}
 	},
 
@@ -383,7 +377,6 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 			}));
 		} catch (error) {
 			set({ error: 'Failed to create task', loading: false });
-			console.error('Error creating task:', error);
 		}
 	},
 
@@ -397,7 +390,6 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 			}));
 		} catch (error) {
 			set({ error: 'Failed to create column', loading: false });
-			console.error('Error creating column:', error);
 		}
 	},
 	updateTask: async (taskId: string, data: Partial<Task>) => {
@@ -412,7 +404,6 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 			}));
 		} catch (error) {
 			set({ error: 'Failed to update task', loading: false });
-			console.error('Error updating task:', error);
 		}
 	},
 
@@ -432,7 +423,6 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 			}));
 		} catch (error) {
 			set({ error: 'Failed to update project', loading: false });
-			console.error('Error updating project:', error);
 			throw error;
 		}
 	},
@@ -472,7 +462,6 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 			});
 		} catch (error) {
 			set({ error: 'Ошибка обновления доски', loading: false });
-			console.error('Error updating board:', error);
 			throw error;
 		}
 	},
@@ -488,7 +477,6 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 			}));
 		} catch (error) {
 			set({ error: 'Failed to delete task', loading: false });
-			console.error('Error deleting task:', error);
 			throw error;
 		}
 	},
@@ -512,7 +500,6 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 			}));
 		} catch (error) {
 			set({ error: 'Failed to delete project', loading: false });
-			console.error('Error deleting project:', error);
 			throw error;
 		}
 	},
@@ -531,7 +518,6 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 			}));
 		} catch (error) {
 			set({ error: 'Failed to delete board', loading: false });
-			console.error('Error deleting board:', error);
 			throw error;
 		}
 	},
@@ -548,7 +534,6 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 			}));
 		} catch (error) {
 			set({ error: 'Failed to update column', loading: false });
-			console.error('Error updating column:', error);
 			throw error;
 		}
 	},
@@ -564,7 +549,6 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 			}));
 		} catch (error) {
 			set({ error: 'Failed to delete column', loading: false });
-			console.error('Error deleting column:', error);
 			throw error;
 		}
 	},
@@ -589,7 +573,6 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 			}
 		} catch (error) {
 			set({ error: 'Failed to move task', loading: false });
-			console.error('Error moving task:', error);
 		}
 	},
 
@@ -604,7 +587,6 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 			}));
 		} catch (error) {
 			set({ error: 'Failed to create label', loading: false });
-			console.error('Error creating label:', error);
 		}
 	},
 
@@ -624,7 +606,6 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 			}));
 		} catch (error) {
 			set({ error: 'Failed to update label', loading: false });
-			console.error('Error updating label:', error);
 		}
 	},
 
@@ -638,7 +619,6 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 			}));
 		} catch (error) {
 			set({ error: 'Failed to delete label', loading: false });
-			console.error('Error deleting label:', error);
 		}
 	},
 }));

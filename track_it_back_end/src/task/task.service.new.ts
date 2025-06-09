@@ -246,6 +246,7 @@ export class TaskService {
 		}
 
 		const { labelIds, ...taskData } = dto;
+
 		// Извлекаем только разрешенные для обновления поля
 		const allowedFields = {
 			...(taskData.title && { title: taskData.title }),
@@ -254,63 +255,14 @@ export class TaskService {
 			}),
 			...(taskData.columnId && { columnId: taskData.columnId }),
 		};
-		// Проверяем, есть ли реальные изменения в основных полях
-		const hasFieldChanges = Object.keys(allowedFields).some(key => {
-			const newValue = allowedFields[key];
-			const oldValue = existingTask[key];
-			return newValue !== oldValue;
+
+		// Первый шаг: обновляем данные задачи
+		const updatedTask = await this.prisma.task.update({
+			where: {
+				id: taskId,
+			},
+			data: allowedFields,
 		});
-
-		// Проверяем изменения в лейблах
-		let hasLabelChanges = false;
-		if (labelIds !== undefined) {
-			const currentLabelIds = existingTask.labels.map(l => l.labelId).sort();
-			const newLabelIds = [...labelIds].sort();
-			hasLabelChanges =
-				JSON.stringify(currentLabelIds) !== JSON.stringify(newLabelIds);
-		}
-
-		const hasChanges = hasFieldChanges || hasLabelChanges;
-
-		if (!hasChanges) {
-			// Если нет изменений, возвращаем текущую задачу без уведомлений
-			return await this.prisma.task.findUnique({
-				where: { id: taskId },
-				include: {
-					user: {
-						select: {
-							id: true,
-							username: true,
-							email: true,
-						},
-					},
-					labels: {
-						include: {
-							label: true,
-						},
-					},
-					column: {
-						include: {
-							board: {
-								select: {
-									projectId: true,
-								},
-							},
-						},
-					},
-				},
-			});
-		}
-
-		// Первый шаг: обновляем данные задачи только если есть изменения в полях
-		if (Object.keys(allowedFields).length > 0) {
-			await this.prisma.task.update({
-				where: {
-					id: taskId,
-				},
-				data: allowedFields,
-			});
-		}
 
 		// Если массив labelIds определен, обновляем метки
 		if (labelIds) {

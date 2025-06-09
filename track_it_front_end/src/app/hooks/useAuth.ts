@@ -21,7 +21,6 @@ export const useAuth = () => {
 			const response = await AuthService.me();
 			setUser(response.user);
 		} catch (error) {
-			console.error('Auth check failed:', error);
 			// Если токен недействителен, удаляем его
 			Cookies.remove('accessToken');
 			setUser(null);
@@ -29,12 +28,11 @@ export const useAuth = () => {
 			setLoading(false);
 		}
 	};
-
 	const logout = async () => {
 		try {
 			await AuthService.logout();
 		} catch (error) {
-			console.error('Logout error:', error);
+			// Ошибка логаута обрабатывается тихо
 		} finally {
 			Cookies.remove('accessToken');
 			setUser(null);
