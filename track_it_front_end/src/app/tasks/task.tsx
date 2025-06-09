@@ -3,14 +3,10 @@ import { useRef } from 'react';
 import styles from './Tasks.module.scss';
 import { useTaskStore } from '../store/taskStore';
 
+import type { Task } from '../api/types';
+
 interface IProps {
-	task: {
-		id: string;
-		title: string;
-		description?: string;
-		status: string;
-		labels?: any[];
-	};
+	task: Task;
 }
 
 const Task = ({ task }: IProps) => {
@@ -18,7 +14,7 @@ const Task = ({ task }: IProps) => {
 	const taskRef = useRef<HTMLLIElement>(null);
 
 	function handleTaskClick() {
-		setSelectedTaskForDetail(task as any);
+		setSelectedTaskForDetail(task);
 		setTaskDetailOpen(true);
 	}
 
@@ -59,12 +55,10 @@ const Task = ({ task }: IProps) => {
 					})}
 				</div>
 			)}
-
 			{/* Task title */}
 			<div className={styles.taskTitle}>{task.title}</div>
-
 			{/* Task description */}
-			{task.description && (
+			{task.description && task.description.trim() && (
 				<div className={styles.taskDescription}>{task.description}</div>
 			)}
 		</li>

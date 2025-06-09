@@ -275,3 +275,309 @@ $text_secondary: rgba(255, 255, 255, 0.7);
 .customScroll::-webkit-scrollbar-thumb:hover {
 	background: #ff9900;
 }
+
+// Responsive Design for Profile Page
+@media (max-width: 1440px) {
+	.cardSection {
+		gap: 40px;
+	}
+
+	.profileCard {
+		width: 450px;
+		min-height: 260px;
+		padding: 50px 34px 26px 34px;
+	}
+
+	.avatar {
+		width: 64px;
+		height: 64px;
+		top: -32px;
+	}
+
+	.username {
+		font-size: 25px;
+		margin-bottom: 20px;
+	}
+
+	.statValue {
+		font-size: 21px;
+	}
+
+	.profileColumns {
+		gap: 36px;
+		min-width: 560px;
+	}
+
+	.profileColumn {
+		min-width: 210px;
+		max-height: 340px;
+	}
+
+	.profileColumn:last-child {
+		min-width: 290px;
+	}
+
+	.profileColumnTitle {
+		font-size: 17.5px;
+	}
+
+	.profileColumnList li {
+		padding: 9.5px 15px;
+		font-size: 15.5px;
+		height: 35px;
+		min-height: 35px;
+	}
+}
+
+@media (max-width: 1366px) {
+	.cardSection {
+		gap: 34px;
+	}
+
+	.profileCard {
+		width: 400px;
+		min-height: 240px;
+		padding: 46px 30px 22px 30px;
+	}
+
+	.avatar {
+		width: 58px;
+		height: 58px;
+		top: -29px;
+	}
+
+	.username {
+		font-size: 23px;
+		margin-bottom: 18px;
+	}
+
+	.statValue {
+		font-size: 19px;
+	}
+
+	.profileColumns {
+		gap: 30px;
+		min-width: 500px;
+		max-height: 310px;
+	}
+
+	.profileColumn {
+		min-width: 190px;
+		max-height: 310px;
+	}
+
+	.profileColumn:last-child {
+		min-width: 270px;
+	}
+
+	.profileColumnTitle {
+		font-size: 16.5px;
+	}
+
+	.profileColumnList li {
+		padding: 8.5px 13px;
+		font-size: 14.5px;
+		height: 33px;
+		min-height: 33px;
+	}
+}
+
+@media (max-width: 1024px) {
+	.main {
+		padding: 20px 4%;
+	}
+
+	.cardSection {
+		gap: 28px;
+		flex-direction: column;
+	}
+
+	.profileCard {
+		width: 380px;
+		min-height: 230px;
+		padding: 42px 28px 20px 28px;
+	}
+
+	.avatar {
+		width: 56px;
+		height: 56px;
+		top: -28px;
+	}
+
+	.username {
+		font-size: 22px;
+		margin-bottom: 16px;
+	}
+
+	.statValue {
+		font-size: 18px;
+	}
+
+	.statLabel {
+		font-size: 13px;
+	}
+
+	.profileColumns {
+		gap: 28px;
+		min-width: 480px;
+		max-height: 300px;
+	}
+
+	.profileColumn {
+		min-width: 180px;
+		max-height: 300px;
+	}
+
+	.profileColumn:last-child {
+		min-width: 260px;
+	}
+
+	.profileColumnTitle {
+		font-size: 16px;
+	}
+
+	.profileColumnList li {
+		padding: 8px 12px;
+		font-size: 14px;
+		height: 32px;
+		min-height: 32px;
+	}
+}
+
+@media (max-width: 768px) {
+	.main {
+		padding: 16px 3%;
+	}
+
+	.cardSection {
+		gap: 24px;
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.profileCard {
+		width: 100%;
+		max-width: 360px;
+		min-height: 210px;
+		padding: 38px 24px 18px 24px;
+		margin: 0 auto;
+	}
+
+	.avatar {
+		width: 52px;
+		height: 52px;
+		top: -26px;
+	}
+
+	.username {
+		font-size: 20px;
+		margin-bottom: 14px;
+	}
+
+	.statValue {
+		font-size: 16px;
+	}
+
+	.statLabel {
+		font-size: 12px;
+	}
+
+	.verticalDivider {
+		display: none;
+	}
+
+	.profileColumns {
+		flex-direction: column;
+		gap: 20px;
+		min-width: unset;
+		width: 100%;
+		max-height: unset;
+	}
+
+	.profileColumn {
+		min-width: unset;
+		width: 100%;
+		max-height: 250px;
+		padding-right: 0;
+	}
+
+	.profileColumn:last-child {
+		min-width: unset;
+		padding-left: 0;
+	}
+
+	.profileColumnTitle {
+		font-size: 15px;
+	}
+
+	.profileColumnList li {
+		padding: 7px 10px;
+		font-size: 13px;
+		height: 30px;
+		min-height: 30px;
+	}
+}
+
+@media (max-width: 480px) {
+	.main {
+		padding: 12px 2%;
+	}
+
+	.cardSection {
+		gap: 20px;
+	}
+
+	.profileCard {
+		width: 100%;
+		max-width: 320px;
+		min-height: 190px;
+		padding: 34px 20px 16px 20px;
+	}
+
+	.avatar {
+		width: 48px;
+		height: 48px;
+		top: -24px;
+	}
+
+	.username {
+		font-size: 18px;
+		margin-bottom: 12px;
+	}
+
+	.stats {
+		margin-bottom: 16px;
+	}
+
+	.statValue {
+		font-size: 14px;
+	}
+
+	.statLabel {
+		font-size: 11px;
+	}
+
+	.registered {
+		font-size: 11px;
+	}
+
+	.profileColumns {
+		gap: 16px;
+	}
+
+	.profileColumn {
+		max-height: 200px;
+	}
+
+	.profileColumnTitle {
+		font-size: 14px;
+		padding: 6px 0;
+	}
+
+	.profileColumnList li {
+		padding: 6px 8px;
+		font-size: 12px;
+		height: 28px;
+		min-height: 28px;
+	}
+}

@@ -9,6 +9,7 @@ import {
 } from 'react-icons/io5';
 import { Label } from '../api/types';
 import { LabelService } from '../api';
+import { useTaskStore } from '../store/taskStore';
 
 interface LabelsModalProps {
 	isOpen: boolean;
@@ -33,7 +34,9 @@ export default function LabelsModal({
 	projectId,
 	projectName,
 }: LabelsModalProps) {
-	const [labels, setLabels] = useState<Label[]>([]);
+	const { labels, createLabel, updateLabel, deleteLabel, loadLabels } =
+		useTaskStore();
+	const [localLabels, setLocalLabels] = useState<Label[]>([]);
 	const [labelChanges, setLabelChanges] = useState<Record<string, LabelChange>>(
 		{}
 	);
@@ -57,28 +60,19 @@ export default function LabelsModal({
 		'#06B6D4', // cyan
 		'#84CC16', // lime
 	];
-
-	// Загрузка лейблов при открытии модали
+	// Синхронизация локального состояния с глобальным store при открытии модали
 	useEffect(() => {
 		if (isOpen && projectId) {
-			loadLabels();
-		}
-	}, [isOpen, projectId]);
-
-	const loadLabels = async () => {
-		try {
-			setLoading(true);
-			setError(null);
-			const projectLabels = await LabelService.getByProject(projectId);
-			setLabels(projectLabels);
+			// Загружаем лейблы в глобальный store
+			loadLabels(projectId);
 			setLabelChanges({});
-		} catch (err: any) {
-			setError(err.response?.data?.message || 'Failed to load labels');
-		} finally {
-			setLoading(false);
 		}
-	};
+	}, [isOpen, projectId, loadLabels]);
 
+	// Синхронизируем локальные лейблы с глобальными
+	useEffect(() => {
+		setLocalLabels(labels);
+	}, [labels]);
 	// Получить отображаемое имя лейбла
 	const getLabelDisplayName = (label: Label): string => {
 		const change = labelChanges[label.id];
@@ -104,7 +98,7 @@ export default function LabelsModal({
 
 	// Обработчик изменения названия лейбла
 	const handleLabelNameChange = (labelId: string, newName: string) => {
-		const label = labels.find(l => l.id === labelId);
+		const label = localLabels.find(l => l.id === labelId);
 		if (!label) return;
 
 		setLabelChanges(prev => ({
@@ -119,10 +113,9 @@ export default function LabelsModal({
 			},
 		}));
 	};
-
 	// Обработчик изменения цвета лейбла
 	const handleLabelColorChange = (labelId: string, newColor: string) => {
-		const label = labels.find(l => l.id === labelId);
+		const label = localLabels.find(l => l.id === labelId);
 		if (!label) return;
 
 		setLabelChanges(prev => ({
@@ -147,7 +140,7 @@ export default function LabelsModal({
 			setLabelChanges(prev => {
 				const newChanges = { ...prev };
 				if (newChanges[labelId]) {
-					const label = labels.find(l => l.id === labelId);
+					const label = localLabels.find(l => l.id === labelId);
 					if (label) {
 						newChanges[labelId].newName = label.name;
 					}
@@ -157,10 +150,9 @@ export default function LabelsModal({
 			setEditingLabelId(null);
 		}
 	};
-
 	// Обработчик удаления лейбла (локальное)
 	const handleDeleteLabel = (labelId: string) => {
-		const label = labels.find(l => l.id === labelId);
+		const label = localLabels.find(l => l.id === labelId);
 		if (!label) return;
 
 		setLabelChanges(prev => ({
@@ -183,7 +175,7 @@ export default function LabelsModal({
 			if (newChanges[labelId]) {
 				newChanges[labelId].isDeleted = false;
 				// Если нет других изменений, удаляем запись
-				const label = labels.find(l => l.id === labelId);
+				const label = localLabels.find(l => l.id === labelId);
 				if (
 					label &&
 					newChanges[labelId].newName === label.name &&
@@ -202,18 +194,13 @@ export default function LabelsModal({
 		setNewLabelName('');
 		setNewLabelColor('#6B7280');
 	};
-
 	// Обработчик сохранения нового лейбла
 	const handleSaveNewLabel = async () => {
 		if (!newLabelName.trim()) return;
 
 		try {
-			const newLabel = await LabelService.create({
-				name: newLabelName.trim(),
-				color: newLabelColor,
-				projectId: projectId,
-			});
-			setLabels(prev => [...prev, newLabel]);
+			// Используем глобальный store для создания лейбла
+			await createLabel(newLabelName.trim(), newLabelColor, projectId);
 			setIsCreatingNew(false);
 			setNewLabelName('');
 			setNewLabelColor('#6B7280');
@@ -233,32 +220,28 @@ export default function LabelsModal({
 	const hasChanges = (): boolean => {
 		return Object.keys(labelChanges).length > 0;
 	};
-
 	// Применение всех изменений
 	const handleSaveChanges = async () => {
 		try {
 			setLoading(true);
 			setError(null);
 
-			// Применяем изменения лейблов
+			// Применяем изменения лейблов через глобальный store
 			for (const change of Object.values(labelChanges)) {
 				if (change.isDeleted) {
 					// Удаляем лейбл
-					await LabelService.delete(change.id);
+					await deleteLabel(change.id);
 				} else if (
 					change.newName !== change.originalName ||
 					change.newColor !== change.originalColor
 				) {
 					// Обновляем лейбл
-					await LabelService.update(change.id, {
-						name: change.newName.trim(),
-						color: change.newColor,
-					});
+					await updateLabel(change.id, change.newName, change.newColor);
 				}
 			}
 
-			// Перезагружаем лейблы
-			await loadLabels();
+			// Сбрасываем локальные изменения
+			setLabelChanges({});
 			onClose();
 		} catch (err: any) {
 			setError(err.response?.data?.message || 'Failed to save changes');
@@ -425,21 +408,21 @@ export default function LabelsModal({
 							<IoColorPaletteOutline className='text-orange-400' size={18} />
 							<h3 className='text-lg font-semibold text-white'>
 								Existing Labels
-							</h3>
+							</h3>{' '}
 							<span className='bg-[rgba(255,152,0,0.2)] text-orange-300 px-2 py-1 rounded-full text-xs font-medium'>
-								{labels.filter(label => !isLabelDeleted(label)).length}
+								{localLabels.filter(label => !isLabelDeleted(label)).length}
 							</span>
 						</div>
 
 						{/* Labels List */}
 						<div className='space-y-3'>
-							{loading && labels.length === 0 ? (
+							{loading && localLabels.length === 0 ? (
 								<div className='text-center py-8 text-[rgba(255,255,255,0.5)]'>
 									<div className='w-6 h-6 border-2 border-orange-400 border-t-transparent rounded-full animate-spin mx-auto mb-2'></div>
 									Loading labels...
 								</div>
-							) : labels.length > 0 ? (
-								labels.map(label => {
+							) : localLabels.length > 0 ? (
+								localLabels.map(label => {
 									const isDeleted = isLabelDeleted(label);
 									const displayName = getLabelDisplayName(label);
 									const displayColor = getLabelDisplayColor(label);

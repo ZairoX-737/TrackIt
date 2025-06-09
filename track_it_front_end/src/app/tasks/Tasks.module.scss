@@ -16,9 +16,9 @@ $text_muted: rgba(255, 255, 255, 0.5);
 	display: flex;
 	overflow-x: auto;
 	overflow-y: hidden;
-	min-height: calc(100vh - 80px); // Изменено на min-height для гибкости
-	padding: 24px;
-	gap: 24px;
+	height: calc(100vh - 80px); // Фиксированная высота вместо min-height
+	padding: 16px;
+	gap: 16px;
 	background: $dark_bg;
 	position: relative;
 	// Custom horizontal scrollbar
@@ -43,83 +43,69 @@ $text_muted: rgba(255, 255, 255, 0.5);
 			background: rgba(255, 255, 255, 0.3);
 		}
 	}
-
-	// Floating orbs for visual appeal
+	// Background grid pattern instead of orbs
 	&::before {
 		content: '';
 		position: absolute;
-		top: 10%;
-		right: 15%;
-		width: 300px;
-		height: 300px;
-		background: radial-gradient(
-			circle,
-			rgba(255, 152, 0, 0.05) 0%,
-			transparent 70%
-		);
-		border-radius: 50%;
-		animation: float 20s ease-in-out infinite;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background-image: linear-gradient(
+				rgba(255, 255, 255, 0.02) 1px,
+				transparent 1px
+			),
+			linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+		background-size: 50px 50px;
 		pointer-events: none;
-	}
-
-	&::after {
-		content: '';
-		position: absolute;
-		bottom: 20%;
-		left: 10%;
-		width: 200px;
-		height: 200px;
-		background: radial-gradient(
-			circle,
-			rgba(139, 92, 246, 0.05) 0%,
-			transparent 70%
-		);
-		border-radius: 50%;
-		animation: float 25s ease-in-out infinite reverse;
-		pointer-events: none;
+		z-index: 0;
 	}
 }
 
 .taskColumn {
 	display: flex;
 	flex-direction: column;
+	width: 320px;
 	min-width: 320px;
-	max-width: 360px;
+	max-width: 320px;
 	height: fit-content;
-	min-height: 120px; // Уменьшенная минимальная высота
-	padding: 20px;
+	max-height: calc(100vh - 120px);
+	padding: 16px;
 	background: $column_bg;
 	backdrop-filter: blur(20px);
 	border: 1px solid $border_color;
-	border-radius: 20px;
+	border-radius: 16px;
 	box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-	position: relative;
-	z-index: 1;
+	flex-shrink: 0;
 }
 
 // Стиль заголовка колонки
 .tasklistHeader {
-	font-size: 18px;
+	font-size: 16px;
 	font-weight: 700;
 	color: $primary_orange;
-	margin-bottom: 16px;
-	padding-bottom: 12px;
+	margin-bottom: 12px;
+	padding-bottom: 8px;
 	border-bottom: 2px solid rgba(255, 152, 0, 0.2);
 	position: relative;
+	flex-shrink: 0;
 }
 
 .taskList {
-	overflow-y: auto;
-	width: 100%;
-	max-height: 60vh; // Более гибкая максимальная высота
-	padding-right: 8px;
 	display: flex;
 	flex-direction: column;
-	gap: 12px;
-	margin: 16px 0;
-	flex: 1; // Позволяет списку растягиваться
+	gap: 8px;
+	overflow-y: auto;
+	overflow-x: hidden;
+	flex: 1;
+	padding: 4px 0;
+	margin: 0;
+	min-height: 0;
 
 	// Custom scrollbar
+	scrollbar-width: thin;
+	scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+
 	&::-webkit-scrollbar {
 		width: 6px;
 	}
@@ -140,44 +126,22 @@ $text_muted: rgba(255, 255, 255, 0.5);
 }
 
 .task {
-	width: 100%;
-	min-height: 80px;
-	max-height: 120px;
-	padding: 10px 12px;
 	background: $task_bg;
-	backdrop-filter: blur(10px);
 	border: 1px solid $border_color;
 	border-radius: 12px;
+	padding: 12px;
 	cursor: pointer;
-	transition: border-color 0.2s ease;
-	position: relative;
-	overflow: hidden;
-	display: flex;
-	flex-direction: column;
-
-	&::before {
-		content: '';
-		position: absolute;
-		top: 0;
-		left: 0;
-		right: 0;
-		height: 1px;
-		background: linear-gradient(
-			90deg,
-			transparent,
-			rgba(255, 152, 0, 0.3),
-			transparent
-		);
-		opacity: 0;
-		transition: opacity 0.3s ease;
-	}
+	transition: all 0.2s ease;
+	min-height: auto;
+	height: auto;
+	display: block;
+	word-wrap: break-word;
+	overflow-wrap: break-word;
 
 	&:hover {
 		border-color: $primary_orange;
-
-		&::before {
-			opacity: 1;
-		}
+		transform: translateY(-1px);
+		box-shadow: 0 4px 12px rgba(255, 152, 0, 0.15);
 	}
 }
 
@@ -185,7 +149,7 @@ $text_muted: rgba(255, 255, 255, 0.5);
 .taskLabels {
 	display: flex;
 	gap: 4px;
-	margin-bottom: 8px;
+	margin-bottom: 6px;
 	flex-wrap: wrap;
 	min-height: 10px;
 	flex-shrink: 0;
@@ -204,27 +168,37 @@ $text_muted: rgba(255, 255, 255, 0.5);
 	font-size: 14px;
 	font-weight: 600;
 	color: $text_primary;
+	line-height: 1.4;
 	margin-bottom: 6px;
-	line-height: 1.3;
-	user-select: none;
+
+	// Ограничиваем заголовок до 2 строк с многоточием
+	display: -webkit-box;
+	-webkit-line-clamp: 2;
+	line-clamp: 2;
+	-webkit-box-orient: vertical;
 	overflow: hidden;
 	text-overflow: ellipsis;
-	white-space: nowrap;
-	flex-shrink: 0;
+	word-wrap: break-word;
+	overflow-wrap: break-word;
 }
 
 .taskDescription {
 	font-size: 12px;
 	color: $text_secondary;
-	line-height: 1.4;
-	opacity: 0.8;
+	line-height: 1.5;
+	opacity: 0.9;
+	margin: 0;
+	padding: 0;
+
+	// Ограничиваем описание до 3 строк с многоточием
+	display: -webkit-box;
+	-webkit-line-clamp: 3;
+	line-clamp: 3;
+	-webkit-box-orient: vertical;
 	overflow: hidden;
 	text-overflow: ellipsis;
-	display: -webkit-box;
-	-webkit-line-clamp: 2;
-	line-clamp: 2;
-	-webkit-box-orient: vertical;
-	flex: 1;
+	word-wrap: break-word;
+	overflow-wrap: break-word;
 }
 
 // Legacy labels (keeping for compatibility)
@@ -238,19 +212,19 @@ $text_muted: rgba(255, 255, 255, 0.5);
 // Buttons
 .addTask {
 	width: 100%;
-	padding: 12px 16px;
+	padding: 10px 14px;
 	background: rgba(255, 152, 0, 0.1);
 	border: 2px dashed rgba(255, 152, 0, 0.3);
-	border-radius: 12px;
+	border-radius: 10px;
 	color: $primary_orange;
-	font-size: 14px;
+	font-size: 13px;
 	font-weight: 500;
 	cursor: pointer;
 	transition: all 0.2s ease;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	gap: 8px;
+	gap: 6px;
 	margin-top: auto;
 
 	&:hover {
@@ -305,6 +279,7 @@ $text_muted: rgba(255, 255, 255, 0.5);
 	border: 1px solid $border_color;
 	border-radius: 20px;
 	box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+	height: fit-content; // Адаптивная высота вместо максимальной
 }
 
 // Empty states
@@ -589,5 +564,104 @@ $text_muted: rgba(255, 255, 255, 0.5);
 	&:hover {
 		background: rgba(255, 152, 0, 0.15);
 		border-color: rgba(255, 152, 0, 0.5);
+	}
+}
+
+// Responsive Design for Tasks Page
+@media (max-width: 1440px) {
+	.taskContainer {
+		padding: 14px;
+		gap: 14px;
+	}
+
+	.taskColumn {
+		width: 300px;
+		min-width: 300px;
+		max-width: 300px;
+		padding: 14px;
+	}
+
+	.task {
+		padding: 10px;
+	}
+}
+
+@media (max-width: 1024px) {
+	.taskContainer {
+		padding: 12px;
+		gap: 12px;
+	}
+
+	.taskColumn {
+		width: 280px;
+		min-width: 280px;
+		max-width: 280px;
+		padding: 12px;
+	}
+
+	.task {
+		padding: 10px;
+	}
+
+	.taskTitle {
+		font-size: 13px;
+	}
+
+	.taskDescription {
+		font-size: 11px;
+	}
+}
+
+@media (max-width: 768px) {
+	.taskContainer {
+		padding: 10px;
+		gap: 10px;
+	}
+
+	.taskColumn {
+		width: 260px;
+		min-width: 260px;
+		max-width: 260px;
+		padding: 10px;
+	}
+
+	.task {
+		padding: 8px;
+	}
+
+	.taskTitle {
+		font-size: 12px;
+		margin-bottom: 6px;
+	}
+
+	.taskDescription {
+		font-size: 10px;
+	}
+}
+
+@media (max-width: 480px) {
+	.taskContainer {
+		padding: 8px;
+		gap: 8px;
+	}
+
+	.taskColumn {
+		width: 240px;
+		min-width: 240px;
+		max-width: 240px;
+		padding: 8px;
+	}
+
+	.task {
+		padding: 6px;
+	}
+
+	.taskTitle {
+		font-size: 11px;
+		margin-bottom: 4px;
+	}
+
+	.taskDescription {
+		font-size: 9px;
 	}
 }

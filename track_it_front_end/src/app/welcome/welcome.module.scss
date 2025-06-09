@@ -146,3 +146,196 @@
 		transform: translateY(0);
 	}
 }
+
+// Responsive Design for Welcome Page
+@media (max-width: 1440px) {
+	.welcomeContainer {
+		max-width: 580px;
+		padding: 38px;
+	}
+
+	.welcomeHeader h1 {
+		font-size: 27px;
+	}
+
+	.welcomeMessage {
+		font-size: 15.5px;
+		margin-bottom: 30px;
+	}
+
+	.formGroup input,
+	.formGroup textarea {
+		padding: 11.5px 15px;
+		font-size: 15.5px;
+	}
+
+	.submitButton {
+		padding: 11.5px 21px;
+		font-size: 15.5px;
+	}
+}
+
+@media (max-width: 1366px) {
+	.welcomeContainer {
+		max-width: 520px;
+		padding: 34px;
+	}
+
+	.welcomeHeader h1 {
+		font-size: 25px;
+	}
+
+	.welcomeMessage {
+		font-size: 14.5px;
+		margin-bottom: 26px;
+	}
+
+	.formGroup input,
+	.formGroup textarea {
+		padding: 10.5px 13px;
+		font-size: 14.5px;
+	}
+
+	.submitButton {
+		padding: 10.5px 19px;
+		font-size: 14.5px;
+	}
+}
+
+@media (max-width: 1024px) {
+	.welcomePage {
+		padding: 16px;
+	}
+
+	.welcomeContainer {
+		max-width: 500px;
+		padding: 32px;
+	}
+
+	.welcomeHeader h1 {
+		font-size: 24px;
+	}
+
+	.welcomeMessage {
+		font-size: 14px;
+		margin-bottom: 24px;
+	}
+
+	.formGroup input,
+	.formGroup textarea {
+		padding: 10px 12px;
+		font-size: 14px;
+	}
+
+	.submitButton {
+		padding: 10px 18px;
+		font-size: 14px;
+	}
+
+	.projectForm {
+		gap: 18px;
+	}
+}
+
+@media (max-width: 768px) {
+	.welcomePage {
+		padding: 12px;
+	}
+
+	.welcomeContainer {
+		max-width: 450px;
+		padding: 28px;
+	}
+
+	.welcomeHeader {
+		gap: 12px;
+		margin-bottom: 20px;
+	}
+
+	.welcomeHeader h1 {
+		font-size: 22px;
+	}
+
+	.welcomeMessage {
+		font-size: 13px;
+		margin-bottom: 20px;
+		line-height: 1.5;
+	}
+
+	.formGroup input,
+	.formGroup textarea {
+		padding: 9px 11px;
+		font-size: 13px;
+	}
+
+	.submitButton {
+		padding: 9px 16px;
+		font-size: 13px;
+	}
+
+	.projectForm {
+		gap: 16px;
+	}
+
+	.formGroup {
+		gap: 6px;
+	}
+
+	.formGroup label {
+		font-size: 13px;
+	}
+}
+
+@media (max-width: 480px) {
+	.welcomePage {
+		padding: 8px;
+	}
+
+	.welcomeContainer {
+		max-width: 400px;
+		padding: 24px;
+	}
+
+	.welcomeHeader {
+		gap: 10px;
+		margin-bottom: 16px;
+	}
+
+	.welcomeHeader h1 {
+		font-size: 20px;
+	}
+
+	.welcomeMessage {
+		font-size: 12px;
+		margin-bottom: 16px;
+	}
+
+	.formGroup input,
+	.formGroup textarea {
+		padding: 8px 10px;
+		font-size: 12px;
+	}
+
+	.submitButton {
+		padding: 8px 14px;
+		font-size: 12px;
+	}
+
+	.projectForm {
+		gap: 14px;
+	}
+
+	.formGroup {
+		gap: 4px;
+	}
+
+	.formGroup label {
+		font-size: 12px;
+	}
+
+	.errorMessage {
+		padding: 10px 14px;
+		font-size: 12px;
+		margin-bottom: 16px;
+	}
+}

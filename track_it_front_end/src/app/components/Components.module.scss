@@ -36,9 +36,9 @@
 
 .modalContent {
 	background: #252528;
-	padding: 20px;
+	padding: 18px;
 	border-radius: 8px;
-	width: 600px;
+	width: 550px;
 	max-height: 80vh;
 	overflow-y: auto;
 	&::-webkit-scrollbar {
@@ -162,5 +162,187 @@
 		background-color: #6c757d;
 		cursor: not-allowed;
 		opacity: 0.6;
+	}
+}
+
+// Responsive Design for Components
+@media (max-width: 1440px) {
+	.modalContent {
+		width: 520px;
+		padding: 16px;
+		max-height: 75vh;
+	}
+
+	.modalContent h3 {
+		font-size: 17px;
+		padding: 7px;
+	}
+
+	.input {
+		padding: 8px;
+		font-size: 13px;
+	}
+
+	.createButton,
+	.cancelButton,
+	.submitButton {
+		padding: 8px 16px;
+		font-size: 13px;
+	}
+}
+
+@media (max-width: 1366px) {
+	.modalContent {
+		width: 480px;
+		padding: 15px;
+		max-height: 70vh;
+	}
+
+	.modalContent h3 {
+		font-size: 16px;
+		padding: 6px;
+	}
+
+	.input {
+		padding: 7px;
+		font-size: 12px;
+	}
+
+	.createButton,
+	.cancelButton,
+	.submitButton {
+		padding: 7px 14px;
+		font-size: 12px;
+	}
+}
+
+@media (max-width: 1024px) {
+	.modalContent {
+		width: 420px;
+		padding: 14px;
+		max-height: 65vh;
+	}
+
+	.modalContent h3 {
+		font-size: 15px;
+		padding: 6px;
+	}
+
+	.input {
+		padding: 6px;
+		font-size: 11px;
+	}
+
+	.createButton,
+	.cancelButton,
+	.submitButton {
+		padding: 6px 12px;
+		font-size: 11px;
+	}
+
+	.modalColumns {
+		gap: 14px;
+	}
+
+	.projectColumn li,
+	.boardColumn li {
+		padding: 7px;
+		font-size: 13px;
+	}
+}
+
+@media (max-width: 768px) {
+	.modalOverlay {
+		padding: 12px;
+	}
+
+	.modalContent {
+		width: 90%;
+		max-width: 450px;
+		padding: 14px;
+		max-height: 65vh;
+	}
+
+	.modalContent h3 {
+		font-size: 16px;
+		padding: 6px;
+		margin-bottom: 3px;
+	}
+
+	.input {
+		padding: 7px;
+		font-size: 11px;
+	}
+
+	.createButton,
+	.cancelButton,
+	.submitButton {
+		padding: 7px 14px;
+		font-size: 11px;
+	}
+
+	.modalColumns {
+		flex-direction: column;
+		gap: 12px;
+	}
+
+	.projectColumn,
+	.boardColumn {
+		flex: none;
+	}
+
+	.projectColumn li,
+	.boardColumn li {
+		padding: 6px;
+		font-size: 12px;
+	}
+
+	.notification {
+		max-height: 14rem;
+	}
+}
+
+@media (max-width: 480px) {
+	.modalOverlay {
+		padding: 8px;
+	}
+
+	.modalContent {
+		width: 95%;
+		max-width: 400px;
+		padding: 12px;
+		max-height: 60vh;
+	}
+
+	.modalContent h3 {
+		font-size: 15px;
+		padding: 5px;
+		margin-bottom: 2px;
+	}
+
+	.input {
+		padding: 6px;
+		font-size: 10px;
+	}
+
+	.createButton,
+	.cancelButton,
+	.submitButton {
+		padding: 6px 12px;
+		font-size: 10px;
+	}
+
+	.modalActions {
+		gap: 6px;
+	}
+
+	.projectColumn li,
+	.boardColumn li {
+		padding: 5px;
+		font-size: 11px;
+	}
+
+	.notification {
+		max-height: 12rem;
 	}
 }

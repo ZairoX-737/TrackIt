@@ -4,6 +4,7 @@ import { useInitializeApp } from '../hooks/useInitializeApp';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { AuthService } from '../api';
+import { Comment } from '../api/comment.service';
 import Cookies from 'js-cookie';
 import Image from 'next/image';
 import WLogo from '../../public/logo-white.png';
@@ -93,7 +94,13 @@ export default function UserProfile() {
 						return (
 							colAcc +
 							(column.tasks?.reduce((taskAcc, task) => {
-								return taskAcc + (task.comments?.length || 0);
+								// Считаем только комментарии текущего пользователя
+								return (
+									taskAcc +
+									(task.comments?.filter(
+										comment => comment.user?.id === user.id
+									).length || 0)
+								);
 							}, 0) || 0)
 						);
 					}, 0) || 0)

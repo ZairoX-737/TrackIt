@@ -88,12 +88,12 @@ export default function ProjectUsersModal({
 			onClick={onClose}
 		>
 			<div
-				className='bg-[rgba(10,10,10,0.95)] w-[700px] max-h-[85vh] rounded-2xl border border-[rgba(255,255,255,0.15)] backdrop-blur-xl shadow-2xl overflow-hidden'
+				className='bg-[rgba(10,10,10,0.95)] w-[700px] max-h-[85vh] rounded-2xl border border-[rgba(255,255,255,0.15)] backdrop-blur-xl shadow-2xl flex flex-col'
 				onClick={e => e.stopPropagation()}
 			>
 				{/* Header */}
-				<div className='flex justify-between items-center p-6 pb-4'>
-					<div className='flex items-center gap-3'>
+				<div className='relative p-6 pb-4 flex-shrink-0'>
+					<div className='flex items-center gap-3 pr-12'>
 						<div className='p-2.5 bg-[rgba(139,92,246,0.15)] rounded-xl'>
 							<FiUsers className='text-purple-400' size={20} />
 						</div>
@@ -108,13 +108,14 @@ export default function ProjectUsersModal({
 					</div>
 					<button
 						onClick={onClose}
-						className='text-[rgba(255,255,255,0.5)] hover:text-white transition-all duration-200 p-2 rounded-xl hover:bg-[rgba(255,255,255,0.1)] hover:scale-105'
+						className='absolute top-6 right-6 text-[rgba(255,255,255,0.5)] hover:text-white transition-all duration-200 p-2 rounded-xl hover:bg-[rgba(255,255,255,0.1)] hover:scale-105'
 					>
 						<IoClose size={20} />
 					</button>
 				</div>
 
-				<div className='px-6 pb-6 overflow-y-auto max-h-[calc(85vh-140px)] custom-scrollbar'>
+				{/* Content - scrollable */}
+				<div className='px-6 pb-6 overflow-y-auto flex-1 custom-scrollbar'>
 					{/* Error Message */}
 					{error && (
 						<div className='mb-6 p-4 bg-[rgba(239,68,68,0.15)] border border-[rgba(239,68,68,0.3)] rounded-xl backdrop-blur-sm'>
@@ -124,7 +125,6 @@ export default function ProjectUsersModal({
 							</div>
 						</div>
 					)}
-
 					{/* Invite Users Section */}
 					<div className='mb-8 bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.1)] p-5 rounded-2xl'>
 						<h3 className='text-lg font-semibold mb-4 flex items-center gap-3'>
@@ -170,7 +170,6 @@ export default function ProjectUsersModal({
 							</div>
 						</form>
 					</div>
-
 					{/* Users List Section */}
 					<div>
 						<h3 className='text-lg font-semibold mb-4 flex items-center gap-3'>
@@ -254,11 +253,11 @@ export default function ProjectUsersModal({
 								)}
 							</div>
 						)}
-					</div>
+					</div>{' '}
 				</div>
 
-				{/* Footer */}
-				<div className='flex justify-end p-6 pt-4 border-t border-[rgba(255,255,255,0.1)]'>
+				{/* Footer - fixed at bottom */}
+				<div className='flex justify-end p-6 pt-4 border-t border-[rgba(255,255,255,0.1)] flex-shrink-0'>
 					<button
 						onClick={onClose}
 						className='px-6 py-2.5 bg-[rgba(255,255,255,0.05)] hover:bg-[rgba(255,255,255,0.1)] border border-[rgba(255,255,255,0.1)] text-[rgba(255,255,255,0.8)] hover:text-white rounded-xl transition-all duration-200'

@@ -129,4 +129,9 @@ export interface Comment {
 	userId: string;
 	createdAt: string;
 	updatedAt: string;
+	user?: {
+		id: string;
+		username: string;
+		email: string;
+	};
 }

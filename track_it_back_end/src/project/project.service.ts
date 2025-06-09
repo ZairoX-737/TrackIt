@@ -72,7 +72,16 @@ export class ProjectService {
 								tasks: {
 									include: {
 										labels: true,
-										comments: true,
+										comments: {
+											include: {
+												user: {
+													select: {
+														id: true,
+														username: true,
+													},
+												},
+											},
+										},
 									},
 								},
 							},

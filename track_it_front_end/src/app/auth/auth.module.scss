@@ -31,10 +31,10 @@ $success_color: #10b981;
 	background: $card_bg;
 	backdrop-filter: blur(20px);
 	border: 1px solid $border_color;
-	border-radius: 24px;
-	padding: 32px;
+	border-radius: 20px;
+	padding: 24px;
 	width: 100%;
-	max-width: 420px;
+	max-width: 340px;
 	box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 	position: relative;
 	z-index: 10;
@@ -45,14 +45,14 @@ $success_color: #10b981;
 	flex-direction: column;
 	align-items: center;
 	text-align: center;
-	margin-bottom: 24px;
-	gap: 8px;
+	margin-bottom: 18px;
+	gap: 4px;
 }
 
 .authForm {
 	display: flex;
 	flex-direction: column;
-	gap: 18px;
+	gap: 14px;
 	width: 100%;
 }
 
@@ -66,13 +66,13 @@ $success_color: #10b981;
 
 .input {
 	width: 100%;
-	height: 52px;
+	height: 44px;
 	background: rgba(255, 255, 255, 0.08);
 	border: 2px solid rgba(255, 255, 255, 0.1);
-	border-radius: 16px;
+	border-radius: 12px;
 	color: white;
-	font-size: 16px;
-	padding: 0 20px;
+	font-size: 14px;
+	padding: 0 16px;
 	transition: all 0.2s ease;
 	outline: none;
 	font-family: inherit;
@@ -123,24 +123,24 @@ $success_color: #10b981;
 }
 
 .authTitle {
-	font-size: 24px;
+	font-size: 22px;
 	font-weight: 600;
 	color: white;
 	text-align: center;
-	margin-bottom: 4px;
+	margin-bottom: 3px;
 }
 
 .authSubtitle {
-	font-size: 16px;
+	font-size: 15px;
 	color: $text_secondary;
 	text-align: center;
-	margin-bottom: 16px;
+	margin-bottom: 14px;
 }
 
 .form {
 	display: flex;
 	flex-direction: column;
-	gap: 24px;
+	gap: 20px;
 	width: 100%;
 }
 
@@ -165,13 +165,13 @@ $success_color: #10b981;
 
 .textInput {
 	width: 100%;
-	height: 52px;
+	height: 44px;
 	background: rgba(255, 255, 255, 0.08);
 	border: 2px solid rgba(255, 255, 255, 0.1);
-	border-radius: 16px;
+	border-radius: 12px;
 	color: white;
-	font-size: 16px;
-	padding: 0 20px;
+	font-size: 14px;
+	padding: 0 16px;
 	transition: all 0.2s ease;
 	outline: none;
 	font-family: inherit;
@@ -197,7 +197,7 @@ $success_color: #10b981;
 	width: 100%;
 
 	.textInput {
-		padding-right: 56px;
+		padding-right: 48px;
 	}
 }
 
@@ -242,18 +242,18 @@ $success_color: #10b981;
 
 .submitButton {
 	width: 100%;
-	height: 52px;
+	height: 44px;
 	background: linear-gradient(135deg, $primary_orange, #ff6b00);
 	border: none;
-	border-radius: 16px;
+	border-radius: 12px;
 	color: white;
-	font-size: 16px;
+	font-size: 14px;
 	font-weight: 600;
 	cursor: pointer;
 	transition: all 0.2s ease;
 	position: relative;
 	overflow: hidden;
-	margin-top: 8px;
+	margin-top: 4px;
 	font-family: inherit;
 
 	&:hover:not(:disabled) {
@@ -337,15 +337,15 @@ $success_color: #10b981;
 
 // Password strength indicator
 .passwordStrength {
-	margin-top: 8px;
+	margin-top: 6px;
 	display: flex;
 	align-items: center;
-	gap: 12px;
+	gap: 8px;
 }
 
 .strengthBar {
 	flex: 1;
-	height: 4px;
+	height: 3px;
 	background: rgba(255, 255, 255, 0.1);
 	border-radius: 2px;
 	overflow: hidden;
@@ -358,17 +358,17 @@ $success_color: #10b981;
 }
 
 .strengthText {
-	font-size: 12px;
+	font-size: 11px;
 	font-weight: 500;
-	min-width: 50px;
+	min-width: 40px;
 	text-align: right;
 }
 
 // Error text for inline validation
 .errorText {
 	color: $error_color;
-	font-size: 12px;
-	margin-top: 4px;
+	font-size: 11px;
+	margin-top: 3px;
 	font-weight: 500;
 }
 
@@ -408,17 +408,400 @@ $success_color: #10b981;
 }
 
 // Responsive
-@media (max-width: 480px) {
+@media (max-width: 1440px) {
 	.authCard {
-		padding: 32px 24px;
-		margin: 16px;
+		padding: 20px 18px;
+		max-width: 310px;
+		border-radius: 18px;
 	}
 
 	.logoText {
-		font-size: 24px;
+		font-size: 22px;
 	}
 
 	.authTitle {
+		font-size: 19px;
+	}
+
+	.authSubtitle {
+		font-size: 13px;
+	}
+
+	.textInput,
+	.input {
+		height: 40px;
+		font-size: 13px;
+		padding: 0 14px;
+		border-radius: 10px;
+	}
+
+	.submitButton {
+		height: 40px;
+		font-size: 13px;
+		border-radius: 10px;
+	}
+
+	.form {
+		gap: 16px;
+	}
+
+	.authHeader {
+		margin-bottom: 16px;
+		gap: 4px;
+	}
+
+	.authForm {
+		gap: 12px;
+	}
+
+	.passwordStrength {
+		margin-top: 4px;
+		gap: 6px;
+	}
+
+	.strengthBar {
+		height: 2px;
+	}
+
+	.strengthText {
+		font-size: 10px;
+		min-width: 35px;
+	}
+
+	.errorText {
+		font-size: 10px;
+		margin-top: 2px;
+	}
+
+	.passwordContainer .textInput {
+		padding-right: 42px;
+	}
+
+	.passwordToggle {
+		right: 10px;
+		padding: 6px;
+	}
+}
+
+@media (max-width: 1366px) {
+	.authCard {
+		padding: 18px 16px;
+		max-width: 290px;
+		border-radius: 16px;
+	}
+
+	.logoText {
 		font-size: 20px;
+	}
+
+	.authTitle {
+		font-size: 17px;
+	}
+
+	.authSubtitle {
+		font-size: 12px;
+	}
+
+	.textInput,
+	.input {
+		height: 38px;
+		font-size: 12px;
+		padding: 0 12px;
+		border-radius: 8px;
+	}
+
+	.submitButton {
+		height: 38px;
+		font-size: 12px;
+		border-radius: 8px;
+	}
+
+	.form {
+		gap: 14px;
+	}
+
+	.authHeader {
+		margin-bottom: 14px;
+		gap: 3px;
+	}
+
+	.authForm {
+		gap: 10px;
+	}
+
+	.inputGroup {
+		gap: 3px;
+	}
+
+	.passwordStrength {
+		margin-top: 3px;
+		gap: 5px;
+	}
+
+	.strengthBar {
+		height: 2px;
+	}
+
+	.strengthText {
+		font-size: 9px;
+		min-width: 30px;
+	}
+
+	.errorText {
+		font-size: 9px;
+		margin-top: 2px;
+	}
+
+	.passwordContainer .textInput {
+		padding-right: 38px;
+	}
+
+	.passwordToggle {
+		right: 8px;
+		padding: 5px;
+	}
+}
+
+@media (max-width: 1024px) {
+	.authCard {
+		padding: 16px 14px;
+		max-width: 270px;
+		border-radius: 14px;
+	}
+
+	.logoText {
+		font-size: 18px;
+	}
+
+	.authTitle {
+		font-size: 15px;
+	}
+
+	.authSubtitle {
+		font-size: 11px;
+	}
+
+	.textInput,
+	.input {
+		height: 36px;
+		font-size: 11px;
+		padding: 0 10px;
+		border-radius: 6px;
+	}
+
+	.submitButton {
+		height: 36px;
+		font-size: 11px;
+		border-radius: 6px;
+	}
+
+	.form {
+		gap: 12px;
+	}
+
+	.authHeader {
+		margin-bottom: 12px;
+		gap: 2px;
+	}
+
+	.authForm {
+		gap: 8px;
+	}
+
+	.label,
+	.inputLabel {
+		font-size: 11px;
+	}
+
+	.passwordStrength {
+		margin-top: 2px;
+		gap: 4px;
+	}
+
+	.strengthText {
+		font-size: 8px;
+		min-width: 25px;
+	}
+
+	.errorText {
+		font-size: 8px;
+		margin-top: 1px;
+	}
+
+	.passwordContainer .textInput {
+		padding-right: 34px;
+	}
+
+	.passwordToggle {
+		right: 6px;
+		padding: 4px;
+	}
+}
+
+@media (max-width: 768px) {
+	.authContainer {
+		padding: 12px;
+	}
+
+	.authCard {
+		padding: 14px 12px;
+		max-width: 250px;
+		margin: 8px;
+		border-radius: 12px;
+	}
+
+	.logoText {
+		font-size: 16px;
+	}
+
+	.authTitle {
+		font-size: 13px;
+	}
+
+	.authSubtitle {
+		font-size: 10px;
+	}
+
+	.textInput,
+	.input {
+		height: 34px;
+		font-size: 10px;
+		padding: 0 8px;
+		border-radius: 4px;
+	}
+
+	.submitButton {
+		height: 34px;
+		font-size: 10px;
+		border-radius: 4px;
+	}
+
+	.form {
+		gap: 10px;
+	}
+
+	.inputGroup {
+		gap: 2px;
+	}
+
+	.authHeader {
+		margin-bottom: 10px;
+	}
+
+	.authForm {
+		gap: 6px;
+	}
+
+	.label,
+	.inputLabel {
+		font-size: 10px;
+	}
+
+	.passwordStrength {
+		margin-top: 2px;
+		gap: 3px;
+	}
+
+	.strengthText {
+		font-size: 7px;
+		min-width: 20px;
+	}
+
+	.errorText {
+		font-size: 7px;
+		margin-top: 1px;
+	}
+
+	.passwordContainer .textInput {
+		padding-right: 30px;
+	}
+
+	.passwordToggle {
+		right: 4px;
+		padding: 3px;
+	}
+}
+
+@media (max-width: 480px) {
+	.authCard {
+		padding: 12px 10px;
+		margin: 6px;
+		max-width: 230px;
+		border-radius: 10px;
+	}
+
+	.logoText {
+		font-size: 14px;
+	}
+
+	.authTitle {
+		font-size: 11px;
+	}
+
+	.authSubtitle {
+		font-size: 9px;
+	}
+
+	.textInput,
+	.input {
+		height: 32px;
+		font-size: 9px;
+		padding: 0 6px;
+		border-radius: 3px;
+	}
+
+	.submitButton {
+		height: 32px;
+		font-size: 9px;
+		border-radius: 3px;
+	}
+
+	.form {
+		gap: 8px;
+	}
+
+	.authHeader {
+		margin-bottom: 8px;
+	}
+
+	.authForm {
+		gap: 5px;
+	}
+
+	.label,
+	.inputLabel {
+		font-size: 9px;
+	}
+
+	.authLink {
+		font-size: 9px;
+	}
+
+	.passwordStrength {
+		margin-top: 1px;
+		gap: 2px;
+	}
+
+	.strengthBar {
+		height: 1px;
+	}
+
+	.strengthText {
+		font-size: 6px;
+		min-width: 18px;
+	}
+
+	.errorText {
+		font-size: 6px;
+		margin-top: 1px;
+	}
+
+	.passwordContainer .textInput {
+		padding-right: 28px;
+	}
+
+	.passwordToggle {
+		right: 3px;
+		padding: 2px;
 	}
 }
