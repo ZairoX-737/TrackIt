@@ -340,32 +340,32 @@ export default function TaskDetailModal({
 									)}
 								</div>
 							)}
-						</div>
+						</div>{' '}
 						{/* Task Metadata */}
-						<div className='grid grid-cols-1 md:grid-cols-2 gap-6 mb-8'>
-							<div className='bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.08)] p-4 rounded-xl backdrop-blur-sm'>
-								<div className='flex items-center gap-3 mb-2'>
-									<div className='p-1.5 bg-gradient-to-r from-green-500/20 to-green-600/20 border border-green-500/30 rounded-lg'>
-										<IoPersonOutline className='text-green-400' size={16} />
+						<div className='grid grid-cols-1 md:grid-cols-2 gap-4 mb-6'>
+							<div className='bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.08)] p-3 rounded-lg backdrop-blur-sm'>
+								<div className='flex items-center gap-2 mb-1'>
+									<div className='p-1 bg-gradient-to-r from-green-500/20 to-green-600/20 border border-green-500/30 rounded-md'>
+										<IoPersonOutline className='text-green-400' size={14} />
 									</div>
-									<h4 className='font-medium text-[rgba(255,255,255,0.9)]'>
+									<h4 className='font-medium text-[rgba(255,255,255,0.9)] text-sm'>
 										Created by
 									</h4>
 								</div>
-								<p className='text-[rgba(255,255,255,0.7)] ml-8'>
+								<p className='text-[rgba(255,255,255,0.7)] ml-6 text-sm'>
 									{task.user?.username || task.user?.email || 'Unknown User'}
 								</p>
 							</div>
-							<div className='bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.08)] p-4 rounded-xl backdrop-blur-sm'>
-								<div className='flex items-center gap-3 mb-2'>
-									<div className='p-1.5 bg-gradient-to-r from-blue-500/20 to-blue-600/20 border border-blue-500/30 rounded-lg'>
-										<IoCalendarOutline className='text-blue-400' size={16} />
+							<div className='bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.08)] p-3 rounded-lg backdrop-blur-sm'>
+								<div className='flex items-center gap-2 mb-1'>
+									<div className='p-1 bg-gradient-to-r from-blue-500/20 to-blue-600/20 border border-blue-500/30 rounded-md'>
+										<IoCalendarOutline className='text-blue-400' size={14} />
 									</div>
-									<h4 className='font-medium text-[rgba(255,255,255,0.9)]'>
+									<h4 className='font-medium text-[rgba(255,255,255,0.9)] text-sm'>
 										Created
 									</h4>
 								</div>
-								<p className='text-[rgba(255,255,255,0.7)] ml-8'>
+								<p className='text-[rgba(255,255,255,0.7)] ml-6 text-sm'>
 									{new Date(task.createdAt).toLocaleDateString('en-US', {
 										year: 'numeric',
 										month: 'long',
