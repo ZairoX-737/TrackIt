@@ -15,6 +15,55 @@ import {
 } from '../api';
 import Cookies from 'js-cookie';
 
+// Constants for localStorage keys
+const SELECTED_PROJECT_KEY = 'trackIt_selectedProject';
+const SELECTED_BOARD_KEY = 'trackIt_selectedBoard';
+
+// Helper functions for localStorage
+const saveSelectedProject = (project: Project | null) => {
+	if (typeof window !== 'undefined') {
+		if (project) {
+			localStorage.setItem(SELECTED_PROJECT_KEY, JSON.stringify(project));
+		} else {
+			localStorage.removeItem(SELECTED_PROJECT_KEY);
+		}
+	}
+};
+
+const saveSelectedBoard = (board: Board | null) => {
+	if (typeof window !== 'undefined') {
+		if (board) {
+			localStorage.setItem(SELECTED_BOARD_KEY, JSON.stringify(board));
+		} else {
+			localStorage.removeItem(SELECTED_BOARD_KEY);
+		}
+	}
+};
+
+const loadSelectedProject = (): Project | null => {
+	if (typeof window !== 'undefined') {
+		try {
+			const saved = localStorage.getItem(SELECTED_PROJECT_KEY);
+			return saved ? JSON.parse(saved) : null;
+		} catch {
+			return null;
+		}
+	}
+	return null;
+};
+
+const loadSelectedBoard = (): Board | null => {
+	if (typeof window !== 'undefined') {
+		try {
+			const saved = localStorage.getItem(SELECTED_BOARD_KEY);
+			return saved ? JSON.parse(saved) : null;
+		} catch {
+			return null;
+		}
+	}
+	return null;
+};
+
 interface TaskState {
 	// UI State
 	projectVisible: boolean;
@@ -149,7 +198,11 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 		const token = Cookies.get('accessToken');
 		return !!token;
 	},
-	clearStore: () =>
+	clearStore: () => {
+		// Clear localStorage
+		saveSelectedProject(null);
+		saveSelectedBoard(null);
+
 		set({
 			user: null,
 			projects: [],
@@ -170,7 +223,8 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 			preselectedColumnId: null,
 			loading: false,
 			error: null,
-		}),
+		});
+	},
 
 	// Data Loading Actions
 	loadUserProfile: async () => {
@@ -182,17 +236,42 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 			set({ error: 'Failed to load user profile', loading: false });
 		}
 	},
-
 	loadProjects: async () => {
 		try {
 			set({ loading: true, error: null });
 			const projects = await ProjectService.getAllDetailed();
 			set({ projects, loading: false });
 
-			// Auto-select first project if none selected
-			const { selectedProject } = get();
-			if (!selectedProject && projects.length > 0) {
-				await get().selectProject(projects[0]);
+			// Try to restore previously selected project and board
+			const savedProject = loadSelectedProject();
+			const savedBoard = loadSelectedBoard();
+
+			let projectToSelect: Project | null = null;
+			let boardToSelect: Board | null = null;
+
+			if (savedProject) {
+				// Find the saved project in the loaded projects
+				projectToSelect = projects.find(p => p.id === savedProject.id) || null;
+
+				if (projectToSelect && savedBoard) {
+					// Find the saved board in the selected project
+					boardToSelect =
+						projectToSelect.boards?.find(b => b.id === savedBoard.id) || null;
+				}
+			}
+
+			// If no saved project or it doesn't exist anymore, select first project
+			if (!projectToSelect && projects.length > 0) {
+				projectToSelect = projects[0];
+			}
+
+			// Select the project (and board if available)
+			if (projectToSelect) {
+				if (boardToSelect) {
+					await get().handleModalSelection(projectToSelect, boardToSelect);
+				} else {
+					await get().selectProject(projectToSelect);
+				}
 			}
 		} catch (error) {
 			set({ error: 'Failed to load projects', loading: false });
@@ -246,7 +325,6 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 			set({ error: 'Failed to load labels', loading: false });
 		}
 	},
-
 	// Selection Actions
 	selectProject: async (project: Project) => {
 		set({
@@ -257,6 +335,12 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 			columns: [],
 			tasks: [],
 		});
+
+		// Save selected project to localStorage
+		saveSelectedProject(project);
+		// Clear selected board since we're changing projects
+		saveSelectedBoard(null);
+
 		await get().loadBoards(project.id);
 		await get().loadLabels(project.id);
 	},
@@ -268,6 +352,10 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 			columns: [],
 			tasks: [],
 		});
+
+		// Save selected board to localStorage
+		saveSelectedBoard(board);
+
 		await get().loadColumns(board.id);
 		await get().loadTasks();
 	},
@@ -278,6 +366,11 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 			selectedBoard: board,
 			modalVisible: false,
 		});
+
+		// Save both project and board to localStorage
+		saveSelectedProject(project);
+		saveSelectedBoard(board);
+
 		await get().loadColumns(board.id);
 		await get().loadTasks();
 		await get().loadLabels(project.id);
@@ -321,7 +414,6 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 					state.selectedProject?.id === projectId
 						? updatedProjects.find(p => p.id === projectId)
 						: state.selectedProject;
-
 				return {
 					boards: [...state.boards, newBoard],
 					selectedBoard: newBoard,
@@ -332,6 +424,12 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 					loading: false,
 				};
 			});
+
+			// Save the new board to localStorage since it's now selected
+			saveSelectedBoard(newBoard);
+
+			await get().loadColumns(newBoard.id);
+			await get().loadTasks();
 		} catch (error: any) {
 			set({
 				error: error.response?.data?.message || 'Failed to create board',
@@ -406,7 +504,6 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 			set({ error: 'Failed to update task', loading: false });
 		}
 	},
-
 	updateProject: async (projectId: string, name: string) => {
 		try {
 			set({ loading: true, error: null });
@@ -421,6 +518,12 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 						: state.selectedProject,
 				loading: false,
 			}));
+
+			// Update localStorage if this is the current project
+			const state = get();
+			if (state.selectedProject?.id === projectId) {
+				saveSelectedProject(state.selectedProject);
+			}
 		} catch (error) {
 			set({ error: 'Failed to update project', loading: false });
 			throw error;
@@ -449,7 +552,6 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 					state.selectedProject?.id === projectId
 						? updatedProjects.find(p => p.id === projectId)
 						: state.selectedProject;
-
 				return {
 					projects: updatedProjects,
 					selectedProject: updatedSelectedProject,
@@ -460,6 +562,12 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 					loading: false,
 				};
 			});
+
+			// Update localStorage if this is the current board
+			const state = get();
+			if (state.selectedBoard?.id === boardId) {
+				saveSelectedBoard(state.selectedBoard);
+			}
 		} catch (error) {
 			set({ error: 'Ошибка обновления доски', loading: false });
 			throw error;
@@ -480,11 +588,14 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 			throw error;
 		}
 	},
-
 	deleteProject: async (projectId: string) => {
 		try {
 			set({ loading: true, error: null });
 			await ProjectService.delete(projectId);
+
+			const state = get();
+			const isCurrentProject = state.selectedProject?.id === projectId;
+
 			set(state => ({
 				projects: state.projects.filter(project => project.id !== projectId),
 				selectedProject:
@@ -498,16 +609,25 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 				tasks: state.selectedProject?.id === projectId ? [] : state.tasks,
 				loading: false,
 			}));
+
+			// Clear localStorage if we deleted the current project
+			if (isCurrentProject) {
+				saveSelectedProject(null);
+				saveSelectedBoard(null);
+			}
 		} catch (error) {
 			set({ error: 'Failed to delete project', loading: false });
 			throw error;
 		}
 	},
-
 	deleteBoard: async (projectId: string, boardId: string) => {
 		try {
 			set({ loading: true, error: null });
 			await BoardService.delete(projectId, boardId);
+
+			const state = get();
+			const isCurrentBoard = state.selectedBoard?.id === boardId;
+
 			set(state => ({
 				boards: state.boards.filter(board => board.id !== boardId),
 				selectedBoard:
@@ -516,6 +636,11 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 				tasks: state.selectedBoard?.id === boardId ? [] : state.tasks,
 				loading: false,
 			}));
+
+			// Clear board from localStorage if we deleted the current board
+			if (isCurrentBoard) {
+				saveSelectedBoard(null);
+			}
 		} catch (error) {
 			set({ error: 'Failed to delete board', loading: false });
 			throw error;
