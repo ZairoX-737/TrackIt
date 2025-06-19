@@ -1,0 +1,81 @@
+services:
+  # PostgreSQL база данных
+  postgres:
+    image: postgres:17-alpine
+    container_name: trackit_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-track_it_db}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-admin0606}
+    ports:
+      - '${POSTGRES_PORT:-5432}:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - trackit_network
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          'pg_isready -U ${POSTGRES_USER:-zairox} -d ${POSTGRES_DB:-track_it_db}',
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # Backend NestJS приложение
+  backend:
+    build:
+      context: ./track_it_back_end
+      dockerfile: Dockerfile
+    container_name: trackit_backend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: ${DATABASE_URL:-postgresql://postgres:admin0606@postgres:5432/track_it_db?schema=public}
+      JWT_SECRET: ${JWT_SECRET:-ab6d5570cc9161144e5a48292b86e5d4}
+      PORT: ${BACKEND_PORT:-4200}
+    ports:
+      - '${BACKEND_PORT:-4200}:4200'
+    networks:
+      - trackit_network
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - backend_uploads:/app/uploads
+
+  # Frontend Next.js приложение
+  frontend:
+    build:
+      context: ./track_it_front_end
+      dockerfile: Dockerfile
+    container_name: trackit_frontend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      NEXT_PUBLIC_API_URL: http://localhost:${BACKEND_PORT:-4200}
+      NEXT_TELEMETRY_DISABLED: 1
+      PORT: ${FRONTEND_PORT:-3001}
+      HOSTNAME: '0.0.0.0'
+    ports:
+      - '${FRONTEND_PORT:-3001}:3001'
+    networks:
+      - trackit_network
+    depends_on:
+      - backend
+
+networks:
+  trackit_network:
+    driver: bridge
+    name: trackit_network
+
+volumes:
+  postgres_data:
+    driver: local
+    name: trackit_postgres_data
+  backend_uploads:
+    driver: local
+    name: trackit_backend_uploads
