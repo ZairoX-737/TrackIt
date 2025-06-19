@@ -34,8 +34,8 @@ services:
     restart: unless-stopped
     environment:
       NODE_ENV: production
-      DATABASE_URL: ${DATABASE_URL:-postgresql://postgres:admin0606@postgres:5432/track_it_db?schema=public}
-      JWT_SECRET: ${JWT_SECRET:-ab6d5570cc9161144e5a48292b86e5d4}
+      DATABASE_URL: ${DATABASE_URL:-postgresql://postgres:postgresuser@postgres:5432/postgres_db?schema=public}
+      JWT_SECRET: ${JWT_SECRET:-mega_secret_key}
       PORT: ${BACKEND_PORT:-4200}
     ports:
       - '${BACKEND_PORT:-4200}:4200'
@@ -46,7 +46,6 @@ services:
         condition: service_healthy
     volumes:
       - backend_uploads:/app/uploads
-
   # Frontend Next.js приложение
   frontend:
     build:
@@ -56,7 +55,7 @@ services:
     restart: unless-stopped
     environment:
       NODE_ENV: production
-      NEXT_PUBLIC_API_URL: http://localhost:${BACKEND_PORT:-4200}
+      NEXT_PUBLIC_API_URL: http://backend:${BACKEND_PORT:-4200}/api
       NEXT_TELEMETRY_DISABLED: 1
       PORT: ${FRONTEND_PORT:-3001}
       HOSTNAME: '0.0.0.0'
